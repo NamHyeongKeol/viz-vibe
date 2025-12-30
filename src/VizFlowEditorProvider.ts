@@ -5,90 +5,90 @@ import * as vscode from 'vscode';
  * Opens graph UI directly in the main editor area instead of JSON text
  */
 export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
-    public static readonly viewType = 'vizVibe.vizflowEditor';
+  public static readonly viewType = 'vizVibe.vizflowEditor';
 
-    public static register(context: vscode.ExtensionContext): vscode.Disposable {
-        const provider = new VizFlowEditorProvider(context);
-        return vscode.window.registerCustomEditorProvider(
-            VizFlowEditorProvider.viewType,
-            provider,
-            {
-                webviewOptions: {
-                    retainContextWhenHidden: true
-                },
-                supportsMultipleEditorsPerDocument: false
-            }
-        );
+  public static register(context: vscode.ExtensionContext): vscode.Disposable {
+    const provider = new VizFlowEditorProvider(context);
+    return vscode.window.registerCustomEditorProvider(
+      VizFlowEditorProvider.viewType,
+      provider,
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true
+        },
+        supportsMultipleEditorsPerDocument: false
+      }
+    );
+  }
+
+  constructor(private readonly context: vscode.ExtensionContext) { }
+
+  public async resolveCustomTextEditor(
+    document: vscode.TextDocument,
+    webviewPanel: vscode.WebviewPanel,
+    _token: vscode.CancellationToken
+  ): Promise<void> {
+    webviewPanel.webview.options = {
+      enableScripts: true
+    };
+
+    // Initial render
+    webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
+
+    // Handle document changes (from external edits or AI)
+    const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument((e) => {
+      if (e.document.uri.toString() === document.uri.toString()) {
+        this.updateWebview(webviewPanel.webview, document);
+      }
+    });
+
+    webviewPanel.onDidDispose(() => {
+      changeDocumentSubscription.dispose();
+    });
+
+    // Handle messages from the webview
+    webviewPanel.webview.onDidReceiveMessage(async (message) => {
+      switch (message.type) {
+        case 'update':
+          await this.updateDocument(document, message.workflow);
+          break;
+        case 'ready':
+          this.updateWebview(webviewPanel.webview, document);
+          break;
+      }
+    });
+  }
+
+  private updateWebview(webview: vscode.Webview, document: vscode.TextDocument) {
+    try {
+      const workflow = JSON.parse(document.getText());
+      webview.postMessage({ type: 'loadWorkflow', workflow });
+    } catch (e) {
+      // Invalid JSON, ignore
+    }
+  }
+
+  private async updateDocument(document: vscode.TextDocument, workflow: object) {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(
+      document.uri,
+      new vscode.Range(0, 0, document.lineCount, 0),
+      JSON.stringify(workflow, null, 2)
+    );
+    await vscode.workspace.applyEdit(edit);
+  }
+
+  private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
+    const nonce = getNonce();
+
+    let initialWorkflow = { version: '1.0', nodes: [], edges: [] };
+    try {
+      initialWorkflow = JSON.parse(document.getText());
+    } catch (e) {
+      // Use default
     }
 
-    constructor(private readonly context: vscode.ExtensionContext) { }
-
-    public async resolveCustomTextEditor(
-        document: vscode.TextDocument,
-        webviewPanel: vscode.WebviewPanel,
-        _token: vscode.CancellationToken
-    ): Promise<void> {
-        webviewPanel.webview.options = {
-            enableScripts: true
-        };
-
-        // Initial render
-        webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
-
-        // Handle document changes (from external edits or AI)
-        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument((e) => {
-            if (e.document.uri.toString() === document.uri.toString()) {
-                this.updateWebview(webviewPanel.webview, document);
-            }
-        });
-
-        webviewPanel.onDidDispose(() => {
-            changeDocumentSubscription.dispose();
-        });
-
-        // Handle messages from the webview
-        webviewPanel.webview.onDidReceiveMessage(async (message) => {
-            switch (message.type) {
-                case 'update':
-                    await this.updateDocument(document, message.workflow);
-                    break;
-                case 'ready':
-                    this.updateWebview(webviewPanel.webview, document);
-                    break;
-            }
-        });
-    }
-
-    private updateWebview(webview: vscode.Webview, document: vscode.TextDocument) {
-        try {
-            const workflow = JSON.parse(document.getText());
-            webview.postMessage({ type: 'loadWorkflow', workflow });
-        } catch (e) {
-            // Invalid JSON, ignore
-        }
-    }
-
-    private async updateDocument(document: vscode.TextDocument, workflow: object) {
-        const edit = new vscode.WorkspaceEdit();
-        edit.replace(
-            document.uri,
-            new vscode.Range(0, 0, document.lineCount, 0),
-            JSON.stringify(workflow, null, 2)
-        );
-        await vscode.workspace.applyEdit(edit);
-    }
-
-    private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
-        const nonce = getNonce();
-
-        let initialWorkflow = { version: '1.0', nodes: [], edges: [] };
-        try {
-            initialWorkflow = JSON.parse(document.getText());
-        } catch (e) {
-            // Use default
-        }
-
-        return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
@@ -123,6 +123,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
           background: var(--vscode-editorWidget-background);
           border-bottom: 1px solid var(--vscode-editorWidget-border);
           align-items: center;
+          z-index: 10;
         }
 
         .toolbar-title {
@@ -171,15 +172,17 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
           flex: 1;
           position: relative;
           overflow: hidden;
+          background-position: center;
+          background-image: 
+            radial-gradient(circle, var(--vscode-editorLineNumber-foreground) 0.5px, transparent 0.5px);
+          background-size: 24px 24px;
         }
 
         .graph-canvas {
           width: 100%;
           height: 100%;
-          position: relative;
-          background-image: 
-            radial-gradient(circle, var(--vscode-editorLineNumber-foreground) 1px, transparent 1px);
-          background-size: 24px 24px;
+          position: absolute;
+          transform-origin: 0 0;
         }
 
         .nodes-layer {
@@ -254,64 +257,17 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         }
 
         /* Node type colors */
-        .node.start { 
-          border-left: 5px solid #4CAF50; 
-        }
-        .node.start .node-type { 
-          background: #4CAF50; 
-          color: white; 
-        }
+        .node.start { border-left: 5px solid #4CAF50; }
+        .node.start .node-type { background: #4CAF50; color: white; }
         
-        .node.ai-task { 
-          border-left: 5px solid #2196F3; 
-        }
-        .node.ai-task .node-type { 
-          background: #2196F3; 
-          color: white; 
-        }
+        .node.ai-task { border-left: 5px solid #2196F3; }
+        .node.ai-task .node-type { background: #2196F3; color: white; }
         
-        .node.condition { 
-          border-left: 5px solid #FF9800; 
-        }
-        .node.condition .node-type { 
-          background: #FF9800; 
-          color: white; 
-        }
+        .node.condition { border-left: 5px solid #FF9800; }
+        .node.condition .node-type { background: #FF9800; color: white; }
         
-        .node.end { 
-          border-left: 5px solid #f44336; 
-        }
-        .node.end .node-type { 
-          background: #f44336; 
-          color: white; 
-        }
-
-        /* Connection handles */
-        .node::before,
-        .node::after {
-          content: '';
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          background: var(--vscode-focusBorder);
-          border-radius: 50%;
-          border: 2px solid var(--vscode-editor-background);
-        }
-
-        .node::before {
-          top: -6px;
-          left: 50%;
-          transform: translateX(-50%);
-        }
-
-        .node::after {
-          bottom: -6px;
-          left: 50%;
-          transform: translateX(-50%);
-        }
-
-        .node.start::before { display: none; }
-        .node.end::after { display: none; }
+        .node.end { border-left: 5px solid #f44336; }
+        .node.end .node-type { background: #f44336; color: white; }
 
         .edges-layer {
           position: absolute;
@@ -340,25 +296,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
           display: flex;
           gap: 24px;
           align-items: center;
-        }
-
-        .status-item {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #4CAF50;
-        }
-
-        /* Mini map hint */
-        .help-hint {
-          font-size: 11px;
-          color: var(--vscode-descriptionForeground);
+          z-index: 10;
         }
       </style>
     </head>
@@ -388,14 +326,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         </div>
         
         <div class="status-bar">
-          <div class="status-item">
-            <span class="status-dot"></span>
-            <span>Connected</span>
-          </div>
           <span id="nodeCount">Nodes: 0</span>
           <span id="edgeCount">Edges: 0</span>
           <span class="spacer"></span>
-          <span class="help-hint">Drag nodes to reposition • Click to select • Changes auto-save</span>
+          <span class="help-hint">Drag background to pan • Wheel to zoom • Drag nodes to move</span>
         </div>
       </div>
 
@@ -406,13 +340,72 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         let selectedNode = null;
         let dragState = null;
         
-        // Initialize
+        let viewState = {
+          x: 0,
+          y: 0,
+          scale: 1
+        };
+        let isPanning = false;
+        let panStartIndex = { x: 0, y: 0 };
+        
         function init() {
           vscode.postMessage({ type: 'ready' });
+          
+          const graphContainer = document.getElementById('graph');
+          
+          graphContainer.addEventListener('mousedown', (e) => {
+            if (e.target.id === 'graph' || e.target.classList.contains('graph-canvas')) {
+              isPanning = true;
+              panStartIndex = { x: e.clientX - viewState.x, y: e.clientY - viewState.y };
+              graphContainer.style.cursor = 'grabbing';
+            }
+          });
+          
+          window.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+              viewState.x = e.clientX - panStartIndex.x;
+              viewState.y = e.clientY - panStartIndex.y;
+              applyTransform();
+            }
+          });
+          
+          window.addEventListener('mouseup', () => {
+            isPanning = false;
+            graphContainer.style.cursor = '';
+          });
+          
+          graphContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = Math.min(Math.max(0.2, viewState.scale * delta), 3);
+            
+            const rect = graphContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const worldX = (mouseX - viewState.x) / viewState.scale;
+            const worldY = (mouseY - viewState.y) / viewState.scale;
+            
+            viewState.scale = newScale;
+            viewState.x = mouseX - worldX * viewState.scale;
+            viewState.y = mouseY - worldY * viewState.scale;
+            
+            applyTransform();
+          }, { passive: false });
+
           render();
+          applyTransform();
         }
         
-        // Handle messages from extension
+        function applyTransform() {
+          const canvas = document.querySelector('.graph-canvas');
+          canvas.style.transform = \`translate(\${viewState.x}px, \${viewState.y}px) scale(\${viewState.scale})\`;
+          
+          // Update background position to follow pan
+          const container = document.getElementById('graph');
+          container.style.backgroundPosition = \`\${viewState.x}px \${viewState.y}px\`;
+        }
+        
         window.addEventListener('message', (event) => {
           const message = event.data;
           switch (message.type) {
@@ -423,23 +416,23 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
           }
         });
         
-        // Add a new node
         function addNode(type) {
           const id = 'node_' + Date.now();
-          const offset = workflow.nodes.length * 20;
+          const rect = document.getElementById('graph').getBoundingClientRect();
+          const centerX = (rect.width / 2 - viewState.x) / viewState.scale;
+          const centerY = (rect.height / 2 - viewState.y) / viewState.scale;
+          
           const node = {
             id,
             type,
-            position: { x: 200 + offset, y: 100 + offset },
+            position: { x: centerX, y: centerY },
             data: { 
-              label: type === 'ai-task' ? 'AI Task' : 
-                     type === 'condition' ? 'Condition' :
-                     type === 'start' ? 'Start' : 'End'
+              label: type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')
             }
           };
           
           if (type === 'ai-task') {
-            node.data.prompt = 'Describe the AI task here...';
+            node.data.prompt = 'Describe the AI task...';
           }
           
           workflow.nodes.push(node);
@@ -449,30 +442,21 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         
         function deleteSelected() {
           if (!selectedNode) return;
-          
           workflow.nodes = workflow.nodes.filter(n => n.id !== selectedNode);
-          workflow.edges = workflow.edges.filter(e => 
-            e.source !== selectedNode && e.target !== selectedNode
-          );
+          workflow.edges = workflow.edges.filter(e => e.source !== selectedNode && e.target !== selectedNode);
           selectedNode = null;
           render();
           notifyChange();
         }
         
-        // Render the graph
         function render() {
           const nodesLayer = document.getElementById('nodes');
           const edgesLayer = document.getElementById('edges');
-          
-          // Clear nodes
           nodesLayer.innerHTML = '';
-          
-          // Keep defs, clear paths
           const defs = edgesLayer.querySelector('defs');
           edgesLayer.innerHTML = '';
           edgesLayer.appendChild(defs);
           
-          // Render nodes
           workflow.nodes.forEach((node) => {
             const el = document.createElement('div');
             el.className = 'node ' + node.type + (selectedNode === node.id ? ' selected' : '');
@@ -480,43 +464,32 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             el.style.top = node.position.y + 'px';
             el.dataset.id = node.id;
             
-            let content = \`
+            el.innerHTML = \`
               <div class="node-header">
                 <span class="node-type">\${node.type.replace('-', ' ')}</span>
               </div>
               <div class="node-label">\${node.data.label}</div>
+              \${node.data.prompt ? \`<div class="node-prompt">\${node.data.prompt}</div>\` : ''}
             \`;
-            
-            if (node.data.prompt) {
-              content += \`<div class="node-prompt">\${node.data.prompt}</div>\`;
-            }
-            
-            el.innerHTML = content;
             
             el.addEventListener('mousedown', (e) => startDrag(e, node));
             el.addEventListener('click', (e) => {
               e.stopPropagation();
-              selectNode(node.id);
+              selectedNode = selectedNode === node.id ? null : node.id;
+              render();
             });
-            
             nodesLayer.appendChild(el);
           });
           
-          // Render edges
           workflow.edges.forEach((edge) => {
-            const sourceNode = workflow.nodes.find(n => n.id === edge.source);
-            const targetNode = workflow.nodes.find(n => n.id === edge.target);
-            
-            if (sourceNode && targetNode) {
+            const source = workflow.nodes.find(n => n.id === edge.source);
+            const target = workflow.nodes.find(n => n.id === edge.target);
+            if (source && target) {
               const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              
-              // Calculate positions (center bottom to center top)
-              const x1 = sourceNode.position.x + 80;
-              const y1 = sourceNode.position.y + 60;
-              const x2 = targetNode.position.x + 80;
-              const y2 = targetNode.position.y;
-              
-              // Create curved path
+              const x1 = source.position.x + 80;
+              const y1 = source.position.y + 60;
+              const x2 = target.position.x + 80;
+              const y2 = target.position.y;
               const midY = (y1 + y2) / 2;
               path.setAttribute('d', \`M \${x1} \${y1} C \${x1} \${midY}, \${x2} \${midY}, \${x2} \${y2}\`);
               path.classList.add('edge');
@@ -525,25 +498,21 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
           });
           
-          // Update status
           document.getElementById('nodeCount').textContent = 'Nodes: ' + workflow.nodes.length;
           document.getElementById('edgeCount').textContent = 'Edges: ' + workflow.edges.length;
         }
-        
-        function selectNode(id) {
-          selectedNode = selectedNode === id ? null : id;
-          render();
-        }
-        
-        // Click on canvas to deselect
-        document.querySelector('.graph-canvas').addEventListener('click', () => {
-          selectedNode = null;
-          render();
+
+        document.getElementById('graph').addEventListener('click', (e) => {
+          if (e.target.id === 'graph' || e.target.classList.contains('graph-canvas')) {
+            selectedNode = null;
+            render();
+          }
         });
         
         function startDrag(e, node) {
           e.stopPropagation();
-          selectNode(node.id);
+          selectedNode = node.id;
+          render();
           
           dragState = {
             node,
@@ -553,33 +522,21 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             nodeStartY: node.position.y
           };
           
-          const el = document.querySelector(\`[data-id="\${node.id}"]\`);
-          if (el) el.classList.add('dragging');
-          
           document.addEventListener('mousemove', onDrag);
           document.addEventListener('mouseup', endDrag);
         }
         
         function onDrag(e) {
           if (!dragState) return;
-          
-          const dx = e.clientX - dragState.startX;
-          const dy = e.clientY - dragState.startY;
-          
-          dragState.node.position.x = Math.max(0, dragState.nodeStartX + dx);
-          dragState.node.position.y = Math.max(0, dragState.nodeStartY + dy);
-          
+          const dx = (e.clientX - dragState.startX) / viewState.scale;
+          const dy = (e.clientY - dragState.startY) / viewState.scale;
+          dragState.node.position.x = dragState.nodeStartX + dx;
+          dragState.node.position.y = dragState.nodeStartY + dy;
           render();
-          
-          // Re-add dragging class
-          const el = document.querySelector(\`[data-id="\${dragState.node.id}"]\`);
-          if (el) el.classList.add('dragging');
         }
         
         function endDrag() {
-          if (dragState) {
-            notifyChange();
-          }
+          if (dragState) notifyChange();
           dragState = null;
           document.removeEventListener('mousemove', onDrag);
           document.removeEventListener('mouseup', endDrag);
@@ -593,14 +550,14 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
       </script>
     </body>
     </html>`;
-    }
+  }
 }
 
 function getNonce() {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 32; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
+  let text = '';
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 32; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 }

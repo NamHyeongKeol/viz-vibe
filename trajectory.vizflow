@@ -4,14 +4,22 @@
     {
       "id": "node_project_start",
       "type": "start",
-      "position": { "x": 300, "y": 50 },
-      "data": { "label": "Project Kickoff" }
+      "position": {
+        "x": 300,
+        "y": 50
+      },
+      "data": {
+        "label": "Project Kickoff"
+      }
     },
     {
       "id": "node_core_ext",
       "type": "ai-task",
-      "position": { "x": 300, "y": 150 },
-      "data": { 
+      "position": {
+        "x": 300,
+        "y": 150
+      },
+      "data": {
         "label": "Core Extension Setup",
         "prompt": "Implemented basic VS Code extension with Custom Editor Provider."
       }
@@ -19,8 +27,11 @@
     {
       "id": "node_ui_simplification",
       "type": "ai-task",
-      "position": { "x": 300, "y": 250 },
-      "data": { 
+      "position": {
+        "x": 300,
+        "y": 250
+      },
+      "data": {
         "label": "UI Simplification",
         "prompt": "Removed sidebar provider to focus on the main editor pane experience."
       }
@@ -28,8 +39,11 @@
     {
       "id": "node_readme_update",
       "type": "ai-task",
-      "position": { "x": 300, "y": 350 },
-      "data": { 
+      "position": {
+        "x": 299,
+        "y": 350
+      },
+      "data": {
         "label": "README & Branding",
         "prompt": "Updated project description and visuals in README."
       }
@@ -37,19 +51,31 @@
     {
       "id": "node_pending_features",
       "type": "condition",
-      "position": { "x": 300, "y": 450 },
-      "data": { 
+      "position": {
+        "x": 301,
+        "y": 450
+      },
+      "data": {
         "label": "Next Feature?",
         "prompt": "Decide on which core feature to implement next."
       }
     },
     {
-      "id": "node_edge_drag",
+      "id": "node_pan_drag",
       "type": "ai-task",
       "position": { "x": 100, "y": 550 },
       "data": { 
-        "label": "Edge Dragging",
-        "prompt": "Allow users to create connections by dragging handles."
+        "label": "Canvas Panning ✅",
+        "prompt": "Implemented map-like drag to pan the entire graph canvas."
+      }
+    },
+    {
+      "id": "node_zoom",
+      "type": "ai-task",
+      "position": { "x": 300, "y": 550 },
+      "data": { 
+        "label": "Zoom In/Out ✅",
+        "prompt": "Implemented scroll wheel zoom with mouse-position centering."
       }
     },
     {
@@ -67,7 +93,8 @@
     { "id": "e2", "source": "node_core_ext", "target": "node_ui_simplification" },
     { "id": "e3", "source": "node_ui_simplification", "target": "node_readme_update" },
     { "id": "e4", "source": "node_readme_update", "target": "node_pending_features" },
-    { "id": "e5", "source": "node_pending_features", "target": "node_edge_drag" },
-    { "id": "e6", "source": "node_pending_features", "target": "node_node_modal" }
+    { "id": "e5", "source": "node_pending_features", "target": "node_pan_drag" },
+    { "id": "e6", "source": "node_pending_features", "target": "node_zoom" },
+    { "id": "e7", "source": "node_pending_features", "target": "node_node_modal" }
   ]
 }
