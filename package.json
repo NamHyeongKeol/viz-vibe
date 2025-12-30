@@ -1,0 +1,78 @@
+{
+  "name": "viz-vibe",
+  "displayName": "Viz Vibe",
+  "description": "A graph-based workflow interface for seamless Human-AI collaboration",
+  "version": "0.0.1",
+  "publisher": "viz-vibe",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "workflow",
+    "graph",
+    "vibe coding",
+    "ai",
+    "visualization"
+  ],
+  "activationEvents": [
+    "onCommand:vizVibe.openWorkflow",
+    "onLanguage:vizflow"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vizVibe.openWorkflow",
+        "title": "Viz Vibe: Open Workflow Editor",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "vizVibe.createWorkflow",
+        "title": "Viz Vibe: Create New Workflow"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vizVibe",
+          "title": "Viz Vibe",
+          "icon": "$(graph)"
+        }
+      ]
+    },
+    "views": {
+      "vizVibe": [
+        {
+          "type": "webview",
+          "id": "vizVibe.workflowView",
+          "name": "Workflow Editor"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "vizflow",
+        "aliases": ["VizFlow", "vizflow"],
+        "extensions": [".vizflow"],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "build:webview": "cd webview-ui && npm run build",
+    "dev:webview": "cd webview-ui && npm run dev"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}
