@@ -6,6 +6,8 @@
 
 <p align="center">
   <strong>A graph-based workflow interface for seamless Human-AI collaboration</strong>
+  <br/>
+  <sub>🆓 Available as a free extension for <b>VS Code</b>, <b>Cursor</b>, and <b>Antigravity</b></sub>
 </p>
 
 <p align="center">
