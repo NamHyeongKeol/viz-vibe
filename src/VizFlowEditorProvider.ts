@@ -354,7 +354,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
           const graphContainer = document.getElementById('graph');
           
           graphContainer.addEventListener('mousedown', (e) => {
-            if (e.target.id === 'graph' || e.target.classList.contains('graph-canvas')) {
+            // Pan if we didn't click on a node or a button
+            if (!e.target.closest('.node') && !e.target.closest('button')) {
               isPanning = true;
               panStartIndex = { x: e.clientX - viewState.x, y: e.clientY - viewState.y };
               graphContainer.style.cursor = 'grabbing';
