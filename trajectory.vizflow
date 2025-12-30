@@ -88,8 +88,8 @@
       "id": "node_node_modal",
       "type": "ai-task",
       "position": {
-        "x": 500,
-        "y": 550
+        "x": 519,
+        "y": 556
       },
       "data": {
         "label": "Node Edit Modal",
