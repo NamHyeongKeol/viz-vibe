@@ -1,16 +1,10 @@
 <div align="center">
 
-# ✨ Viz Vibe
+# Viz-Vibe: Visual Context Map for Vibe Coding
 
-### Visualization for Vibe Coding
-
-<p align="center">
-  <strong>A graph-based workflow interface for seamless Human-AI collaboration</strong>
-  <br/>
-  <sub>🆓 Available as a free extension for <b>VS Code</b>, <b>Cursor</b>, and <b>Antigravity</b></sub>
-  <br/>
-  <sub>🤖 Also compatible with <b>Claude Code</b>, <b>Codex CLI</b>, and any AI that can read/write files</sub>
-</p>
+A graph-based navigator to track your coding trajectory and maintain context across threads.
+...
+We make human-AI collaboration seamless by keeping coding context visible.
 
 <p align="center">
   <a href="#features">Features</a> •
@@ -245,7 +239,7 @@ viz-vibe/
 ├── src/
 │   ├── extension.ts              # Extension entry point
 │   ├── VizFlowEditorProvider.ts  # Custom editor (main area)
-│   └── WorkflowEditorProvider.ts # Sidebar webview
+
 ├── examples/
 │   ├── code-review.vizflow       # Example workflow
 │   └── VIZVIBE.md                # Example AI instructions

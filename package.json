@@ -39,24 +39,6 @@
         "title": "Viz Vibe: Create New Workflow"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "vizVibe",
-          "title": "Viz Vibe",
-          "icon": "$(graph)"
-        }
-      ]
-    },
-    "views": {
-      "vizVibe": [
-        {
-          "type": "webview",
-          "id": "vizVibe.workflowView",
-          "name": "Workflow Editor"
-        }
-      ]
-    },
     "languages": [
       {
         "id": "vizflow",

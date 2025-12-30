@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { WorkflowEditorProvider } from './WorkflowEditorProvider';
+
 import { VizFlowEditorProvider } from './VizFlowEditorProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -8,15 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Register Custom Editor for .vizflow files (opens graph in main editor area)
     context.subscriptions.push(VizFlowEditorProvider.register(context));
 
-    // Register the Workflow Editor Provider for sidebar
-    const workflowEditorProvider = new WorkflowEditorProvider(context.extensionUri);
 
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(
-            'vizVibe.workflowView',
-            workflowEditorProvider
-        )
-    );
 
     // Register command to open workflow in a panel
     context.subscriptions.push(
