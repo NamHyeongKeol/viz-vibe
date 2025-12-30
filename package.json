@@ -4,6 +4,10 @@
   "description": "A graph-based workflow interface for seamless Human-AI collaboration",
   "version": "0.0.1",
   "publisher": "viz-vibe",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NamHyeongKeol/viz-vibe"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },

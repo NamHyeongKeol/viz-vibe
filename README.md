@@ -8,6 +8,8 @@
   <strong>A graph-based workflow interface for seamless Human-AI collaboration</strong>
   <br/>
   <sub>🆓 Available as a free extension for <b>VS Code</b>, <b>Cursor</b>, and <b>Antigravity</b></sub>
+  <br/>
+  <sub>🤖 Also compatible with <b>Claude Code</b>, <b>Codex CLI</b>, and any AI that can read/write files</sub>
 </p>
 
 <p align="center">
@@ -130,7 +132,14 @@ Create a `VIZVIBE.md` file in your project root to provide **custom instructions
 
 Search for "Viz Vibe" in the VS Code Extensions marketplace.
 
-### Manual Installation
+### Install from .vsix File
+
+1. Download the latest `.vsix` file from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
+2. In VS Code/Cursor: `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
+3. Select the downloaded `.vsix` file
+4. Reload the window (`Cmd+Shift+P` → "Developer: Reload Window")
+
+### Build from Source
 
 ```bash
 # Clone the repository
@@ -144,9 +153,26 @@ npm install
 
 # Compile the extension
 npm run compile
+
+# Package as .vsix (optional)
+npx @vscode/vsce package
 ```
 
 Then press `F5` in VS Code to launch the Extension Development Host.
+
+### For Terminal-based AI Tools (Claude Code, Codex CLI, etc.)
+
+No extension needed! These tools can directly read and modify `.vizflow` files:
+
+```bash
+# Create a workflow file in your project
+touch workflow.vizflow
+
+# AI can read/write this JSON file directly
+cat workflow.vizflow
+```
+
+Add a `VIZVIBE.md` file to provide context to the AI about your workflow conventions.
 
 ---
 

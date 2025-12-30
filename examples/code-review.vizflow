@@ -40,8 +40,8 @@
       "id": "refactor",
       "type": "ai-task",
       "position": {
-        "x": 38,
-        "y": 376
+        "x": 251,
+        "y": 362
       },
       "data": {
         "label": "Refactor Code",
