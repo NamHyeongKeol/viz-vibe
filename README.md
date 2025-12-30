@@ -2,7 +2,7 @@
 
 # Viz-Vibe: Visual Context Map for Vibe Coding
 
-A graph-based navigator to track your coding trajectory and maintain context across threads.We make human-AI collaboration seamless by keeping coding context clear at a glance.
+A graph-based navigator to track your coding trajectory and maintain context across threads. We make human-AI collaboration seamless by keeping coding context clear at a glance.
 
 <p align="center">
   <a href="#features">Features</a> •
