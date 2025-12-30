@@ -4,14 +4,22 @@
     {
       "id": "start",
       "type": "start",
-      "position": { "x": 100, "y": 50 },
-      "data": { "label": "Start" }
+      "position": {
+        "x": 100,
+        "y": 50
+      },
+      "data": {
+        "label": "Start"
+      }
     },
     {
       "id": "analyze",
       "type": "ai-task",
-      "position": { "x": 100, "y": 150 },
-      "data": { 
+      "position": {
+        "x": 95,
+        "y": 150
+      },
+      "data": {
         "label": "Analyze Code",
         "prompt": "Analyze the current codebase and identify areas for improvement"
       }
@@ -19,8 +27,11 @@
     {
       "id": "decision",
       "type": "condition",
-      "position": { "x": 100, "y": 270 },
-      "data": { 
+      "position": {
+        "x": 100,
+        "y": 270
+      },
+      "data": {
         "label": "Needs Refactoring?",
         "condition": "analysis.hasIssues"
       }
@@ -28,8 +39,11 @@
     {
       "id": "refactor",
       "type": "ai-task",
-      "position": { "x": 250, "y": 370 },
-      "data": { 
+      "position": {
+        "x": 38,
+        "y": 376
+      },
+      "data": {
         "label": "Refactor Code",
         "prompt": "Apply refactoring suggestions to improve code quality"
       }
@@ -37,15 +51,42 @@
     {
       "id": "end",
       "type": "end",
-      "position": { "x": 100, "y": 470 },
-      "data": { "label": "Complete" }
+      "position": {
+        "x": 100,
+        "y": 470
+      },
+      "data": {
+        "label": "Complete"
+      }
     }
   ],
   "edges": [
-    { "id": "e1", "source": "start", "target": "analyze" },
-    { "id": "e2", "source": "analyze", "target": "decision" },
-    { "id": "e3", "source": "decision", "target": "refactor", "label": "yes" },
-    { "id": "e4", "source": "decision", "target": "end", "label": "no" },
-    { "id": "e5", "source": "refactor", "target": "end" }
+    {
+      "id": "e1",
+      "source": "start",
+      "target": "analyze"
+    },
+    {
+      "id": "e2",
+      "source": "analyze",
+      "target": "decision"
+    },
+    {
+      "id": "e3",
+      "source": "decision",
+      "target": "refactor",
+      "label": "yes"
+    },
+    {
+      "id": "e4",
+      "source": "decision",
+      "target": "end",
+      "label": "no"
+    },
+    {
+      "id": "e5",
+      "source": "refactor",
+      "target": "end"
+    }
   ]
 }

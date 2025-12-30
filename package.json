@@ -56,9 +56,26 @@
     "languages": [
       {
         "id": "vizflow",
-        "aliases": ["VizFlow", "vizflow"],
-        "extensions": [".vizflow"],
+        "aliases": [
+          "VizFlow",
+          "vizflow"
+        ],
+        "extensions": [
+          ".vizflow"
+        ],
         "configuration": "./language-configuration.json"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "vizVibe.vizflowEditor",
+        "displayName": "Viz Vibe Graph Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.vizflow"
+          }
+        ],
+        "priority": "default"
       }
     ]
   },
