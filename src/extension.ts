@@ -1,19 +1,22 @@
 import * as vscode from 'vscode';
-
+import * as path from 'path';
 import { VizFlowEditorProvider } from './VizFlowEditorProvider';
+
+const VIZVIBE_INITIALIZED_KEY = 'vizVibe.initialized';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Viz Vibe extension is now active!');
 
-    // Register Custom Editor for .vizflow files (opens graph in main editor area)
+    // Register Custom Editor for .vizflow files
     context.subscriptions.push(VizFlowEditorProvider.register(context));
 
+    // Check if we should prompt for initialization
+    checkAndPromptInitialization(context);
 
-
-    // Register command to open workflow in a panel
+    // Register command to manually initialize Viz Vibe
     context.subscriptions.push(
-        vscode.commands.registerCommand('vizVibe.openWorkflow', () => {
-            WorkflowPanel.createOrShow(context.extensionUri);
+        vscode.commands.registerCommand('vizVibe.initProject', () => {
+            initializeVizVibe(context, true);
         })
     );
 
@@ -53,158 +56,205 @@ export function activate(context: vscode.ExtensionContext) {
             }
         })
     );
+}
 
-    // Watch for .vizflow file changes
-    const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.vizflow');
+async function checkAndPromptInitialization(context: vscode.ExtensionContext) {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) return;
 
-    fileWatcher.onDidChange((uri) => {
-        WorkflowPanel.updateFromFile(uri);
-    });
+    const workspaceRoot = workspaceFolders[0].uri;
 
-    context.subscriptions.push(fileWatcher);
+    // Check if already initialized in this workspace
+    const workspaceKey = `${VIZVIBE_INITIALIZED_KEY}.${workspaceRoot.fsPath}`;
+    const alreadyAsked = context.globalState.get<boolean>(workspaceKey);
+    if (alreadyAsked) return;
+
+    // Check if .vizflow file already exists
+    const vizflowFiles = await vscode.workspace.findFiles('**/*.vizflow', '**/node_modules/**', 1);
+    if (vizflowFiles.length > 0) {
+        // Already has vizflow, ensure rules exist
+        await ensureAgentRules(workspaceRoot);
+        return;
+    }
+
+    // Show prompt
+    const selection = await vscode.window.showInformationMessage(
+        '🚀 Viz Vibe를 이 프로젝트에 설정하시겠습니까?\n\nAI가 작업 내역을 자동으로 그래프에 기록합니다.',
+        '예',
+        '아니오',
+        '다시 묻지 않기'
+    );
+
+    if (selection === '예') {
+        await initializeVizVibe(context, false);
+    } else if (selection === '다시 묻지 않기') {
+        await context.globalState.update(workspaceKey, true);
+    }
+}
+
+async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: boolean) {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        vscode.window.showErrorMessage('Please open a workspace first');
+        return;
+    }
+
+    const workspaceRoot = workspaceFolders[0].uri;
+
+    try {
+        // 1. Create trajectory.vizflow
+        await createTrajectoryFile(workspaceRoot);
+
+        // 2. Create VIZVIBE.md
+        await createVizVibeMd(workspaceRoot);
+
+        // 3. Create .agent/rules/vizvibe.md
+        await ensureAgentRules(workspaceRoot);
+
+        // Mark as initialized
+        const workspaceKey = `${VIZVIBE_INITIALIZED_KEY}.${workspaceRoot.fsPath}`;
+        await context.globalState.update(workspaceKey, true);
+
+        if (showSuccess) {
+            vscode.window.showInformationMessage('✅ Viz Vibe가 프로젝트에 설정되었습니다!');
+        } else {
+            const openTrajectory = await vscode.window.showInformationMessage(
+                '✅ Viz Vibe가 프로젝트에 설정되었습니다!',
+                'trajectory.vizflow 열기'
+            );
+            if (openTrajectory) {
+                const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, 'trajectory.vizflow');
+                const doc = await vscode.workspace.openTextDocument(trajectoryUri);
+                await vscode.window.showTextDocument(doc);
+            }
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage(`Viz Vibe 설정 실패: ${error}`);
+    }
+}
+
+async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
+    const filePath = vscode.Uri.joinPath(workspaceRoot, 'trajectory.vizflow');
+
+    // Check if already exists
+    try {
+        await vscode.workspace.fs.stat(filePath);
+        return; // Already exists
+    } catch {
+        // File doesn't exist, create it
+    }
+
+    const content = JSON.stringify({
+        version: '1.0',
+        nodes: [
+            {
+                id: 'project_start',
+                type: 'start',
+                position: { x: 300, y: 50 },
+                data: {
+                    label: 'Project Start',
+                    prompt: 'Viz Vibe initialized'
+                }
+            }
+        ],
+        edges: []
+    }, null, 2);
+
+    await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
+}
+
+async function createVizVibeMd(workspaceRoot: vscode.Uri) {
+    const filePath = vscode.Uri.joinPath(workspaceRoot, 'VIZVIBE.md');
+
+    try {
+        await vscode.workspace.fs.stat(filePath);
+        return; // Already exists
+    } catch {
+        // File doesn't exist, create it
+    }
+
+    const projectName = path.basename(workspaceRoot.fsPath);
+    const content = `# Viz Vibe: AI Workflow Instructions
+
+## Workflow File
+- **Location**: \`./trajectory.vizflow\`
+
+## AI Instructions
+When working on this project:
+
+1. **Before starting a task**: Check \`trajectory.vizflow\` to understand the current context
+2. **After completing a task**: Add a new node describing what was done
+3. **Connect nodes**: Create edges to show the flow of work
+
+## Node Types
+- \`start\`: Beginning of a workflow
+- \`ai-task\`: Work done by AI
+- \`condition\`: Decision points
+- \`end\`: Completion points
+
+## Project: ${projectName}
+This project uses Viz Vibe to track development trajectory and maintain context across AI sessions.
+`;
+
+    await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
+}
+
+async function ensureAgentRules(workspaceRoot: vscode.Uri) {
+    const agentRulesDir = vscode.Uri.joinPath(workspaceRoot, '.agent', 'rules');
+    const rulesFilePath = vscode.Uri.joinPath(agentRulesDir, 'vizvibe.md');
+
+    try {
+        await vscode.workspace.fs.stat(rulesFilePath);
+        return; // Already exists
+    } catch {
+        // Create directory and file
+    }
+
+    // Create .agent/rules directory
+    try {
+        await vscode.workspace.fs.createDirectory(agentRulesDir);
+    } catch {
+        // Directory might already exist
+    }
+
+    const content = `# Viz Vibe Rules
+
+## Automatic Trajectory Management
+When working in this project, always follow these rules:
+
+### After completing any task:
+1. Open \`trajectory.vizflow\`
+2. Add a new node with:
+   - \`type\`: "ai-task"
+   - \`label\`: Brief description of what was done
+   - \`prompt\`: Detailed explanation
+   - \`position\`: Below the last node
+3. Add an edge connecting from the previous task to this new node
+
+### Before starting work:
+1. Read \`trajectory.vizflow\` to understand the current project state
+2. Read \`VIZVIBE.md\` for project-specific instructions
+
+### Node positioning:
+- Keep nodes vertically aligned when possible
+- Use x: 300 as the center column
+- Space nodes 120px apart vertically
+
+## Example node addition:
+\`\`\`json
+{
+  "id": "node_" + timestamp,
+  "type": "ai-task",
+  "position": { "x": 300, "y": lastY + 120 },
+  "data": {
+    "label": "Feature: User Authentication",
+    "prompt": "Implemented login and signup pages with JWT tokens"
+  }
+}
+\`\`\`
+`;
+
+    await vscode.workspace.fs.writeFile(rulesFilePath, Buffer.from(content, 'utf-8'));
 }
 
 export function deactivate() { }
-
-/**
- * Workflow Panel - Opens the graph editor in the main editor area
- */
-class WorkflowPanel {
-    public static currentPanel: WorkflowPanel | undefined;
-    private static readonly viewType = 'vizVibeWorkflow';
-
-    private readonly _panel: vscode.WebviewPanel;
-    private readonly _extensionUri: vscode.Uri;
-    private _disposables: vscode.Disposable[] = [];
-
-    public static createOrShow(extensionUri: vscode.Uri) {
-        const column = vscode.ViewColumn.Beside;
-
-        if (WorkflowPanel.currentPanel) {
-            WorkflowPanel.currentPanel._panel.reveal(column);
-            return;
-        }
-
-        const panel = vscode.window.createWebviewPanel(
-            WorkflowPanel.viewType,
-            'Viz Vibe Workflow',
-            column,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'webview-ui', 'dist')]
-            }
-        );
-
-        WorkflowPanel.currentPanel = new WorkflowPanel(panel, extensionUri);
-    }
-
-    public static updateFromFile(uri: vscode.Uri) {
-        if (WorkflowPanel.currentPanel) {
-            vscode.workspace.fs.readFile(uri).then((content) => {
-                try {
-                    const workflow = JSON.parse(content.toString());
-                    WorkflowPanel.currentPanel?._panel.webview.postMessage({
-                        type: 'updateWorkflow',
-                        workflow
-                    });
-                } catch (e) {
-                    console.error('Failed to parse workflow file:', e);
-                }
-            });
-        }
-    }
-
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-        this._panel = panel;
-        this._extensionUri = extensionUri;
-
-        this._update();
-
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-
-        this._panel.webview.onDidReceiveMessage(
-            async (message) => {
-                switch (message.type) {
-                    case 'saveWorkflow':
-                        await this._saveWorkflow(message.workflow);
-                        break;
-                    case 'info':
-                        vscode.window.showInformationMessage(message.text);
-                        break;
-                    case 'error':
-                        vscode.window.showErrorMessage(message.text);
-                        break;
-                }
-            },
-            null,
-            this._disposables
-        );
-    }
-
-    private async _saveWorkflow(workflow: object) {
-        const activeEditor = vscode.window.activeTextEditor;
-        if (activeEditor && activeEditor.document.fileName.endsWith('.vizflow')) {
-            const edit = new vscode.WorkspaceEdit();
-            const fullRange = new vscode.Range(
-                activeEditor.document.positionAt(0),
-                activeEditor.document.positionAt(activeEditor.document.getText().length)
-            );
-            edit.replace(activeEditor.document.uri, fullRange, JSON.stringify(workflow, null, 2));
-            await vscode.workspace.applyEdit(edit);
-            await activeEditor.document.save();
-        }
-    }
-
-    public dispose() {
-        WorkflowPanel.currentPanel = undefined;
-        this._panel.dispose();
-        while (this._disposables.length) {
-            const d = this._disposables.pop();
-            if (d) {
-                d.dispose();
-            }
-        }
-    }
-
-    private _update() {
-        const webview = this._panel.webview;
-        this._panel.title = 'Viz Vibe Workflow';
-        this._panel.webview.html = this._getHtmlForWebview(webview);
-    }
-
-    private _getHtmlForWebview(webview: vscode.Webview): string {
-        const scriptUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this._extensionUri, 'webview-ui', 'dist', 'assets', 'index.js')
-        );
-        const styleUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this._extensionUri, 'webview-ui', 'dist', 'assets', 'index.css')
-        );
-
-        const nonce = getNonce();
-
-        return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
-      <link href="${styleUri}" rel="stylesheet">
-      <title>Viz Vibe Workflow</title>
-    </head>
-    <body>
-      <div id="root"></div>
-      <script nonce="${nonce}" type="module" src="${scriptUri}"></script>
-    </body>
-    </html>`;
-    }
-}
-
-function getNonce() {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 32; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-}

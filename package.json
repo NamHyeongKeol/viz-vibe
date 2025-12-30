@@ -23,16 +23,14 @@
     "visualization"
   ],
   "activationEvents": [
-    "onCommand:vizVibe.openWorkflow",
-    "onLanguage:vizflow"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vizVibe.openWorkflow",
-        "title": "Viz Vibe: Open Workflow Editor",
-        "icon": "$(graph)"
+        "command": "vizVibe.initProject",
+        "title": "Viz Vibe: Initialize Project"
       },
       {
         "command": "vizVibe.createWorkflow",
