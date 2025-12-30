@@ -6,7 +6,7 @@
   "publisher": "viz-vibe",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NamHyeongKeol/viz-vibe"
+    "url": "https://github.com/NamHyeongKeol/viz-vibe.git"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -89,11 +89,17 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
     "build:webview": "cd webview-ui && npm run build",
-    "dev:webview": "cd webview-ui && npm run dev"
+    "dev:webview": "cd webview-ui && npm run dev",
+    "package": "vsce package",
+    "publish:vscode": "vsce publish",
+    "publish:ovsx": "ovsx publish",
+    "publish:all": "npm run publish:vscode && npm run publish:ovsx"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.7.1",
+    "ovsx": "^0.10.7",
     "typescript": "^5.3.0"
   }
 }
