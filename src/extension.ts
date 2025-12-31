@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { VizFlowEditorProvider } from './VizFlowEditorProvider';
 
 const VIZVIBE_INITIALIZED_KEY = 'vizVibe.initialized';
@@ -106,7 +105,7 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
         await createTrajectoryFile(workspaceRoot);
 
         // 2. Create VIZVIBE.md
-        await createVizVibeMd(workspaceRoot);
+        await createVizVibeMd(workspaceRoot, context.extensionUri);
 
         // 3. Create .agent/rules/vizvibe.md
         await ensureAgentRules(workspaceRoot);
@@ -163,7 +162,7 @@ async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
     await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
 }
 
-async function createVizVibeMd(workspaceRoot: vscode.Uri) {
+async function createVizVibeMd(workspaceRoot: vscode.Uri, extensionUri: vscode.Uri) {
     const filePath = vscode.Uri.joinPath(workspaceRoot, 'VIZVIBE.md');
 
     try {
@@ -173,30 +172,25 @@ async function createVizVibeMd(workspaceRoot: vscode.Uri) {
         // File doesn't exist, create it
     }
 
-    const projectName = path.basename(workspaceRoot.fsPath);
-    const content = `# Viz Vibe: AI Workflow Instructions
+    // Copy template from extension
+    const templatePath = vscode.Uri.joinPath(extensionUri, 'VIZVIBE.md');
+    try {
+        const templateContent = await vscode.workspace.fs.readFile(templatePath);
+        await vscode.workspace.fs.writeFile(filePath, templateContent);
+    } catch {
+        // Fallback to basic content if template not found
+        const content = `# Viz Vibe: AI Workflow Instructions
 
 ## Workflow File
 - **Location**: \`./trajectory.vizflow\`
 
 ## AI Instructions
-When working on this project:
-
-1. **Before starting a task**: Check \`trajectory.vizflow\` to understand the current context
-2. **After completing a task**: Add a new node describing what was done
-3. **Connect nodes**: Create edges to show the flow of work
-
-## Node Types
-- \`start\`: Beginning of a workflow
-- \`ai-task\`: Work done by AI
-- \`condition\`: Decision points
-- \`end\`: Completion points
-
-## Project: ${projectName}
-This project uses Viz Vibe to track development trajectory and maintain context across AI sessions.
+1. Before starting a task: Check \`trajectory.vizflow\` to understand the current context
+2. After completing a task: Add a new node describing what was done
+3. Connect nodes: Create edges to show the flow of work
 `;
-
-    await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
+        await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
+    }
 }
 
 async function ensureAgentRules(workspaceRoot: vscode.Uri) {
