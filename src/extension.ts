@@ -211,7 +211,12 @@ async function ensureAgentRules(workspaceRoot: vscode.Uri) {
         // Directory might already exist
     }
 
-    const content = `# Viz Vibe Rules
+    const content = `---
+description: Viz Vibe trajectory management rules
+alwaysApply: true
+---
+
+# Viz Vibe Rules
 
 ## Automatic Trajectory Management
 When working in this project, always follow these rules:
