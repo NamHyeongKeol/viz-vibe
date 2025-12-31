@@ -79,15 +79,15 @@ async function checkAndPromptInitialization(context: vscode.ExtensionContext) {
 
     // Show prompt
     const selection = await vscode.window.showInformationMessage(
-        '🚀 Viz Vibe를 이 프로젝트에 설정하시겠습니까?\n\nAI가 작업 내역을 자동으로 그래프에 기록합니다.',
-        '예',
-        '아니오',
-        '다시 묻지 않기'
+        '🚀 Would you like to set up Viz Vibe for this project?\n\nAI will automatically record work history in a graph.',
+        'Yes',
+        'No',
+        'Don\'t ask again'
     );
 
-    if (selection === '예') {
+    if (selection === 'Yes') {
         await initializeVizVibe(context, false);
-    } else if (selection === '다시 묻지 않기') {
+    } else if (selection === 'Don\'t ask again') {
         await context.globalState.update(workspaceKey, true);
     }
 }
@@ -116,11 +116,11 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
         await context.globalState.update(workspaceKey, true);
 
         if (showSuccess) {
-            vscode.window.showInformationMessage('✅ Viz Vibe가 프로젝트에 설정되었습니다!');
+            vscode.window.showInformationMessage('✅ Viz Vibe has been set up for this project!');
         } else {
             const openTrajectory = await vscode.window.showInformationMessage(
-                '✅ Viz Vibe가 프로젝트에 설정되었습니다!',
-                'trajectory.vizflow 열기'
+                '✅ Viz Vibe has been set up for this project!',
+                'Open trajectory.vizflow'
             );
             if (openTrajectory) {
                 const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, 'trajectory.vizflow');
@@ -129,7 +129,7 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
             }
         }
     } catch (error) {
-        vscode.window.showErrorMessage(`Viz Vibe 설정 실패: ${error}`);
+        vscode.window.showErrorMessage(`Viz Vibe setup failed: ${error}`);
     }
 }
 
