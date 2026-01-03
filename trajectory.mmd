@@ -38,6 +38,9 @@ flowchart TD
     %% @node_curl_install [ai-task]: curl install.sh 스크립트 생성 및 README Getting Started 추가
     node_curl_install["curl 설치 스크립트"]
 
+    %% @node_fix_settings [ai-task]: hooks.json을 settings.json으로 수정 (Claude Code 훅 인식 문제 해결)
+    node_fix_settings["settings.json 수정"]
+
     node_research_start --> node_deadend_no_hook
     node_research_start --> node_deadend_md_weak
     node_research_start --> node_approach_file_monitor
@@ -50,6 +53,7 @@ flowchart TD
     node_hook_state --> node_init_analysis
     node_init_analysis --> node_cli_package
     node_cli_package --> node_curl_install
+    node_curl_install --> node_fix_settings
 
     style node_research_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
     style node_deadend_no_hook fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
@@ -64,3 +68,4 @@ flowchart TD
     style node_init_analysis fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_cli_package fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_curl_install fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_fix_settings fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
