@@ -39,7 +39,7 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/install
 ```
 
 This creates:
-- `.claude/hooks.json` — Hook configuration
+- `.claude/settings.json` — Claude Code settings with hooks
 - `.claude/hooks/update-trajectory.js` — Auto-update script
 - `trajectory.mmd` — Your work history graph
 - `VIZVIBE.md` — AI instructions

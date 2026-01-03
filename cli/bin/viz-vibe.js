@@ -47,8 +47,8 @@ function initProject() {
 
   const files = [
     {
-      src: 'hooks.json',
-      dest: path.join('.claude', 'hooks.json')
+      src: 'settings.json',
+      dest: path.join('.claude', 'settings.json')
     },
     {
       src: 'update-trajectory.js',

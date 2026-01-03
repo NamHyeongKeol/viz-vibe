@@ -15,7 +15,7 @@ mkdir -p .claude/hooks
 
 # Download files
 files=(
-  "cli/templates/hooks.json:.claude/hooks.json"
+  "cli/templates/settings.json:.claude/settings.json"
   "cli/templates/update-trajectory.js:.claude/hooks/update-trajectory.js"
   "cli/templates/trajectory.mmd:trajectory.mmd"
   "cli/templates/VIZVIBE.md:VIZVIBE.md"
@@ -46,5 +46,5 @@ echo "  1. Start Claude Code in this project"
 echo "  2. Work normally - trajectory will auto-update on each response"
 echo "  3. Open trajectory.mmd to see your work history"
 echo ""
-echo "For VS Code/Cursor users:"
+echo "For VS Code/Cursor/Antigravity(Windsurf) users:"
 echo "  Install the 'Viz Vibe' extension for graph visualization."
