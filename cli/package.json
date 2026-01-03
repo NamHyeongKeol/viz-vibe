@@ -1,0 +1,28 @@
+{
+  "name": "@viz-vibe/cli",
+  "version": "0.1.0",
+  "description": "CLI tool for Viz Vibe - AI workflow trajectory tracking",
+  "bin": {
+    "viz-vibe": "./bin/viz-vibe.js"
+  },
+  "files": [
+    "bin",
+    "templates"
+  ],
+  "keywords": [
+    "viz-vibe",
+    "claude-code",
+    "ai",
+    "workflow",
+    "trajectory"
+  ],
+  "author": "viz-vibe",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NamHyeongKeol/viz-vibe.git"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

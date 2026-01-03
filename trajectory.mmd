@@ -3,33 +3,41 @@ flowchart TD
     node_research_start(["AI 자동 기록 구현 연구"])
 
     %% @node_deadend_no_hook [blocker]: Antigravity가 대화 턴 시작/종료 Hook이나 대화록 접근 API를 제공하지 않음
-    node_deadend_no_hook{{"🚫 막다른길: API 부재"}}
+    node_deadend_no_hook{{"🚫 API 부재"}}
 
     %% @node_deadend_md_weak [blocker]: .agent/rules/vizvibe.md에 규칙 설정했으나 AI가 자동 적용하지 않음
-    node_deadend_md_weak{{"🚫 막다른길: .md 규칙 약함"}}
+    node_deadend_md_weak{{"🚫 .md 규칙 약함"}}
 
     %% @node_approach_file_monitor [condition]: 대화록 파일 변경 감지 후 유저에게 알림
-    node_approach_file_monitor{"🔀 파일 모니터링+알림"}
+    node_approach_file_monitor{"파일 모니터링"}
 
     %% @node_approach_mcp_server [condition]: MCP 서버로 update_trajectory 도구 제공
-    node_approach_mcp_server{"🔀 MCP 서버"}
+    node_approach_mcp_server{"MCP 서버"}
 
     %% @node_approach_export [condition]: Antigravity 대화록 export 기능 활용
-    node_approach_export{"🔀 Export 활용"}
+    node_approach_export{"Export 활용"}
 
     %% @node_automation_research [ai-task]: AI 자동 기록 자동화 불가 확인, 반자동 방식으로 전환
-    node_automation_research["자동화 연구 및 반자동 방식 결정"]
+    node_automation_research["자동화 연구 및 반자동 결정"]
 
     %% @node_mermaid_migration [ai-task]: VizFlowEditorProvider를 Mermaid.js 기반으로 전환
-    node_mermaid_migration["Mermaid 기반 시각화로 전환"]
+    node_mermaid_migration["Mermaid 시각화 전환"]
 
-    %% @node_mermaid_native [ai-task]: JSON에서 Mermaid 네이티브 포맷으로 완전 전환, Graph/Source 뷰 토글 구현
-    node_mermaid_native["Mermaid 네이티브 포맷으로 전환"]
+    %% @node_mermaid_native [ai-task]: JSON에서 Mermaid 네이티브 포맷으로 완전 전환
+    node_mermaid_native["Mermaid 네이티브 포맷"]
 
-    %% @node_hook_state [ai-task]: 훅 중복 방지를 키워드 매칭에서 상태 파일 기반으로 변경
-    node_hook_state["훅 상태 기반 관리 구현"]
+    %% @node_hook_state [ai-task]: 훅 중복 방지를 키워드에서 state.json 기반으로 변경
+    node_hook_state["훅 상태 기반 관리"]
 
-    %% Edges
+    %% @node_init_analysis [ai-task]: 사용자 프로젝트 초기화 시 필요한 파일 분석
+    node_init_analysis["초기화 파일 분석"]
+
+    %% @node_cli_package [ai-task]: Claude Code 사용자를 위한 npx @viz-vibe/cli init 패키지 생성
+    node_cli_package["CLI 패키지 생성"]
+
+    %% @node_curl_install [ai-task]: curl install.sh 스크립트 생성 및 README Getting Started 추가
+    node_curl_install["curl 설치 스크립트"]
+
     node_research_start --> node_deadend_no_hook
     node_research_start --> node_deadend_md_weak
     node_research_start --> node_approach_file_monitor
@@ -39,15 +47,20 @@ flowchart TD
     node_automation_research --> node_mermaid_migration
     node_mermaid_migration --> node_mermaid_native
     node_mermaid_native --> node_hook_state
+    node_hook_state --> node_init_analysis
+    node_init_analysis --> node_cli_package
+    node_cli_package --> node_curl_install
 
-    %% Styles
-    style node_research_start fill:#22c55e,stroke:#16a34a,color:#fff
-    style node_deadend_no_hook fill:#dc2626,stroke:#b91c1c,color:#fff
-    style node_deadend_md_weak fill:#dc2626,stroke:#b91c1c,color:#fff
-    style node_approach_file_monitor fill:#f59e0b,stroke:#d97706,color:#fff
-    style node_approach_mcp_server fill:#f59e0b,stroke:#d97706,color:#fff
-    style node_approach_export fill:#f59e0b,stroke:#d97706,color:#fff
-    style node_automation_research fill:#3b82f6,stroke:#2563eb,color:#fff
-    style node_mermaid_migration fill:#3b82f6,stroke:#2563eb,color:#fff
-    style node_mermaid_native fill:#3b82f6,stroke:#2563eb,color:#fff
-    style node_hook_state fill:#3b82f6,stroke:#2563eb,color:#fff
+    style node_research_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+    style node_deadend_no_hook fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
+    style node_deadend_md_weak fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
+    style node_approach_file_monitor fill:#0f172a,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style node_approach_mcp_server fill:#0f172a,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style node_approach_export fill:#0f172a,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style node_automation_research fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_mermaid_migration fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_mermaid_native fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_hook_state fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_init_analysis fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_cli_package fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_curl_install fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px

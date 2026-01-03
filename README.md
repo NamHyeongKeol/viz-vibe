@@ -5,10 +5,10 @@
 A graph-based navigator to track your coding trajectory and maintain context across threads. We make human-AI collaboration seamless by keeping coding context clear at a glance.
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#ai-integration">AI Integration</a> •
-  <a href="#usage">Usage</a> •
+  <a href="#-getting-started">Getting Started</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-ai-integration">AI Integration</a> •
   <a href="#contributing">Contributing</a>
 </p>
 
@@ -27,6 +27,38 @@ A graph-based navigator to track your coding trajectory and maintain context acr
 **Viz Vibe** is an open-source project that provides a **graph-structured workflow** as an interface for collaboration between humans and AI. By visualizing the coding process as an interactive graph, it enables intuitive and efficient "vibe coding" experiences.
 
 > 💡 *Vibe Coding* — A new paradigm where developers and AI work together in harmony, guided by visual workflows and intuitive interactions.
+
+## 🚀 Getting Started
+
+### For Claude Code Users
+
+Run this one-liner in your project directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/install.sh | bash
+```
+
+This creates:
+- `.claude/hooks.json` — Hook configuration
+- `.claude/hooks/update-trajectory.js` — Auto-update script
+- `trajectory.mmd` — Your work history graph
+- `VIZVIBE.md` — AI instructions
+
+**That's it!** Claude Code will automatically update `trajectory.mmd` after each response.
+
+### For VS Code / Cursor / Antigravity(Windsurf) Users
+
+1. Install the **Viz Vibe** extension from marketplace
+2. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
+3. Open `trajectory.mmd` to see the graph visualization
+
+### Using npm (Node.js projects)
+
+```bash
+npx @viz-vibe/cli init
+```
+
+---
 
 ## ✨ Features
 

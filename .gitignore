@@ -6,3 +6,7 @@ dist/
 webview-ui/node_modules/
 webview-ui/dist/
 .DS_Store
+
+# Claude Code hook logs
+.claude/hooks/*.log
+.claude/hooks/state.json
