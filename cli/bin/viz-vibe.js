@@ -7,6 +7,7 @@ const TEMPLATES_DIR = path.join(__dirname, '..', 'templates');
 
 const commands = {
   init: initProject,
+  update: updateProject,
   uninstall: uninstallProject,
   help: showHelp
 };
@@ -33,11 +34,13 @@ Usage:
 
 Commands:
   init       Initialize Viz Vibe in current project
+  update     Update hook script to latest version
   uninstall  Remove Viz Vibe hooks (keeps trajectory.mmd)
   help       Show this help message
 
 Examples:
   npx @viz-vibe/cli init
+  npx @viz-vibe/cli update
   npx @viz-vibe/cli uninstall
 `);
 }
@@ -103,6 +106,29 @@ Next steps:
 
 For VS Code users:
   Install the "Viz Vibe" extension for graph visualization.
+`);
+}
+
+function updateProject() {
+  const projectDir = process.cwd();
+  const hookScript = path.join('.claude', 'hooks', 'update-trajectory.js');
+  const destPath = path.join(projectDir, hookScript);
+  const destDir = path.dirname(destPath);
+
+  console.log('Updating Viz Vibe...\n');
+
+  if (!fs.existsSync(destDir)) {
+    console.log('  [error] .claude/hooks/ not found. Run init first.');
+    process.exit(1);
+  }
+
+  const srcPath = path.join(TEMPLATES_DIR, 'update-trajectory.js');
+  const content = fs.readFileSync(srcPath, 'utf-8');
+  fs.writeFileSync(destPath, content);
+  console.log(`  [update] ${hookScript}`);
+
+  console.log(`
+Done! Hook script updated to latest version.
 `);
 }
 
