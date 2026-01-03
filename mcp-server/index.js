@@ -18,14 +18,14 @@ const UpdateTrajectorySchema = z.object({
   nodeType: z.enum(["ai-task", "human-task", "condition", "blocker"]).default("ai-task"),
 });
 
-// Node shape mapping
+// Node shape mapping - Simple & Professional
 const nodeShapes = {
-  'start': { open: '(["', close: '"])', style: 'fill:#22c55e,stroke:#16a34a,color:#fff' },
-  'end': { open: '(["', close: '"])', style: 'fill:#ef4444,stroke:#dc2626,color:#fff' },
-  'ai-task': { open: '["', close: '"]', style: 'fill:#3b82f6,stroke:#2563eb,color:#fff' },
-  'human-task': { open: '["', close: '"]', style: 'fill:#8b5cf6,stroke:#7c3aed,color:#fff' },
-  'condition': { open: '{"', close: '"}', style: 'fill:#f59e0b,stroke:#d97706,color:#fff' },
-  'blocker': { open: '{{"', close: '"}}', style: 'fill:#dc2626,stroke:#b91c1c,color:#fff' }
+  'start': { open: '(["', close: '"])', style: 'fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px' },
+  'end': { open: '(["', close: '"])', style: 'fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px' },
+  'ai-task': { open: '["', close: '"]', style: 'fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px' },
+  'human-task': { open: '["', close: '"]', style: 'fill:#1e293b,stroke:#6366f1,color:#f8fafc,stroke-width:2px' },
+  'condition': { open: '{"', close: '"}', style: 'fill:#0f172a,stroke:#f59e0b,color:#fbbf24,stroke-width:2px' },
+  'blocker': { open: '{{"', close: '"}}', style: 'fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px' }
 };
 
 // Parse existing Mermaid code to extract nodes

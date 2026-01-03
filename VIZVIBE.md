@@ -1,124 +1,211 @@
-# VIZVIBE.md - Trajectory Update Instructions
+# VIZVIBE.md - Trajectory Management Guide
 
-This file provides instructions to AI assistants on how to update `trajectory.mmd` file.
+This document provides instructions for AI assistants on how to maintain the `trajectory.mmd` file as a **context map** for the project.
 
-## File Location
+---
 
+## Core Principles
+
+### 1. Graph-Based History
+
+Maintain the project history as a **graph structure** in `trajectory.mmd`:
+
+- **Doesn't have to be a tree** — cycles and multiple paths are allowed
+- Captures the evolution of the project at a **high level**
+- Shows decision points, experiments, and outcomes
+
+### 2. Project Goals
+
+The trajectory should clearly state:
+
+- **Ultimate goal**: The final objective of the project
+- **Current goal**: What we're working toward right now (if known)
+
+Place these as prominent nodes or comments at the top of the graph.
+
+### 3. Future Work as Parallel Branches
+
+When identifying future tasks from the current session:
+
+- Add them as **parallel nodes** under a common parent (branch point)
+- Future tasks can be specific implementations OR hypotheses to validate
+- If already well-documented, no need to add duplicates
+
+### 4. Dependency Relationships
+
+Be precise about task relationships:
+
+- **Dependent tasks**: Connected in sequence (A → B means B depends on A)
+- **Independent tasks**: Connected only to their parent, NOT to each other
+- Don't connect unrelated tasks just because they're "next"
+
+```mermaid
+%% CORRECT: Independent tasks branch from parent
+parent --> task_a
+parent --> task_b
+parent --> task_c
+
+%% WRONG: Don't chain independent tasks
+parent --> task_a --> task_b --> task_c
 ```
-./trajectory.mmd
+
+### 5. Only Important Context
+
+**DO NOT** add every small task to the trajectory:
+
+- ✅ Major milestones and decisions
+- ✅ Architectural changes
+- ✅ Dead ends and blockers (valuable learnings)
+- ✅ Branch points with multiple approaches
+- ❌ Trivial fixes
+- ❌ Minor refactoring
+- ❌ Routine tasks
+
+---
+
+## Node States: `[opened]` vs `[closed]`
+
+Every node must have a state indicated in its metadata comment:
+
+```mermaid
+%% @node_id [ai-task, opened]: Task we plan to do
+%% @node_id [ai-task, closed]: Task we completed or abandoned
 ```
 
-## Mermaid Format Structure
+### `[opened]` — TODO
 
-The trajectory file uses **Mermaid flowchart** syntax with metadata comments:
+- Task is planned but **not yet started**
+- Represents future work worth tracking
+- May have uncertainty about approach
+
+### `[closed]` — DONE (success or failure)
+
+A node is closed when:
+
+- ✅ **Successfully completed** — achieved its goal
+- ❌ **Dead end** — tried but hit limitations (use `blocker` type)
+- ⏭️ **No longer needed** — situation changed, task became irrelevant
+
+### State Transitions
+
+| Scenario                     | Action                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| Completed successfully       | Change to `[closed]`                                                         |
+| Tried but failed/blocked     | Change to `[closed]`, use `blocker` type                                     |
+| No longer needed (important) | Change to `[closed]`, optionally connect from the node that made it obsolete |
+| No longer needed (trivial)   | **Delete the node**                                                          |
+| Retrospectively trivial      | **Delete the node**                                                          |
+
+---
+
+## Managing the Graph
+
+### Restructuring the Graph
+
+If the existing `trajectory.mmd` seems **incorrectly structured** based on your new understanding of the project:
+
+- You **may restructure** the graph to better reflect the actual context
+- Reorganize nodes and edges to show the true relationships
+- This is not "rewriting history" — it's correcting a previously inaccurate map
+
+Common reasons to restructure:
+
+- Nodes were connected that shouldn't be (false dependencies)
+- Parallel work was incorrectly shown as sequential
+- The graph doesn't match the actual project evolution
+- Key context was missing or misrepresented
+
+### Adding Nodes
+
+Add a node when:
+
+- You complete significant work worth remembering
+- You discover a new approach to explore
+- You hit a dead end (valuable for future context!)
+- You identify future work from the current conversation
+
+### Removing Nodes
+
+Remove a node when:
+
+- It was added by mistake
+- It turned out to be trivial in hindsight
+- It clutters the graph without adding context
+
+> **Note**: This is different from closing a node. Closed nodes remain as history. Deleted nodes are gone.
+
+### Updating Connections
+
+When new information changes the graph:
+
+- Add edges from nodes that enable or invalidate other nodes
+- Remove edges that no longer represent real dependencies
+- Cycles are allowed if they represent iterative refinement
+
+---
+
+## File Format
+
+### Structure
 
 ```mermaid
 flowchart TD
-    %% @node_id [type]: description
+    %% === PROJECT GOALS ===
+    %% Ultimate Goal: [describe the final objective]
+    %% Current Goal: [describe immediate focus]
+
+    %% === NODES ===
+    %% @node_id [type, state]: Description
     node_id(["Label"])
 
-    %% Edges
+    %% === EDGES ===
     node_a --> node_b
 
-    %% Styles
+    %% === STYLES ===
     style node_id fill:#color,stroke:#color,color:#fff
 ```
 
-## Node Types and Shapes
+### Node Types
 
-| Type | Shape Syntax | Color | Use Case |
-|------|--------------|-------|----------|
-| `start` | `node(["Label"])` | Green `#22c55e` | Entry point, initial research |
-| `ai-task` | `node["Label"]` | Blue `#3b82f6` | AI work, implementation |
-| `condition` | `node{"Label"}` | Orange `#f59e0b` | Decision point, branching |
-| `blocker` | `node{{"Label"}}` | Red `#dc2626` | Dead end, blocked path |
-| `end` | `node(["Label"])` | Green `#22c55e` | Completion point |
+| Type         | Shape       | Style         | Use Case                |
+| ------------ | ----------- | ------------- | ----------------------- |
+| `start`      | `(["..."])` | Green         | Project/phase beginning |
+| `ai-task`    | `["..."]`   | Slate         | AI work, implementation |
+| `human-task` | `["..."]`   | Indigo border | Human decision/action   |
+| `condition`  | `{"..."}`   | Amber border  | Decision point, branch  |
+| `blocker`    | `{{"..."}}` | Red           | Dead end, blocked path  |
+| `end`        | `(["..."])` | Gray          | Completion point        |
 
-## Node ID Convention
-
-Use descriptive snake_case IDs with prefix:
-```
-node_<descriptive_name>
-```
-
-Examples:
-- `node_research_start`
-- `node_mermaid_migration`
-- `node_deadend_no_api`
-
-## Metadata Comment Format
-
-Each node MUST have a metadata comment directly above it:
+### Style Reference
 
 ```mermaid
-%% @node_id [type]: Short description of what this node represents
-node_id["Label"]
+%% Start (emerald)
+style node fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+
+%% AI Task (slate gray)
+style node fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+
+%% Human Task (indigo border)
+style node fill:#1e293b,stroke:#6366f1,color:#f8fafc,stroke-width:2px
+
+%% Condition (amber border)
+style node fill:#0f172a,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+
+%% Blocker (red)
+style node fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
+
+%% End (gray)
+style node fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
 ```
 
-- `@node_id` - Must match the node ID below
-- `[type]` - One of: `start`, `ai-task`, `condition`, `blocker`, `end`
-- Description - Brief explanation (one line)
+---
 
-## Style Definitions
+## AI Instructions Summary
 
-Always add style definitions at the bottom:
-
-```mermaid
-%% Styles
-style node_id fill:#22c55e,stroke:#16a34a,color:#fff
-```
-
-Color reference:
-- Green (start/end): `fill:#22c55e,stroke:#16a34a,color:#fff`
-- Blue (ai-task): `fill:#3b82f6,stroke:#2563eb,color:#fff`
-- Orange (condition): `fill:#f59e0b,stroke:#d97706,color:#fff`
-- Red (blocker): `fill:#dc2626,stroke:#b91c1c,color:#fff`
-
-## AI Update Instructions
-
-### When to Update
-
-Update `trajectory.mmd` when you:
-1. Complete a significant task or milestone
-2. Encounter a blocker or dead end
-3. Make an architectural decision
-4. Change approach or direction
-
-### How to Add a New Node
-
-1. Generate a unique node ID
-2. Add metadata comment with `@node_id [type]: description`
-3. Add node definition with appropriate shape
-4. Connect with edges from relevant existing nodes
-5. Add style definition
-
-### Example Addition
-
-```mermaid
-%% Existing content above...
-
-%% @node_hook_implementation [ai-task]: Implemented Stop hook for automatic trajectory updates
-node_hook_implementation["Stop Hook 구현"]
-
-%% Edges (add new connection)
-node_previous --> node_hook_implementation
-
-%% Styles (add new style)
-style node_hook_implementation fill:#3b82f6,stroke:#2563eb,color:#fff
-```
-
-### Important Rules
-
-1. **Never remove existing nodes** - trajectory is a history
-2. **Preserve all edges** - maintain graph connectivity
-3. **Use Korean or English** - match existing style in the file
-4. **Keep labels concise** - max 20 characters recommended
-5. **Add blockers honestly** - dead ends are valuable information
-
-## Current Trajectory Context
-
-The trajectory tracks the development of **Viz Vibe** project:
-- Started with research on AI auto-recording
-- Explored multiple approaches (file monitoring, MCP server, export)
-- Migrated from JSON to Mermaid native format
-- Currently implementing automation features
+1. **Read** `trajectory.mmd` at the start of each session to understand context
+2. **Update** after completing significant work
+3. **Add future work** identified during the session as `[opened]` nodes
+4. **Close nodes** when work is done or no longer relevant
+5. **Delete nodes** that are trivial or mistaken
+6. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
+7. **Keep it high-level** — this is a map, not a changelog

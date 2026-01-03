@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
     %% @start [start]: 워크플로우 시작점
     start(["Start"])
 
-    style start fill:#22c55e,stroke:#16a34a,color:#fff
+    style start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
 `;
 
                 await vscode.workspace.fs.writeFile(filePath, Buffer.from(defaultContent, 'utf-8'));
@@ -173,7 +173,7 @@ async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
     %% @project_start [start]: Viz Vibe가 초기화되었습니다
     project_start(["Project Start"])
 
-    style project_start fill:#22c55e,stroke:#16a34a,color:#fff
+    style project_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
 `;
 
     await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
