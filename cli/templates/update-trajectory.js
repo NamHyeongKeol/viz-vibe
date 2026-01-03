@@ -47,6 +47,7 @@ process.stdin.on('end', () => {
 
     // Prevent infinite loop: if already in hook continuation, let Claude stop
     if (input.stop_hook_active) {
+      setState('idle');  // Reset state so next conversation triggers update
       process.exit(0);
     }
 
