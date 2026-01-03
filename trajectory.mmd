@@ -41,6 +41,12 @@ flowchart TD
     %% @node_fix_settings [ai-task]: hooks.json을 settings.json으로 수정 (Claude Code 훅 인식 문제 해결)
     node_fix_settings["settings.json 수정"]
 
+    %% @node_cli_commands [ai-task]: uninstall, update 명령어 추가 (curl + CLI)
+    node_cli_commands["uninstall/update 추가"]
+
+    %% @node_state_fix [ai-task]: stop_hook_active 시 state idle 리셋 버그 수정
+    node_state_fix["state 리셋 버그 수정"]
+
     node_research_start --> node_deadend_no_hook
     node_research_start --> node_deadend_md_weak
     node_research_start --> node_approach_file_monitor
@@ -54,6 +60,8 @@ flowchart TD
     node_init_analysis --> node_cli_package
     node_cli_package --> node_curl_install
     node_curl_install --> node_fix_settings
+    node_fix_settings --> node_cli_commands
+    node_cli_commands --> node_state_fix
 
     style node_research_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
     style node_deadend_no_hook fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
@@ -69,3 +77,5 @@ flowchart TD
     style node_cli_package fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_curl_install fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_fix_settings fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_cli_commands fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_state_fix fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
