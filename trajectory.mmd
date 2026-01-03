@@ -26,6 +26,9 @@ flowchart TD
     %% @node_mermaid_native [ai-task]: JSON에서 Mermaid 네이티브 포맷으로 완전 전환, Graph/Source 뷰 토글 구현
     node_mermaid_native["Mermaid 네이티브 포맷으로 전환"]
 
+    %% @node_hook_state [ai-task]: 훅 중복 방지를 키워드 매칭에서 상태 파일 기반으로 변경
+    node_hook_state["훅 상태 기반 관리 구현"]
+
     %% Edges
     node_research_start --> node_deadend_no_hook
     node_research_start --> node_deadend_md_weak
@@ -35,6 +38,7 @@ flowchart TD
     node_approach_export --> node_automation_research
     node_automation_research --> node_mermaid_migration
     node_mermaid_migration --> node_mermaid_native
+    node_mermaid_native --> node_hook_state
 
     %% Styles
     style node_research_start fill:#22c55e,stroke:#16a34a,color:#fff
@@ -46,3 +50,4 @@ flowchart TD
     style node_automation_research fill:#3b82f6,stroke:#2563eb,color:#fff
     style node_mermaid_migration fill:#3b82f6,stroke:#2563eb,color:#fff
     style node_mermaid_native fill:#3b82f6,stroke:#2563eb,color:#fff
+    style node_hook_state fill:#3b82f6,stroke:#2563eb,color:#fff

@@ -3,7 +3,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/update-trajectory.js\""
+        "command": "node .claude/hooks/update-trajectory.js"
       }
     ]
   }
