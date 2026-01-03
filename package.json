@@ -2,7 +2,7 @@
   "name": "viz-vibe",
   "displayName": "Viz Vibe",
   "description": "A graph-based workflow interface for seamless Human-AI collaboration",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "publisher": "viz-vibe",
   "repository": {
     "type": "git",
@@ -35,17 +35,29 @@
       {
         "command": "vizVibe.createWorkflow",
         "title": "Viz Vibe: Create New Workflow"
+      },
+      {
+        "command": "vizVibe.recordTurn",
+        "title": "Viz Vibe: Record Current Turn"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vizVibe.recordTurn",
+        "key": "alt+cmd+v",
+        "mac": "alt+cmd+v",
+        "when": "editorTextFocus || !editorTextFocus"
       }
     ],
     "languages": [
       {
-        "id": "vizflow",
+        "id": "mermaid",
         "aliases": [
-          "VizFlow",
-          "vizflow"
+          "Mermaid",
+          "mermaid"
         ],
         "extensions": [
-          ".vizflow"
+          ".mmd"
         ],
         "configuration": "./language-configuration.json"
       }
@@ -56,7 +68,7 @@
         "displayName": "Viz Vibe Graph Editor",
         "selector": [
           {
-            "filenamePattern": "*.vizflow"
+            "filenamePattern": "*.mmd"
           }
         ],
         "priority": "default"
