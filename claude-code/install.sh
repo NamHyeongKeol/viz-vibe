@@ -52,23 +52,37 @@ else
 fi
 
 # Add to .gitignore (hook scripts + runtime files)
+gitignore_entries=(
+    ".claude/hooks/*-trajectory.js"
+    ".claude/hooks/VIZVIBE.md"
+    ".claude/hooks/state.json"
+)
+
+added_count=0
 if [ -f ".gitignore" ]; then
-    # Check if Viz Vibe section already exists
-    if ! grep -q "# Viz Vibe" .gitignore 2>/dev/null; then
-        echo "" >> .gitignore
-        echo "# Viz Vibe (local install)" >> .gitignore
-        echo ".claude/hooks/*-trajectory.js" >> .gitignore
-        echo ".claude/hooks/VIZVIBE.md" >> .gitignore
-        echo ".claude/hooks/state.json" >> .gitignore
-        echo "  [update] .gitignore"
+    for entry in "${gitignore_entries[@]}"; do
+        # Use grep -x for exact line match, escape special chars for regex
+        escaped_entry=$(printf '%s' "$entry" | sed 's/[.[\*^$()+?{|]/\\&/g')
+        if ! grep -q "^${escaped_entry}$" .gitignore 2>/dev/null; then
+            # Add header comment before first entry
+            if [ $added_count -eq 0 ]; then
+                echo "" >> .gitignore
+                echo "# Viz Vibe (local install)" >> .gitignore
+            fi
+            echo "$entry" >> .gitignore
+            ((added_count++))
+        fi
+    done
+    if [ $added_count -gt 0 ]; then
+        echo "  [update] .gitignore (+$added_count entries)"
     else
-        echo "  [skip] .gitignore (Viz Vibe already configured)"
+        echo "  [skip] .gitignore (already configured)"
     fi
 else
     echo "# Viz Vibe (local install)" > .gitignore
-    echo ".claude/hooks/*-trajectory.js" >> .gitignore
-    echo ".claude/hooks/VIZVIBE.md" >> .gitignore
-    echo ".claude/hooks/state.json" >> .gitignore
+    for entry in "${gitignore_entries[@]}"; do
+        echo "$entry" >> .gitignore
+    done
     echo "  [create] .gitignore"
 fi
 
