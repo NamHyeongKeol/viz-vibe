@@ -50,6 +50,21 @@ flowchart TD
     %% @node_dev_hook_sync [ai-task]: 개발용 hook 파일(.claude/hooks/)과 템플릿(cli/templates/) 동기화 누락 수정
     node_dev_hook_sync["개발용 hook 동기화"]
 
+    %% @node_session_start_hook [ai-task]: SessionStart hook 추가로 세션 시작 시 trajectory.mmd 자동 읽기
+    node_session_start_hook["SessionStart hook 추가"]
+
+    %% @node_smart_uninstall [ai-task]: uninstall 시 settings.json에서 vizvibe hook만 제거, 다른 설정 유지
+    node_smart_uninstall["스마트 uninstall"]
+
+    %% @node_update_uninstall_refactor [ai-task]: update.sh 간소화, uninstall에서 trajectory.mmd 삭제, 로그 파일 제거
+    node_update_uninstall_refactor["update/uninstall 정리"]
+
+    %% @node_gitignore_hooks [ai-task]: install 시 hook 스크립트도 gitignore 추가 (로컬 전용 설치)
+    node_gitignore_hooks["hook gitignore 추가"]
+
+    %% @node_file_structure [ai-task]: shared/templates 폴더 생성, VIZVIBE.md를 .claude/hooks/로 이동
+    node_file_structure["파일 구조 정리"]
+
     node_research_start --> node_deadend_no_hook
     node_research_start --> node_deadend_md_weak
     node_research_start --> node_approach_file_monitor
@@ -66,6 +81,11 @@ flowchart TD
     node_fix_settings --> node_cli_commands
     node_cli_commands --> node_state_fix
     node_state_fix --> node_dev_hook_sync
+    node_dev_hook_sync --> node_session_start_hook
+    node_session_start_hook --> node_smart_uninstall
+    node_smart_uninstall --> node_update_uninstall_refactor
+    node_update_uninstall_refactor --> node_gitignore_hooks
+    node_gitignore_hooks --> node_file_structure
 
     style node_research_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
     style node_deadend_no_hook fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
@@ -84,3 +104,8 @@ flowchart TD
     style node_cli_commands fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_state_fix fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_dev_hook_sync fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_session_start_hook fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_smart_uninstall fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_update_uninstall_refactor fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_gitignore_hooks fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_file_structure fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px

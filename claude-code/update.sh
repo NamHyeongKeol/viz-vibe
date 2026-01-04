@@ -10,16 +10,33 @@ REPO_BASE="https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main"
 echo "Updating Viz Vibe..."
 echo ""
 
-# Only update the hook script
-file=".claude/hooks/update-trajectory.js"
+# Run uninstall (keeps trajectory.mmd by using --keep-trajectory flag internally)
+# We'll do a minimal uninstall that only removes hook scripts
 
-if [ ! -d ".claude/hooks" ]; then
-  echo "  [error] .claude/hooks/ not found. Run install first."
-  exit 1
-fi
+echo "Removing old hook scripts..."
+rm -f .claude/hooks/update-trajectory.js
+rm -f .claude/hooks/read-trajectory.js
+rm -f .claude/hooks/state.json
+echo "  [remove] old hook scripts"
 
-curl -fsSL "$REPO_BASE/claude-code/templates/update-trajectory.js" -o "$file"
-echo "  [update] $file"
+# Download latest files
+echo ""
+echo "Installing latest version..."
+
+files=(
+  "claude-code/templates/settings.json:.claude/settings.json"
+  "claude-code/templates/update-trajectory.js:.claude/hooks/update-trajectory.js"
+  "claude-code/templates/read-trajectory.js:.claude/hooks/read-trajectory.js"
+)
+
+for file in "${files[@]}"; do
+  src="${file%%:*}"
+  dest="${file##*:}"
+  curl -fsSL "$REPO_BASE/$src" -o "$dest"
+  echo "  [update] $dest"
+done
 
 echo ""
-echo "Done! Hook script updated to latest version."
+echo "Done! Viz Vibe updated to latest version."
+echo ""
+echo "Note: trajectory.mmd and VIZVIBE.md were preserved."

@@ -53,7 +53,7 @@ process.stdin.on('end', () => {
 
     const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
     const trajectoryPath = path.join(projectDir, 'trajectory.mmd');
-    const vizvibePath = path.join(projectDir, 'VIZVIBE.md');
+    const vizvibePath = path.join(projectDir, '.claude', 'hooks', 'VIZVIBE.md');
 
     // Check if trajectory.mmd exists
     if (!fs.existsSync(trajectoryPath)) {
@@ -92,15 +92,7 @@ process.stdin.on('end', () => {
     // Output instruction for Claude to continue and update trajectory
     const response = {
       decision: "block",
-      reason: `Task completed. Please update trajectory.mmd.
-
-Refer to VIZVIBE.md format guide:
-1. Add new node representing the work just done
-2. Choose appropriate node type (ai-task, condition, blocker, etc.)
-3. Connect with edges to existing nodes
-4. Add style definition
-
-Add only 1-2 key nodes concisely.`
+      reason: `Update trajectory.mmd (see .claude/hooks/VIZVIBE.md for format)`
     };
 
     process.stdout.write(JSON.stringify(response));

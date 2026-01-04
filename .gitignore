@@ -7,5 +7,6 @@ webview-ui/node_modules/
 webview-ui/dist/
 .DS_Store
 
-# Claude Code (installed per-project, not part of this repo)
-.claude/
+# Claude Code hook logs
+.claude/hooks/state.json
+.claude/hooks/*-trajectory.js
