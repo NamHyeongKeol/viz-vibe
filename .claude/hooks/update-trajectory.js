@@ -59,6 +59,11 @@ process.stdin.on('end', () => {
 
     // Prevent infinite loop: if already in hook continuation, let Claude stop
     if (input.stop_hook_active) {
+      // Reset state to idle when hook continuation ends
+      if (getState() === 'updating') {
+        setState('idle');
+        log('stop_hook_active=true, reset state to idle');
+      }
       log('stop_hook_active=true, exiting');
       process.exit(0);
     }

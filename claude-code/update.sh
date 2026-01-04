@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Viz Vibe Updater
-# Usage: curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/update.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/update.sh | bash
 
 set -e
 
@@ -18,7 +18,7 @@ if [ ! -d ".claude/hooks" ]; then
   exit 1
 fi
 
-curl -fsSL "$REPO_BASE/cli/templates/update-trajectory.js" -o "$file"
+curl -fsSL "$REPO_BASE/claude-code/templates/update-trajectory.js" -o "$file"
 echo "  [update] $file"
 
 echo ""

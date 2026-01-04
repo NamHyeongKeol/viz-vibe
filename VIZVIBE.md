@@ -4,6 +4,140 @@ This document provides instructions for AI assistants on how to maintain the `tr
 
 ---
 
+## About Viz Vibe
+
+# Viz-Vibe: Visual Context Map for Vibe Coding
+
+**Viz Vibe** is a graph-based navigator to track your coding trajectory and maintain context across threads. We make human-AI collaboration seamless by keeping coding context clear at a glance.
+
+### What is `trajectory.mmd`?
+
+The `trajectory.mmd` file is a **Mermaid flowchart** that serves as:
+
+- A **visual map** of the project's evolution
+- A **shared context** between human and AI
+- A **TODO/hypothesis tracker** in graph form
+- A **memory** that persists across conversation sessions
+
+It's not a changelog or commit log — it's a **living document** that captures the high-level journey of a project.
+
+---
+
+## User Context
+
+### Who Uses Viz Vibe?
+
+Our primary users are developers who:
+
+- Are in the middle of **vibe coding** with an AI assistant
+- Have been struggling with **context management** across sessions
+- Want to visualize their coding journey without losing momentum
+
+### Installation Scenario
+
+Users typically install Viz Vibe **while keeping their current AI conversation session active**:
+
+- They open a **separate terminal window** to run the install command
+- Their main AI session (Cursor, Antigravity, VS Code, Claude Code, Codex CLI) continues running
+- They expect the AI to immediately understand and use the trajectory
+
+### The Critical First Draft
+
+**Creating a good initial graph is essential.**
+
+The **primary data source** is the user's current conversation history with their AI assistant. This reveals:
+
+- What the user has been working on
+- What decisions were made
+- What's still pending
+- What blockers were encountered
+
+**AI assistants should:**
+
+1. Thoroughly read the current conversation history
+2. Extract key milestones, decisions, and pending work
+3. Create a well-structured initial trajectory graph
+4. Capture both completed work (`closed`) and planned work (`opened`)
+
+### Always Review Codebase and Git History
+
+**Even when conversation history seems sufficient**, always examine the codebase and git history to:
+
+- **Fill gaps**: Capture work that happened before this conversation or in other sessions
+- **Verify understanding**: Confirm that conversation context matches actual code state
+- **Add missing context**: Include important project history not mentioned in the conversation
+
+**What to look for:**
+
+- **Git logs**: Get the big picture of recent work
+  - Focus on the current branch's recent commits
+  - Understand relationships with other branches
+  - Don't analyze each commit in detail — understand the trajectory
+- **Code structure**: Understand project organization and patterns
+- **Recent changes**: Identify what's actively being developed
+
+**Key principle**: The conversation is the starting point, but the trajectory should reflect the **full project context** — including things the user didn't explicitly mention.
+
+### Capture the Human-AI Perspective
+
+The trajectory should capture more than just code changes — it should reflect the **shared understanding** between the user and AI:
+
+- **Interpretation of history**: How do we understand what was done and why?
+- **Future direction**: What are the agreed-upon next steps?
+- **Open questions**: What hypotheses need validation?
+- **Lessons learned**: What approaches worked or didn't work?
+
+The `.mmd` file is not just a changelog — it's a **living map of the project's context** as understood by both human and AI.
+
+### Update Granularity
+
+**Code changes and trajectory updates are not always coupled:**
+
+| Scenario                                                                   | Update .mmd? |
+| -------------------------------------------------------------------------- | ------------ |
+| Major discussion without code changes (e.g., planning, deciding direction) | ✅ Yes       |
+| Small code fix or routine refactoring                                      | ❌ No        |
+| New hypothesis or approach identified                                      | ✅ Yes       |
+| Bug fix that doesn't change project direction                              | ❌ No        |
+| Completing a significant milestone                                         | ✅ Yes       |
+
+Think of the trajectory as a **graph of TODOs and hypotheses**, not a log of every action. It operates at a higher level than individual code changes.
+
+**Rule of thumb**: If it's something you'd want to remember when resuming work tomorrow, or when explaining the project to a new collaborator — it belongs in the trajectory.
+
+---
+
+## Key Decisions When Building the Graph
+
+When adding information to the trajectory, two decisions are critical:
+
+### Decision 1: Should this be a node?
+
+Not every piece of information deserves a node. Ask:
+
+- Is this significant enough to remember?
+- Would this help understand the project's evolution?
+- Is this a milestone, decision point, or learning?
+- If there are two similar plans or tasks at the same level, either add both or add neither — don't create an unbalanced graph
+
+If no — don't add it. Keep the graph focused.
+
+### Decision 2: How should nodes be connected?
+
+**Which node to connect to is critically important.**
+
+Once you decide to add a node, determine:
+
+- **Which existing node(s) should it connect to?** Choose carefully — this defines the relationship.
+- **Should it connect at all?** Not all nodes need connections.
+- **Parallel or sequential?**
+  - **Parallel**: Independent tasks that can happen in any order
+  - **Sequential**: Task B depends on Task A completing first
+
+This is where most mistakes happen — connecting things that shouldn't be connected, or chaining independent tasks.
+
+---
+
 ## Core Principles
 
 ### 1. Graph-Based History
@@ -23,33 +157,37 @@ The trajectory should clearly state:
 
 Place these as prominent nodes or comments at the top of the graph.
 
-### 3. Future Work as Parallel Branches
+### 3. Connecting Nodes: Parallel vs Sequential
 
-When identifying future tasks from the current session:
+When adding new nodes, carefully consider how they relate to existing nodes:
 
-- Add them as **parallel nodes** under a common parent (branch point)
-- Future tasks can be specific implementations OR hypotheses to validate
-- If already well-documented, no need to add duplicates
+**Parallel connections** (branch from same parent):
 
-### 4. Dependency Relationships
+- Tasks are independent and can happen in any order
+- No dependency between them
+- Common for "options to explore" or "alternative approaches"
 
-Be precise about task relationships:
+**Sequential connections** (chain A → B):
 
-- **Dependent tasks**: Connected in sequence (A → B means B depends on A)
-- **Independent tasks**: Connected only to their parent, NOT to each other
-- Don't connect unrelated tasks just because they're "next"
+- Task B depends on Task A
+- B cannot start until A is done
+- Represents true dependency
 
 ```mermaid
-%% CORRECT: Independent tasks branch from parent
-parent --> task_a
-parent --> task_b
-parent --> task_c
+%% PARALLEL: Independent tasks branch from parent
+parent --> option_a
+parent --> option_b
+parent --> option_c
 
-%% WRONG: Don't chain independent tasks
-parent --> task_a --> task_b --> task_c
+%% SEQUENTIAL: B depends on A
+task_a --> task_b --> task_c
 ```
 
-### 5. Only Important Context
+**Common mistake**: Chaining tasks just because they happened in order. If there's no real dependency, they should be parallel.
+
+**Note**: Future work is often parallel (multiple things to try), but can be sequential if there's a clear dependency chain.
+
+### 4. Only Important Context
 
 **DO NOT** add every small task to the trajectory:
 
@@ -114,6 +252,21 @@ Common reasons to restructure:
 - Parallel work was incorrectly shown as sequential
 - The graph doesn't match the actual project evolution
 - Key context was missing or misrepresented
+
+### Proactively Suggest Corrections
+
+When new information causes a **reinterpretation** of past history or future plans:
+
+- The entire map may need to be restructured
+- **Don't wait for the user to ask** — proactively suggest corrections
+- Explain what changed and why the current structure is inaccurate
+- Propose a revised structure that reflects the new understanding
+
+This is especially important when:
+
+- A major assumption turns out to be wrong
+- The project direction fundamentally shifts
+- Previously separate efforts are now understood to be connected (or vice versa)
 
 ### Adding Nodes
 

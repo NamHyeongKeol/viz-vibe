@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Viz Vibe Uninstaller
-# Usage: curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/uninstall.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
 
 set -e
 

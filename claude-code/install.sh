@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Viz Vibe Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
 
 set -e
 
@@ -15,10 +15,10 @@ mkdir -p .claude/hooks
 
 # Download files
 files=(
-  "cli/templates/settings.json:.claude/settings.json"
-  "cli/templates/update-trajectory.js:.claude/hooks/update-trajectory.js"
-  "cli/templates/trajectory.mmd:trajectory.mmd"
-  "cli/templates/VIZVIBE.md:VIZVIBE.md"
+  "claude-code/templates/settings.json:.claude/settings.json"
+  "claude-code/templates/update-trajectory.js:.claude/hooks/update-trajectory.js"
+  "claude-code/templates/trajectory.mmd:trajectory.mmd"
+  "VIZVIBE.md:VIZVIBE.md"
 )
 
 created=0

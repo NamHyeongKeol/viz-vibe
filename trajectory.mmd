@@ -47,6 +47,9 @@ flowchart TD
     %% @node_state_fix [ai-task]: stop_hook_active 시 state idle 리셋 버그 수정
     node_state_fix["state 리셋 버그 수정"]
 
+    %% @node_dev_hook_sync [ai-task]: 개발용 hook 파일(.claude/hooks/)과 템플릿(cli/templates/) 동기화 누락 수정
+    node_dev_hook_sync["개발용 hook 동기화"]
+
     node_research_start --> node_deadend_no_hook
     node_research_start --> node_deadend_md_weak
     node_research_start --> node_approach_file_monitor
@@ -62,6 +65,7 @@ flowchart TD
     node_curl_install --> node_fix_settings
     node_fix_settings --> node_cli_commands
     node_cli_commands --> node_state_fix
+    node_state_fix --> node_dev_hook_sync
 
     style node_research_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
     style node_deadend_no_hook fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
@@ -79,3 +83,4 @@ flowchart TD
     style node_fix_settings fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_cli_commands fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style node_state_fix fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style node_dev_hook_sync fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px

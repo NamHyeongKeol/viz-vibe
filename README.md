@@ -26,7 +26,9 @@ A graph-based navigator to track your coding trajectory and maintain context acr
 
 **Viz Vibe** is an open-source project that provides a **graph-structured workflow** as an interface for collaboration between humans and AI. By visualizing the coding process as an interactive graph, it enables intuitive and efficient "vibe coding" experiences.
 
-> 💡 *Vibe Coding* — A new paradigm where developers and AI work together in harmony, guided by visual workflows and intuitive interactions.
+> 💡 _Vibe Coding_ — A new paradigm where developers and AI work together in harmony, guided by visual workflows and intuitive interactions.
+
+---
 
 ## 🚀 Getting Started
 
@@ -35,290 +37,172 @@ A graph-based navigator to track your coding trajectory and maintain context acr
 Run this one-liner in your project directory:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
 ```
 
 This creates:
+
 - `.claude/settings.json` — Claude Code settings with hooks
 - `.claude/hooks/update-trajectory.js` — Auto-update script
-- `trajectory.mmd` — Your work history graph
-- `VIZVIBE.md` — AI instructions
+- `trajectory.mmd` — Your work history graph (Mermaid format)
+- `VIZVIBE.md` — AI instructions for trajectory management
 
 **That's it!** Claude Code will automatically update `trajectory.mmd` after each response.
 
-### For VS Code / Cursor / Antigravity(Windsurf) Users
-
-1. Install the **Viz Vibe** extension from marketplace
-2. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
-3. Open `trajectory.mmd` to see the graph visualization
-
-### Using npm (Node.js projects)
+#### Other Commands
 
 ```bash
-npx @viz-vibe/cli init
+# Update hook script to latest version
+curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/update.sh | bash
+
+# Uninstall (keeps trajectory.mmd and VIZVIBE.md)
+curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
 ```
+
+### For VS Code / Cursor / Antigravity (Windsurf) Users
+
+1. Download the latest `.vsix` from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
+2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
+3. Select the downloaded file and reload
+4. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
+5. Open `trajectory.mmd` to see the graph visualization
 
 ---
 
 ## ✨ Features
 
-- 🔗 **Graph-based Workflows** — Visualize and manage your coding tasks as interconnected nodes
-- 🤝 **Human-AI Collaboration** — Seamlessly integrate AI assistance into your development workflow
-- 📊 **Interactive Visualization** — Real-time visual feedback for your coding journey
-- 🔄 **Flexible Integration** — Easy to integrate with your existing tools and workflows
-- 📁 **`.vizflow` File Format** — AI-editable JSON-based workflow files
-- 🤖 **AI-Native Design** — Built from the ground up for AI assistants to read and modify
+- 🔗 **Graph-based Context** — Visualize your coding journey as interconnected nodes
+- 🤝 **Human-AI Collaboration** — Track decisions, blockers, and progress together
+- 📊 **Mermaid Native** — Uses standard Mermaid syntax, viewable anywhere (GitHub, Notion, etc.)
+- 🔄 **Auto-Update** — Trajectory updates automatically after AI responses (Claude Code)
+- 📁 **`.mmd` File Format** — Human-readable, AI-editable Mermaid flowcharts
+- 🤖 **AI-Native Design** — Built for AI assistants to read and modify
+
+---
+
+## 📁 File Format
+
+Viz Vibe uses **Mermaid flowchart** syntax for trajectories:
+
+```mermaid
+flowchart TD
+    %% @task_auth [ai-task, closed]: Implemented JWT authentication
+    task_auth["JWT Authentication"]
+
+    %% @task_tests [ai-task, opened]: Write integration tests
+    task_tests["Integration Tests"]
+
+    task_auth --> task_tests
+
+    style task_auth fill:#334155,stroke:#475569,color:#f8fafc
+    style task_tests fill:#334155,stroke:#475569,color:#f8fafc
+```
+
+### Node States
+
+Every node has a state:
+
+- `[opened]` — TODO: Planned but not yet started
+- `[closed]` — DONE: Completed, blocked, or no longer needed
+
+### Node Types
+
+| Type         | Shape       | Use Case                |
+| ------------ | ----------- | ----------------------- |
+| `start`      | `(["..."])` | Project/phase beginning |
+| `ai-task`    | `["..."]`   | AI work, implementation |
+| `human-task` | `["..."]`   | Human action/decision   |
+| `condition`  | `{"..."}`   | Branch point            |
+| `blocker`    | `{{"..."}}` | Dead end                |
+| `end`        | `(["..."])` | Completion              |
 
 ---
 
 ## 🤖 AI Integration
 
-### How AI Assistants Interact with Viz Vibe
+### VIZVIBE.md — AI Instructions
 
-Viz Vibe is designed to be **AI-native**. AI assistants (GitHub Copilot, Cursor, Claude, Antigravity, etc.) can:
+The `VIZVIBE.md` file provides instructions for AI assistants on how to maintain the trajectory. It includes:
 
-#### 1. **Read Workflows** 📖
-AI can read `.vizflow` files to understand:
-- Current project structure and progress
-- Pending tasks and their dependencies
-- Workflow state and decision points
+- Graph structure guidelines
+- Node state management (`opened`/`closed`)
+- When to add, close, or delete nodes
+- Relationship modeling (dependencies vs parallel work)
 
-```
-User: "What's the current status of my workflow?"
-AI: *reads workflow.vizflow* "Your workflow has 5 nodes. 
-     The 'Analyze Code' task is complete, and you're at the 
-     'Needs Refactoring?' decision point..."
-```
+See the full guide: [VIZVIBE.md](./VIZVIBE.md)
 
-#### 2. **Modify Workflows** ✏️
-AI can directly edit `.vizflow` files to:
-- Add new task nodes
-- Update task descriptions and prompts
-- Reorganize workflow structure
-- Mark tasks as complete
+### How It Works
 
-```
-User: "Add a 'Write Tests' step after refactoring"
-AI: *edits workflow.vizflow* "Added 'Write Tests' node 
-     connected after 'Refactor Code'. The graph UI will 
-     update automatically."
-```
-
-#### 3. **Sync with Graph UI** 🔄
-When AI modifies the `.vizflow` file:
-- The Viz Vibe extension detects the change
-- Graph UI updates **in real-time**
-- No manual refresh needed!
+1. **AI reads** `trajectory.mmd` to understand project context
+2. **AI works** on your tasks
+3. **AI updates** the trajectory with new nodes or state changes
+4. **Graph UI** reflects changes in real-time (VS Code extension)
 
 ---
 
-### 📋 VIZVIBE.md - AI Instructions File
-
-Create a `VIZVIBE.md` file in your project root to provide **custom instructions** to AI assistants about how to work with your workflows.
-
-#### Template
-
-```markdown
-# VIZVIBE.md - AI Instructions for Viz Vibe
-
-## Workflow File Location
-./workflow.vizflow
-
-## Project-Specific Instructions
-- This project uses a TDD workflow
-- Always add test nodes before implementation nodes
-- Use descriptive labels for AI tasks
-
-## Node Naming Convention
-- Use kebab-case for node IDs: `analyze-code`, `write-tests`
-- Prefix AI tasks with the action: `ai-review`, `ai-generate`
-
-## Current Sprint Goals
-- [ ] Complete authentication module
-- [ ] Add error handling
-- [ ] Write integration tests
-```
-
-#### Why VIZVIBE.md?
-
-| Benefit | Description |
-|---------|-------------|
-| 🎯 **Context** | AI understands your project's workflow conventions |
-| 📏 **Consistency** | Ensures AI follows your team's standards |
-| 🔧 **Customization** | Tailor AI behavior for your specific needs |
-| 📝 **Documentation** | Serves as workflow documentation for your team |
-
----
-
-## 📦 Installation
-
-### From VS Code Marketplace (Coming Soon)
-
-Search for "Viz Vibe" in the VS Code Extensions marketplace.
-
-### Install from .vsix File
-
-1. Download the latest `.vsix` file from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
-2. In VS Code/Cursor: `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
-3. Select the downloaded `.vsix` file
-4. Reload the window (`Cmd+Shift+P` → "Developer: Reload Window")
-
-### Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/NamHyeongKeol/viz-vibe.git
-
-# Navigate to the project directory
-cd viz-vibe
-
-# Install dependencies
-npm install
-
-# Compile the extension
-npm run compile
-
-# Package as .vsix (optional)
-npx @vscode/vsce package
-```
-
-Then press `F5` in VS Code to launch the Extension Development Host.
-
-### For Terminal-based AI Tools (Claude Code, Codex CLI, etc.)
-
-No extension needed! These tools can directly read and modify `.vizflow` files:
-
-```bash
-# Create a workflow file in your project
-touch workflow.vizflow
-
-# AI can read/write this JSON file directly
-cat workflow.vizflow
-```
-
-Add a `VIZVIBE.md` file to provide context to the AI about your workflow conventions.
-
----
-
-## 🎯 Usage
-
-### Creating a Workflow
-
-1. Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-2. Run `Viz Vibe: Create New Workflow`
-3. Enter a filename (e.g., `my-workflow.vizflow`)
-
-### Opening a Workflow
-
-Simply open any `.vizflow` file — the **Graph Editor** will display automatically instead of raw JSON!
-
-### Workflow File Format
-
-Workflows are stored as `.vizflow` files (JSON format), making them **easily editable by AI assistants**:
-
-```json
-{
-  "version": "1.0",
-  "nodes": [
-    {
-      "id": "start",
-      "type": "start",
-      "position": { "x": 100, "y": 50 },
-      "data": { "label": "Start" }
-    },
-    {
-      "id": "analyze",
-      "type": "ai-task",
-      "position": { "x": 100, "y": 150 },
-      "data": { 
-        "label": "Analyze Code",
-        "prompt": "Analyze the codebase for improvements"
-      }
-    }
-  ],
-  "edges": [
-    { "id": "e1", "source": "start", "target": "analyze" }
-  ]
-}
-```
-
-### Node Types
-
-| Type | Description | Color |
-|------|-------------|-------|
-| `start` | Entry point of the workflow | 🟢 Green |
-| `ai-task` | AI-powered task node | 🔵 Blue |
-| `condition` | Decision/branching node | 🟠 Orange |
-| `end` | Exit point of the workflow | 🔴 Red |
-
-### Graph Editor Features
-
-- **Drag & Drop** — Move nodes by dragging
-- **Add Nodes** — Use toolbar buttons to add new nodes
-- **Delete Nodes** — Select a node and click Delete
-- **Auto-Save** — Changes save automatically to the `.vizflow` file
-
----
-
-## 🛠 Development
+## � Installation
 
 ### Project Structure
 
 ```
 viz-vibe/
-├── src/
-│   ├── extension.ts              # Extension entry point
-│   ├── VizFlowEditorProvider.ts  # Custom editor (main area)
-
-├── examples/
-│   ├── code-review.vizflow       # Example workflow
-│   └── VIZVIBE.md                # Example AI instructions
-├── .vscode/
-│   ├── launch.json               # Debug configuration
-│   └── tasks.json                # Build tasks
-├── package.json                  # Extension manifest
+├── vscode-extension/     # VS Code, Cursor, Antigravity
+│   ├── src/
+│   ├── package.json
+│   └── ...
+│
+├── claude-code/          # Claude Code
+│   ├── templates/
+│   ├── install.sh
+│   ├── uninstall.sh
+│   └── update.sh
+│
+├── mcp-server/           # MCP Server (optional)
+│
+├── VIZVIBE.md            # AI instructions (shared)
 └── README.md
 ```
 
-### Commands
+### Build VS Code Extension from Source
 
 ```bash
-# Watch mode (auto-compile on save)
-npm run watch
+# Clone the repository
+git clone https://github.com/NamHyeongKeol/viz-vibe.git
+cd viz-vibe/vscode-extension
 
-# One-time compile
+# Install dependencies
+npm install
+
+# Compile
 npm run compile
 
 # Package as .vsix
-npx vsce package
+npx @vscode/vsce package
 ```
 
-### Debugging
+### Development
 
-1. Open this project in VS Code
-2. Press `F5` to launch Extension Development Host
-3. The extension will be active in the new window
+```bash
+cd vscode-extension
+
+# Watch mode
+npm run watch
+
+# Debug: Press F5 in VS Code
+```
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions from the community! Whether it's:
+We welcome contributions! Whether it's:
 
 - 🐛 Bug reports
 - 💡 Feature suggestions
 - 📝 Documentation improvements
 - 🔧 Code contributions
 
-Please feel free to open an issue or submit a pull request.
-
-### Contribution Ideas
-
-- [ ] Add more node types (loop, parallel, etc.)
-- [ ] Implement edge creation via drag
-- [ ] Add node editing modal
-- [ ] Create workflow templates
-- [ ] Add workflow validation
+Please open an issue or submit a pull request.
 
 ---
 
