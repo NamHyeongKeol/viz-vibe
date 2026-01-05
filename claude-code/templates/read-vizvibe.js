@@ -32,6 +32,12 @@ for (const line of lines) {
   }
 }
 
+// Read VIZVIBE.md if exists
+let vizvibeMdContent = '';
+if (fs.existsSync(vizvibePath)) {
+  vizvibeMdContent = fs.readFileSync(vizvibePath, 'utf-8');
+}
+
 // Build context message
 let context = `=== Viz Vibe: Project Trajectory ===
 
@@ -41,7 +47,8 @@ Current trajectory has ${nodeDescriptions.length} nodes:
 ${nodeDescriptions.slice(-5).join('\n')}
 ${nodeDescriptions.length > 5 ? `\n... and ${nodeDescriptions.length - 5} more nodes` : ''}
 
-See .claude/hooks/VIZVIBE.md for formatting guide.
+---
+${vizvibeMdContent}
 `;
 
 // Output as JSON with additionalContext

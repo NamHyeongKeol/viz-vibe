@@ -306,6 +306,115 @@ When new information changes the graph:
 
 ---
 
+## Real-World Example
+
+Here's a complete example of a `vizvibe.mmd` file from the Viz Vibe project itself:
+
+```mermaid
+flowchart TD
+    %% === PROJECT GOALS ===
+    %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
+    %% Current Goal: Stabilize Claude Code integration, expand to other platforms
+
+    %% === START & GOAL ===
+
+    %% @project_start [start, closed]: Project started - graph-based context management tool
+    project_start(["Viz Vibe Project Start"])
+
+    %% @ultimate_goal [end, opened]: Ultimate goal - visualize context and maintain memory across sessions in all AI coding environments
+    ultimate_goal(["Solve Context Problem in Human-AI Collaboration<br/><sub>Visualize context as graph, persist memory across sessions<br/>Works in all AI coding environments</sub>"])
+
+    %% === COMPLETED WORK ===
+
+    %% @mermaid_native [ai-task, closed]: Switched from JSON to Mermaid .mmd - renders anywhere (GitHub, Notion, etc.)
+    mermaid_native["Switch to Mermaid Native Format<br/><sub>JSON → .mmd, renders anywhere</sub>"]
+
+    %% @claude_code_hooks [ai-task, closed]: Implemented Claude Code hooks - auto read/update via SessionStart/Stop
+    claude_code_hooks["Claude Code Hook System<br/><sub>SessionStart/Stop automation</sub>"]
+
+    %% @vizvibe_guide [ai-task, closed]: Created VIZVIBE.md guide - documented how AI manages trajectory
+    vizvibe_guide["VIZVIBE.md Guide<br/><sub>AI trajectory management guide</sub>"]
+
+    %% @install_scripts [ai-task, closed]: Created install scripts - one-liner curl install/uninstall/update
+    install_scripts["CLI Install Scripts<br/><sub>curl one-liner install/uninstall/update</sub>"]
+
+    %% @vscode_extension [ai-task, closed]: Developed VS Code extension - .mmd file graph visualization
+    vscode_extension["VS Code Extension<br/><sub>Mermaid graph real-time visualization</sub>"]
+
+    %% @read_hook_improve [ai-task, closed]: Improved read-vizvibe.js - reads both vizvibe.mmd and VIZVIBE.md
+    read_hook_improve["Init Hook Improvement<br/><sub>Also reads VIZVIBE.md</sub>"]
+
+    %% === FUTURE WORK ===
+
+    %% @lib_packaging [ai-task, opened]: Library packaging - provide SDK for Python, Java, JS environments
+    lib_packaging["Library Packaging<br/><sub>Python, Java, JS SDK</sub>"]
+
+    %% @mcp_server [ai-task, opened]: Complete MCP server - enable use with other AI clients
+    mcp_server["Complete MCP Server<br/><sub>Universal AI client support</sub>"]
+
+    %% @codex_cli [ai-task, opened]: Codex CLI support - hook-based integration like Claude Code
+    codex_cli["Codex CLI Support<br/><sub>Hook-based integration</sub>"]
+
+    %% @ide_extensions [ai-task, opened]: Expand IDE extension support - VS Code, Cursor, Antigravity
+    ide_extensions["Expand IDE Extension Support<br/><sub>VS Code, Cursor, Antigravity</sub>"]
+
+    %% @improve_docs [ai-task, opened]: Improve documentation - add real project examples to VIZVIBE.md
+    improve_docs["Add Project Examples to Docs<br/><sub>Real examples in VIZVIBE.md</sub>"]
+
+    %% === CONNECTIONS ===
+    project_start --> mermaid_native
+    mermaid_native --> claude_code_hooks
+    mermaid_native --> vscode_extension
+    claude_code_hooks --> vizvibe_guide
+    claude_code_hooks --> install_scripts
+    claude_code_hooks --> read_hook_improve
+    claude_code_hooks --> lib_packaging
+    claude_code_hooks --> codex_cli
+    mermaid_native --> mcp_server
+    vscode_extension --> ide_extensions
+    vizvibe_guide --> improve_docs
+    lib_packaging -.-> ultimate_goal
+    mcp_server -.-> ultimate_goal
+    codex_cli -.-> ultimate_goal
+    ide_extensions -.-> ultimate_goal
+    improve_docs -.-> ultimate_goal
+
+    %% === STYLES ===
+    %% Start (emerald)
+    style project_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+
+    %% Ultimate Goal (gray - end node)
+    style ultimate_goal fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
+
+    %% Closed AI Tasks (slate)
+    style mermaid_native fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style claude_code_hooks fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style vizvibe_guide fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style install_scripts fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style vscode_extension fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style read_hook_improve fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+
+    %% Opened AI Tasks (amber border)
+    style lib_packaging fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style mcp_server fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style codex_cli fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style ide_extensions fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style improve_docs fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+```
+
+### Key Patterns in This Example
+
+1. **Start & Goal nodes**: Project start (emerald) and ultimate goal (gray) frame the trajectory
+2. **Title + Description format**: `["Title<br/><sub>Description</sub>"]` — Shows both what and why
+3. **Clear separation**: Completed work (closed) vs Future work (opened)
+4. **Parallel branches from same parent**:
+   - `claude_code_hooks` → `lib_packaging`, `codex_cli` (independent CLI integrations)
+   - `vscode_extension` → `ide_extensions` (IDE-related work)
+5. **Dashed lines to ultimate goal (-.->)**: Shows what needs to be done but not yet achieved
+6. **Visual distinction**: Closed tasks (slate) vs Opened tasks (amber border) vs Goal (gray)
+
+---
+
 ## File Format
 
 ### Structure

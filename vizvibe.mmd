@@ -1,56 +1,91 @@
 flowchart TD
     %% === PROJECT GOALS ===
-    %% Ultimate Goal: Visual context map tool for AI-human vibe coding collaboration
-    %% Current Goal: Rename trajectory.mmd to vizvibe.mmd for better UX
+    %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
+    %% Current Goal: Stabilize Claude Code integration, expand to other platforms
 
-    %% === PHASE 1: Foundation ===
-    %% @start [start, closed]: Viz Vibe project initialized
-    start(["Project Start"])
+    %% === START & GOAL ===
 
-    %% @vscode_ext [ai-task, closed]: VS Code extension with graph-based workflow editor
-    vscode_ext["VS Code Extension"]
+    %% @project_start [start, closed]: Viz Vibe 프로젝트 시작 - 그래프 기반 컨텍스트 관리 도구
+    project_start(["Viz Vibe 프로젝트 시작"])
 
-    %% @ai_integration [ai-task, closed]: AI integration with VIZVIBE.md instructions
-    ai_integration["AI Integration"]
+    %% @ultimate_goal [end, opened]: 궁극적 목표 - 모든 AI 코딩 환경에서 컨텍스트를 시각화하고 세션 간 맥락을 유지
+    ultimate_goal(["Human-AI 협업의 컨텍스트 문제 해결<br/><sub>그래프로 맥락 시각화, 세션 간 기억 유지<br/>모든 AI 코딩 환경에서 동작</sub>"])
 
-    %% === PHASE 2: Features ===
-    %% @pan_zoom [ai-task, closed]: Pan/Zoom canvas functionality
-    pan_zoom["Pan/Zoom Canvas"]
+    %% === COMPLETED WORK ===
 
-    %% @mermaid_native [ai-task, closed]: Switch to Mermaid native .mmd format
-    mermaid_native["Mermaid Native Format"]
+    %% @mermaid_native [ai-task, closed]: JSON에서 Mermaid .mmd로 전환 - GitHub, Notion 등에서 바로 렌더링 가능
+    mermaid_native["Mermaid 네이티브 포맷 전환<br/><sub>JSON → .mmd, 어디서나 렌더링</sub>"]
 
-    %% === PHASE 3: Distribution ===
-    %% @claude_code_cli [ai-task, closed]: CLI installer for Claude Code users
-    claude_code_cli["Claude Code CLI Installer"]
+    %% @claude_code_hooks [ai-task, closed]: Claude Code 훅 구현 - SessionStart/Stop 훅으로 자동 읽기/업데이트
+    claude_code_hooks["Claude Code 훅 시스템 구현<br/><sub>SessionStart/Stop 자동화</sub>"]
 
-    %% @session_hooks [ai-task, closed]: SessionStart hook for auto-context loading
-    session_hooks["SessionStart Hook"]
+    %% @vizvibe_guide [ai-task, closed]: VIZVIBE.md 가이드 작성 - AI가 trajectory를 관리하는 방법 문서화
+    vizvibe_guide["VIZVIBE.md 가이드 작성<br/><sub>AI용 trajectory 관리 가이드</sub>"]
 
-    %% @vizvibe_guide [ai-task, closed]: VIZVIBE.md guide improvements
-    vizvibe_guide["VIZVIBE.md Guide"]
+    %% @install_scripts [ai-task, closed]: 설치 스크립트 제작 - curl 한 줄로 설치/삭제/업데이트 가능
+    install_scripts["CLI 설치 스크립트<br/><sub>curl 원라이너 install/uninstall/update</sub>"]
 
-    %% === CURRENT ===
-    %% @rename_vizvibe [ai-task, closed]: Rename trajectory.mmd to vizvibe.mmd
-    rename_vizvibe["Rename to vizvibe.mmd"]
+    %% @vscode_extension [ai-task, closed]: VS Code 확장 개발 - .mmd 파일 그래프 시각화
+    vscode_extension["VS Code 확장 개발<br/><sub>Mermaid 그래프 실시간 시각화</sub>"]
 
-    %% === EDGES ===
-    start --> vscode_ext
-    start --> ai_integration
-    vscode_ext --> pan_zoom
-    ai_integration --> mermaid_native
-    mermaid_native --> claude_code_cli
-    claude_code_cli --> session_hooks
-    session_hooks --> vizvibe_guide
-    vizvibe_guide --> rename_vizvibe
+    %% @read_hook_improve [ai-task, closed]: read-vizvibe.js 개선 - vizvibe.mmd와 VIZVIBE.md 모두 읽기
+    read_hook_improve["init 훅 개선<br/><sub>VIZVIBE.md도 함께 읽도록</sub>"]
+
+    %% === FUTURE WORK ===
+
+    %% @lib_packaging [ai-task, opened]: 라이브러리 패키지화 - Python, Java, JS 각 환경에 맞게 SDK 제공
+    lib_packaging["라이브러리 패키지화<br/><sub>Python, Java, JS SDK</sub>"]
+
+    %% @mcp_server [ai-task, opened]: MCP 서버 완성 - 다른 AI 클라이언트에서도 사용 가능하게
+    mcp_server["MCP 서버 완성<br/><sub>범용 AI 클라이언트 지원</sub>"]
+
+    %% @codex_cli [ai-task, opened]: Codex CLI 지원 - Claude Code처럼 훅 기반 통합
+    codex_cli["Codex CLI 지원<br/><sub>훅 기반 통합</sub>"]
+
+    %% @ide_extensions [ai-task, opened]: IDE 확장 지원 확대 - VS Code, Cursor, Antigravity
+    ide_extensions["IDE 확장 지원 확대<br/><sub>VS Code, Cursor, Antigravity</sub>"]
+
+    %% @improve_docs [ai-task, closed]: 문서 개선 - VIZVIBE.md에 실제 프로젝트 예시 추가
+    improve_docs["문서에 프로젝트 예시 추가<br/><sub>VIZVIBE.md에 실전 예시 포함</sub>"]
+
+    %% === CONNECTIONS ===
+    project_start --> mermaid_native
+    lib_packaging -.-> ultimate_goal
+    mcp_server -.-> ultimate_goal
+    codex_cli -.-> ultimate_goal
+    ide_extensions -.-> ultimate_goal
+    improve_docs -.-> ultimate_goal
+    mermaid_native --> claude_code_hooks
+    mermaid_native --> vscode_extension
+    claude_code_hooks --> vizvibe_guide
+    claude_code_hooks --> install_scripts
+    claude_code_hooks --> read_hook_improve
+    claude_code_hooks --> lib_packaging
+    claude_code_hooks --> codex_cli
+    mermaid_native --> mcp_server
+    vscode_extension --> ide_extensions
+    vizvibe_guide --> improve_docs
 
     %% === STYLES ===
-    style start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
-    style vscode_ext fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style ai_integration fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style pan_zoom fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    %% Start (emerald)
+    style project_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+
+    %% Ultimate Goal (gray - end node)
+    style ultimate_goal fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
+
+    %% Closed AI Tasks (slate)
     style mermaid_native fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style claude_code_cli fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style session_hooks fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style claude_code_hooks fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style vizvibe_guide fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style rename_vizvibe fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style install_scripts fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style vscode_extension fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style read_hook_improve fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+
+    %% Recently closed
+    style improve_docs fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+
+    %% Opened AI Tasks (amber border)
+    style lib_packaging fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style mcp_server fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style codex_cli fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style ide_extensions fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px

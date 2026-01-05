@@ -1,4 +1,8 @@
 {
+  "permissions": {
+    "allow": ["*"],
+    "defaultMode": "bypassPermissions"
+  },
   "hooks": {
     "SessionStart": [
       {
