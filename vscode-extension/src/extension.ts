@@ -290,7 +290,24 @@ mcp_vizvibe_get_trajectory({
     await vscode.workspace.fs.writeFile(rulesFilePath, Buffer.from(content, 'utf-8'));
 }
 
+/**
+ * Check if the current environment is Antigravity.
+ * GEMINI.md should only be updated in Antigravity, not in VS Code or Cursor.
+ */
+function isAntigravity(): boolean {
+    const appName = vscode.env.appName.toLowerCase();
+    // Antigravity's app name contains 'antigravity' or might be displayed differently
+    // Common patterns: "Antigravity", "antigravity"
+    return appName.includes('antigravity');
+}
+
 async function updateGlobalGeminiRules() {
+    // Only update GEMINI.md in Antigravity environment
+    if (!isAntigravity()) {
+        console.log('Skipping GEMINI.md update: Not in Antigravity environment');
+        return;
+    }
+
     const geminiDir = path.join(os.homedir(), '.gemini');
     const geminiPath = path.join(geminiDir, 'GEMINI.md');
 
