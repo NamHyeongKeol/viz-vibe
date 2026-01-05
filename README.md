@@ -22,6 +22,8 @@ A graph-based navigator to track your coding trajectory and maintain context acr
 
 </div>
 
+![Viz Vibe Preview](./assets/preview.png)
+
 ## 🚀 About
 
 **Viz Vibe** is an open-source project that provides a **graph-structured workflow** as an interface for collaboration between humans and AI. By visualizing the coding process as an interactive graph, it enables intuitive and efficient "vibe coding" experiences.
