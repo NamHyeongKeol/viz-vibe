@@ -39,13 +39,17 @@
       {
         "command": "vizVibe.recordTurn",
         "title": "Viz Vibe: Record Current Turn"
+      },
+      {
+        "command": "vizVibe.test",
+        "title": "Viz Vibe: Test Keybinding"
       }
     ],
     "keybindings": [
       {
         "command": "vizVibe.recordTurn",
-        "key": "ctrl+shift+alt+v",
-        "mac": "ctrl+shift+cmd+v",
+        "key": "ctrl+shift+alt+e",
+        "mac": "ctrl+shift+cmd+e",
         "when": "editorTextFocus || !editorTextFocus"
       }
     ],

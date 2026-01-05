@@ -491,14 +491,25 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         });
 
         // Parse metadata from comments
+        let lastActiveNodeId = null;
         function parseMetadata(code) {
             nodeMetadata = {};
-            const metaRegex = /%% @(\\w+) \\[(\\w+(?:-\\w+)?)\\]: (.+)/g;
+            lastActiveNodeId = null;
+
+            // Parse lastActive
+            const lastActiveMatch = code.match(/%% @lastActive:\\s*(\\w+)/);
+            if (lastActiveMatch) {
+                lastActiveNodeId = lastActiveMatch[1];
+            }
+
+            // Support both old format [type] and new format [type, state]
+            const metaRegex = /%% @(\\w+) \\[([\\w-]+)(?:,\\s*(\\w+))?\\]: (.+)/g;
             let match;
             while ((match = metaRegex.exec(code)) !== null) {
                 nodeMetadata[match[1]] = {
                     type: match[2],
-                    prompt: match[3]
+                    state: match[3] || 'opened',
+                    prompt: match[4]
                 };
             }
         }
@@ -529,6 +540,38 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             document.getElementById('zoomLevel').innerText = Math.round(transform.scale * 100) + '%';
         }
 
+        // Add descriptions to node definitions before rendering
+        function addDescriptionsToCode(code) {
+            const lines = code.split('\\n');
+            const result = [];
+            for (const line of lines) {
+                let newLine = line;
+                // Skip comments and style lines
+                if (!line.trim().startsWith('%') && !line.trim().startsWith('style')) {
+                    for (const [nodeId, meta] of Object.entries(nodeMetadata)) {
+                        if (!meta.prompt) continue;
+                        // Check if this line defines this node (contains nodeId followed by ( or [)
+                        const nodePattern = new RegExp('^\\\\s*' + nodeId + '\\\\s*[\\\\(\\\\[]');
+                        if (nodePattern.test(line) && line.includes('"')) {
+                            // Find the last " in the line
+                            const lastQuoteIdx = line.lastIndexOf('"');
+                            if (lastQuoteIdx > 0) {
+                                // Truncate if too long (150 chars)
+                                let desc = meta.prompt;
+                                if (desc.length > 150) {
+                                    desc = desc.substring(0, 147) + '...';
+                                }
+                                newLine = line.slice(0, lastQuoteIdx) + '<br/><span style="font-size:10px;opacity:0.6">' + desc + '</span>' + line.slice(lastQuoteIdx);
+                                break;
+                            }
+                        }
+                    }
+                }
+                result.push(newLine);
+            }
+            return result.join('\\n');
+        }
+
         async function render() {
             if (!mermaidCode.trim()) {
                 document.getElementById('mermaid-output').innerHTML = '<p style="color:#888;padding:20px;">Empty file. Add some nodes.</p>';
@@ -537,52 +580,72 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
             parseMetadata(mermaidCode);
             const nodes = extractNodes(mermaidCode);
-            
+
             // 방향 드롭다운 동기화
             const direction = extractDirection(mermaidCode);
             document.getElementById('flowDirection').value = direction;
-            
+
             // 연결 드롭다운 업데이트
             updateConnectDropdown(nodes);
 
             const container = document.getElementById('mermaid-output');
-            
+
+            // Add descriptions to code for proper node sizing
+            const codeWithDescriptions = addDescriptionsToCode(mermaidCode);
+
             try {
                 // 기존 SVG 제거
                 const existingSvg = document.getElementById('mermaid-svg');
                 if (existingSvg) existingSvg.remove();
-                
-                const { svg } = await mermaid.render('mermaid-svg', mermaidCode);
+
+                const { svg } = await mermaid.render('mermaid-svg', codeWithDescriptions);
                 container.innerHTML = svg;
-                
+
                 // Node click/right-click/double-click events
-                nodes.forEach(nodeId => {
-                    const nodeEl = container.querySelector('[id*="' + nodeId + '"]');
-                    if (nodeEl) {
-                        nodeEl.style.cursor = 'pointer';
-                        // Single click - show info
-                        nodeEl.onclick = (e) => {
-                            e.stopPropagation();
-                            showNodeInfo(nodeId);
-                        };
-                        // Double click - copy all
-                        nodeEl.ondblclick = (e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            selectedNodeId = nodeId;
-                            copyNodeAll();
-                        };
-                        // Right click - context menu
-                        nodeEl.oncontextmenu = (e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            selectedNodeId = nodeId;
-                            // Get label from node element
-                            const textEl = nodeEl.querySelector('.nodeLabel, text, foreignObject');
-                            selectedNodeLabel = textEl ? textEl.textContent.trim() : nodeId;
-                            showContextMenu(e.clientX, e.clientY);
-                        };
+                // Mermaid v10 uses .node class for node groups
+                const nodeElements = container.querySelectorAll('.node');
+                nodeElements.forEach(nodeEl => {
+                    // Extract nodeId from element id (format: flowchart-nodeId-number)
+                    const elId = nodeEl.id || '';
+                    let foundNodeId = null;
+
+                    // Try to match with known node IDs
+                    for (const nid of nodes) {
+                        if (elId.includes(nid) || elId.includes('flowchart-' + nid)) {
+                            foundNodeId = nid;
+                            break;
+                        }
                     }
+
+                    if (!foundNodeId) return;
+
+                    const nodeId = foundNodeId;
+                    nodeEl.style.cursor = 'pointer';
+
+                    // Single click - show info
+                    nodeEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        showNodeInfo(nodeId);
+                    });
+
+                    // Double click - copy all
+                    nodeEl.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        selectedNodeId = nodeId;
+                        extractNodeLabel(nodeEl, nodeId);
+                        copyNodeAll();
+                    });
+
+                    // Right click - context menu
+                    nodeEl.addEventListener('contextmenu', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        selectedNodeId = nodeId;
+                        extractNodeLabel(nodeEl, nodeId);
+                        showContextMenu(e.clientX, e.clientY);
+                    });
                 });
 
                 document.getElementById('nodeCount').innerText = 'Nodes: ' + nodes.length;
@@ -591,18 +654,47 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }
 
+        // Extract label with line breaks preserved
+        function extractNodeLabel(nodeEl, nodeId) {
+            const textEl = nodeEl ? nodeEl.querySelector('.nodeLabel, text, foreignObject') : null;
+            if (textEl) {
+                let html = textEl.innerHTML || '';
+                // Convert <br/>, <br>, <br /> to newlines
+                html = html.replace(/<br\\s*\\/?>/gi, '\\n');
+                // Remove other HTML tags
+                html = html.replace(/<[^>]+>/g, '');
+                // Decode HTML entities
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                selectedNodeLabel = temp.textContent.trim();
+            } else {
+                selectedNodeLabel = nodeId;
+            }
+        }
+
         function showNodeInfo(nodeId) {
             const meta = nodeMetadata[nodeId] || {};
             selectedNodeId = nodeId;
             // Get label from rendered node
             const container = document.getElementById('mermaid-output');
-            const nodeEl = container.querySelector('[id*="' + nodeId + '"]');
-            const textEl = nodeEl ? nodeEl.querySelector('.nodeLabel, text, foreignObject') : null;
-            selectedNodeLabel = textEl ? textEl.textContent.trim() : nodeId;
+            // Find node element by .node class and matching id
+            let nodeEl = null;
+            container.querySelectorAll('.node').forEach(el => {
+                if (el.id && (el.id.includes(nodeId) || el.id.includes('flowchart-' + nodeId))) {
+                    nodeEl = el;
+                }
+            });
+            extractNodeLabel(nodeEl, nodeId);
+
+            // Build status text
+            const isRecent = (nodeId === lastActiveNodeId);
+            const state = meta.state || 'opened';
+            let statusText = state === 'closed' ? '✓ Closed' : '○ Open';
+            if (isRecent) statusText += '  •  ⭐ Recent';
 
             document.getElementById('info-card').style.display = 'block';
-            document.getElementById('info-label').innerText = '[' + (meta.type || 'unknown').toUpperCase() + '] ' + nodeId;
-            document.getElementById('info-prompt').innerText = meta.prompt || '(No description)';
+            document.getElementById('info-label').innerText = selectedNodeLabel;
+            document.getElementById('info-prompt').innerText = statusText + '\\n\\n' + (meta.prompt || '');
         }
 
         function closeInfoCard() {
@@ -657,9 +749,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         function copyNodeAll() {
             if (!selectedNodeId) return;
-            const meta = nodeMetadata[selectedNodeId] || {};
-            const text = 'ID: ' + selectedNodeId + '\\nType: ' + (meta.type || 'unknown') + '\\nLabel: ' + selectedNodeLabel + '\\nDescription: ' + (meta.prompt || '');
-            copyToClipboard(text);
+            // selectedNodeLabel already contains label + description from rendering
+            copyToClipboard(selectedNodeLabel);
         }
 
         function copyNodeInfo() {

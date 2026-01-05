@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: design_renewal
+    %% @lastActive: extension_ux_improve
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -31,9 +31,10 @@ flowchart TD
     lastactive_tracking("Last Active Tracking<br/><sub>state.json + hooks update</sub>")
 
     %% @design_renewal [ai-task, closed]: GitHub-style design - green/purple colors, rounded rectangles
-    subgraph recent [⭐ RECENT]
-        design_renewal("Design Renewal<br/><sub>GitHub-style colors, rounded nodes</sub>")
-    end
+    design_renewal("Design Renewal<br/><sub>GitHub-style colors, rounded nodes</sub>")
+
+    %% @extension_bugfix [ai-task, closed]: Fix node copy regex and add keybinding test command
+    extension_bugfix("Extension Bugfix<br/><sub>Node copy fix + keybinding test</sub>")
 
     %% === FUTURE WORK: AI AGENT INTEGRATIONS ===
     %% @vscode_agent_integration [ai-task, opened]: VS Code AI agent integration
@@ -52,6 +53,14 @@ flowchart TD
     codex_cli_integration("Codex CLI Integration<br/><sub>Hook-based integration</sub>")
 
     %% === FUTURE WORK: OTHER ===
+    %% @hook_path_fix [ai-task, closed]: Fix hooks to work regardless of current working directory
+    hook_path_fix("Hook Path Fix<br/><sub>Use $CLAUDE_PROJECT_DIR</sub>")
+
+    %% @extension_ux_improve [ai-task, closed]: Extension UX - description in nodes, info card status, keybinding cleanup
+    subgraph recent [⭐ RECENT]
+        extension_ux_improve("Extension UX Improve<br/><sub>Description in nodes, status in info card</sub>")
+    end
+
     %% @lib_packaging [ai-task, opened]: Library packaging - SDK for Python, Java, JS
     lib_packaging("Library Packaging<br/><sub>Python, Java, JS SDK</sub>")
 
@@ -68,12 +77,17 @@ flowchart TD
     claude_code_integration --> codex_cli_integration
     vscode_extension --> lastactive_tracking
     lastactive_tracking --> design_renewal
+    design_renewal --> extension_bugfix
     vscode_extension --> vscode_agent_integration
     vscode_extension --> cursor_agent_integration
     vscode_extension --> antigravity_agent_integration
     antigravity_agent_integration --> antigravity_hook_support
     mermaid_native --> mcp_server
+    claude_code_integration --> hook_path_fix
+    extension_bugfix --> extension_ux_improve
+    extension_ux_improve -.-> ultimate_goal
     lib_packaging -.-> ultimate_goal
+    hook_path_fix -.-> ultimate_goal
     mcp_server -.-> ultimate_goal
     codex_cli_integration -.-> ultimate_goal
     vscode_agent_integration -.-> ultimate_goal
@@ -97,9 +111,15 @@ flowchart TD
     style vscode_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     style lastactive_tracking fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style design_renewal fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    style extension_bugfix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    %% Closed tasks continued
+    style hook_path_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% Last active node (highlighted - brighter purple with glow effect)
-    style design_renewal fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style extension_ux_improve fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 
     %% Open tasks (soft green - like GitHub open)

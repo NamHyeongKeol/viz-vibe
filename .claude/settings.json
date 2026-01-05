@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/read-vizvibe.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/read-vizvibe.js\""
           }
         ]
       },
@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/read-vizvibe.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/read-vizvibe.js\""
           }
         ]
       }
@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/update-vizvibe.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/update-vizvibe.js\""
           }
         ]
       }

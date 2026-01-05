@@ -56,6 +56,13 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // Register simple test command for keybinding verification
+    context.subscriptions.push(
+        vscode.commands.registerCommand('vizVibe.test', async () => {
+            vscode.window.showInformationMessage('Viz Vibe: Keybinding works!');
+        })
+    );
+
     // Register command to record current turn via AI
     context.subscriptions.push(
         vscode.commands.registerCommand('vizVibe.recordTurn', async () => {
