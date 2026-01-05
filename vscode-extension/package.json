@@ -2,12 +2,13 @@
   "name": "viz-vibe",
   "displayName": "Viz Vibe",
   "description": "A graph-based workflow interface for seamless Human-AI collaboration",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "viz-vibe",
   "repository": {
     "type": "git",
     "url": "https://github.com/NamHyeongKeol/viz-vibe.git"
   },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -80,7 +81,7 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "cp ../LICENSE ./LICENSE && cp ../README.md ./README.md && npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",

@@ -11,3 +11,7 @@ webview-ui/dist/
 .claude/hooks/*-vizvibe.js
 .claude/hooks/VIZVIBE.md
 .claude/hooks/state.json
+
+# Auto-copied during build (source is in root)
+vscode-extension/LICENSE
+vscode-extension/README.md
