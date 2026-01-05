@@ -59,13 +59,34 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
 ```
 
-### For VS Code / Cursor / Antigravity (Windsurf) Users
+### For VS Code / Cursor / Antigravity Users
+
+**Option 1: Install from Open VSX** (Recommended)
+
+- Install directly from [Open VSX Registry](https://open-vsx.org/extension/viz-vibe/viz-vibe)
+- Or search "Viz Vibe" in the Extensions panel
+
+**Option 2: Install from VSIX**
 
 1. Download the latest `.vsix` from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
 2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
 3. Select the downloaded file and reload
-4. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
-5. Open `vizvibe.mmd` to see the graph visualization
+
+**Setup:**
+
+1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
+2. Open `vizvibe.mmd` to see the graph visualization
+
+#### Antigravity Users: Manual Updates Required
+
+> ⚠️ **Note:** Antigravity doesn't support hooks yet, so automatic `.mmd` updates are not available.
+
+When you want the AI to update your trajectory:
+
+- Press **`Ctrl+Shift+Cmd+E`** to copy an update request to clipboard, then paste it into the chat
+- Or simply ask: _"Please update vizvibe.mmd with what we've done"_
+
+The extension automatically updates `~/.gemini/GEMINI.md` during initialization, so the AI already knows how to manage the trajectory — no detailed explanation needed!
 
 ---
 
