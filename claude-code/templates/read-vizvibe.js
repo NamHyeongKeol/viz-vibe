@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * SessionStart Hook: Read trajectory.mmd
+ * SessionStart Hook: Read vizvibe.mmd
  *
  * This hook runs when a Claude Code session starts.
- * It reads trajectory.mmd and outputs it as context for Claude.
+ * It reads vizvibe.mmd and outputs it as context for Claude.
  */
 
 const fs = require('fs');
 const path = require('path');
 
 const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const trajectoryPath = path.join(projectDir, 'trajectory.mmd');
+const trajectoryPath = path.join(projectDir, 'vizvibe.mmd');
 const vizvibePath = path.join(projectDir, '.claude', 'hooks', 'VIZVIBE.md');
 
-// Check if trajectory.mmd exists
+// Check if vizvibe.mmd exists
 if (!fs.existsSync(trajectoryPath)) {
   process.exit(0);
 }
@@ -35,7 +35,7 @@ for (const line of lines) {
 // Build context message
 let context = `=== Viz Vibe: Project Trajectory ===
 
-This project uses Viz Vibe to track work history. When you complete tasks, update trajectory.mmd.
+This project uses Viz Vibe to track work history. When you complete tasks, update vizvibe.mmd.
 
 Current trajectory has ${nodeDescriptions.length} nodes:
 ${nodeDescriptions.slice(-5).join('\n')}

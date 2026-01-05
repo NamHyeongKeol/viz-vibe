@@ -10,11 +10,11 @@ echo ""
 
 # Files to remove completely
 files=(
-  ".claude/hooks/update-trajectory.js"
-  ".claude/hooks/read-trajectory.js"
+  ".claude/hooks/update-vizvibe.js"
+  ".claude/hooks/read-vizvibe.js"
   ".claude/hooks/VIZVIBE.md"
   ".claude/hooks/state.json"
-  "trajectory.mmd"
+  "vizvibe.mmd"
 )
 
 removed=0
@@ -49,7 +49,7 @@ if [ -f ".claude/settings.json" ]; then
         if (settings.hooks.SessionStart) {
           settings.hooks.SessionStart = settings.hooks.SessionStart.filter(entry => {
             const hasVizvibe = entry.hooks?.some(h =>
-              h.command?.includes("read-trajectory.js")
+              h.command?.includes("read-vizvibe.js")
             );
             if (hasVizvibe) modified = true;
             return !hasVizvibe;
@@ -63,7 +63,7 @@ if [ -f ".claude/settings.json" ]; then
         if (settings.hooks.Stop) {
           settings.hooks.Stop = settings.hooks.Stop.filter(entry => {
             const hasVizvibe = entry.hooks?.some(h =>
-              h.command?.includes("update-trajectory.js")
+              h.command?.includes("update-vizvibe.js")
             );
             if (hasVizvibe) modified = true;
             return !hasVizvibe;

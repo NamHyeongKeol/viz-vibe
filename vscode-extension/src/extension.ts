@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             const workspacePath = workspaceFolders[0].uri.fsPath;
             
             // Send message to AI chat to trigger trajectory update
-            const message = `mcp_vizvibe_update_trajectory 도구를 사용해서 방금 완료한 작업을 trajectory.mmd에 기록해줘.
+            const message = `mcp_vizvibe_update_trajectory 도구를 사용해서 방금 완료한 작업을 vizvibe.mmd에 기록해줘.
 workspacePath: ${workspacePath}
 label: [작업 요약을 한 줄로]
 prompt: [상세 설명]`;
@@ -130,7 +130,7 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
     const workspaceRoot = workspaceFolders[0].uri;
 
     try {
-        // 1. Create trajectory.mmd
+        // 1. Create vizvibe.mmd
         await createTrajectoryFile(workspaceRoot);
 
         // 2. Update global ~/.gemini/GEMINI.md with MCP rules
@@ -145,10 +145,10 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
         } else {
             const openTrajectory = await vscode.window.showInformationMessage(
                 '✅ Viz Vibe has been set up for this project!',
-                'Open trajectory.mmd'
+                'Open vizvibe.mmd'
             );
             if (openTrajectory) {
-                const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, 'trajectory.mmd');
+                const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
                 const doc = await vscode.workspace.openTextDocument(trajectoryUri);
                 await vscode.window.showTextDocument(doc);
             }
@@ -159,7 +159,7 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
 }
 
 async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
-    const filePath = vscode.Uri.joinPath(workspaceRoot, 'trajectory.mmd');
+    const filePath = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
 
     // Check if already exists
     try {
@@ -199,10 +199,10 @@ async function createVizVibeMd(workspaceRoot: vscode.Uri, extensionUri: vscode.U
         const content = `# Viz Vibe: AI Workflow Instructions
 
 ## Workflow File
-- **Location**: \`./trajectory.mmd\`
+- **Location**: \`./vizvibe.mmd\`
 
 ## AI Instructions
-1. Before starting a task: Check \`trajectory.mmd\` to understand the current context
+1. Before starting a task: Check \`vizvibe.mmd\` to understand the current context
 2. After completing a task: Add a new node describing what was done
 3. Connect nodes: Create edges to show the flow of work
 `;

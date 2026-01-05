@@ -4,7 +4,7 @@
  * Stop Hook: Automatic Trajectory Update
  *
  * This hook triggers after Claude completes a response.
- * It instructs Claude to update trajectory.mmd with the work done.
+ * It instructs Claude to update vizvibe.mmd with the work done.
  *
  * State management:
  * - "idle": Normal conversation, should trigger update
@@ -52,10 +52,10 @@ process.stdin.on('end', () => {
     }
 
     const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
-    const trajectoryPath = path.join(projectDir, 'trajectory.mmd');
+    const trajectoryPath = path.join(projectDir, 'vizvibe.mmd');
     const vizvibePath = path.join(projectDir, '.claude', 'hooks', 'VIZVIBE.md');
 
-    // Check if trajectory.mmd exists
+    // Check if vizvibe.mmd exists
     if (!fs.existsSync(trajectoryPath)) {
       process.exit(0);
     }
@@ -92,7 +92,7 @@ process.stdin.on('end', () => {
     // Output instruction for Claude to continue and update trajectory
     const response = {
       decision: "block",
-      reason: `Update trajectory.mmd (see .claude/hooks/VIZVIBE.md for format)`
+      reason: `Update vizvibe.mmd (see .claude/hooks/VIZVIBE.md for format)`
     };
 
     process.stdout.write(JSON.stringify(response));

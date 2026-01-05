@@ -43,11 +43,11 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 This creates:
 
 - `.claude/settings.json` — Claude Code settings with hooks
-- `.claude/hooks/update-trajectory.js` — Auto-update script
-- `trajectory.mmd` — Your work history graph (Mermaid format)
+- `.claude/hooks/update-vizvibe.js` — Auto-update script
+- `vizvibe.mmd` — Your work history graph (Mermaid format)
 - `VIZVIBE.md` — AI instructions for trajectory management
 
-**That's it!** Claude Code will automatically update `trajectory.mmd` after each response.
+**That's it!** Claude Code will automatically update `vizvibe.mmd` after each response.
 
 #### Other Commands
 
@@ -55,7 +55,7 @@ This creates:
 # Update hook script to latest version
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/update.sh | bash
 
-# Uninstall (keeps trajectory.mmd and VIZVIBE.md)
+# Uninstall (keeps vizvibe.mmd and VIZVIBE.md)
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
 ```
 
@@ -65,7 +65,7 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
 3. Select the downloaded file and reload
 4. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
-5. Open `trajectory.mmd` to see the graph visualization
+5. Open `vizvibe.mmd` to see the graph visualization
 
 ---
 
@@ -133,7 +133,7 @@ See the full guide: [VIZVIBE.md](./VIZVIBE.md)
 
 ### How It Works
 
-1. **AI reads** `trajectory.mmd` to understand project context
+1. **AI reads** `vizvibe.mmd` to understand project context
 2. **AI works** on your tasks
 3. **AI updates** the trajectory with new nodes or state changes
 4. **Graph UI** reflects changes in real-time (VS Code extension)

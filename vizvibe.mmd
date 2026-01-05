@@ -1,0 +1,56 @@
+flowchart TD
+    %% === PROJECT GOALS ===
+    %% Ultimate Goal: Visual context map tool for AI-human vibe coding collaboration
+    %% Current Goal: Rename trajectory.mmd to vizvibe.mmd for better UX
+
+    %% === PHASE 1: Foundation ===
+    %% @start [start, closed]: Viz Vibe project initialized
+    start(["Project Start"])
+
+    %% @vscode_ext [ai-task, closed]: VS Code extension with graph-based workflow editor
+    vscode_ext["VS Code Extension"]
+
+    %% @ai_integration [ai-task, closed]: AI integration with VIZVIBE.md instructions
+    ai_integration["AI Integration"]
+
+    %% === PHASE 2: Features ===
+    %% @pan_zoom [ai-task, closed]: Pan/Zoom canvas functionality
+    pan_zoom["Pan/Zoom Canvas"]
+
+    %% @mermaid_native [ai-task, closed]: Switch to Mermaid native .mmd format
+    mermaid_native["Mermaid Native Format"]
+
+    %% === PHASE 3: Distribution ===
+    %% @claude_code_cli [ai-task, closed]: CLI installer for Claude Code users
+    claude_code_cli["Claude Code CLI Installer"]
+
+    %% @session_hooks [ai-task, closed]: SessionStart hook for auto-context loading
+    session_hooks["SessionStart Hook"]
+
+    %% @vizvibe_guide [ai-task, closed]: VIZVIBE.md guide improvements
+    vizvibe_guide["VIZVIBE.md Guide"]
+
+    %% === CURRENT ===
+    %% @rename_vizvibe [ai-task, closed]: Rename trajectory.mmd to vizvibe.mmd
+    rename_vizvibe["Rename to vizvibe.mmd"]
+
+    %% === EDGES ===
+    start --> vscode_ext
+    start --> ai_integration
+    vscode_ext --> pan_zoom
+    ai_integration --> mermaid_native
+    mermaid_native --> claude_code_cli
+    claude_code_cli --> session_hooks
+    session_hooks --> vizvibe_guide
+    vizvibe_guide --> rename_vizvibe
+
+    %% === STYLES ===
+    style start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+    style vscode_ext fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style ai_integration fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style pan_zoom fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style mermaid_native fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style claude_code_cli fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style session_hooks fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style vizvibe_guide fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style rename_vizvibe fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px

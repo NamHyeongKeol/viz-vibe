@@ -19,8 +19,8 @@ manual_merge=false
 
 # Download hook scripts and guide (always download, overwrite is OK)
 echo "Downloading hook scripts..."
-curl -fsSL "$REPO_BASE/claude-code/templates/update-trajectory.js" -o ".claude/hooks/update-trajectory.js"
-curl -fsSL "$REPO_BASE/claude-code/templates/read-trajectory.js" -o ".claude/hooks/read-trajectory.js"
+curl -fsSL "$REPO_BASE/claude-code/templates/update-vizvibe.js" -o ".claude/hooks/update-vizvibe.js"
+curl -fsSL "$REPO_BASE/claude-code/templates/read-vizvibe.js" -o ".claude/hooks/read-vizvibe.js"
 curl -fsSL "$REPO_BASE/shared/templates/VIZVIBE.md" -o ".claude/hooks/VIZVIBE.md"
 echo "  [create] .claude/hooks/*"
 
@@ -31,7 +31,7 @@ if [ -f ".claude/settings.json" ]; then
     echo "  ⚠️  You already have .claude/settings.json"
     echo "     Please manually add our hooks to your settings:"
     echo ""
-    echo '     "Stop": [{ "hooks": [{ "type": "command", "command": "node .claude/hooks/update-trajectory.js" }] }]'
+    echo '     "Stop": [{ "hooks": [{ "type": "command", "command": "node .claude/hooks/update-vizvibe.js" }] }]'
     echo ""
     manual_merge=true
     ((skipped++))
@@ -41,19 +41,19 @@ else
     ((created++))
 fi
 
-# Download trajectory.mmd if not exists
-if [ -f "trajectory.mmd" ]; then
-    echo "  [skip] trajectory.mmd (already exists)"
+# Download vizvibe.mmd if not exists
+if [ -f "vizvibe.mmd" ]; then
+    echo "  [skip] vizvibe.mmd (already exists)"
     ((skipped++))
 else
-    curl -fsSL "$REPO_BASE/shared/templates/trajectory.mmd" -o "trajectory.mmd"
-    echo "  [create] trajectory.mmd"
+    curl -fsSL "$REPO_BASE/shared/templates/vizvibe.mmd" -o "vizvibe.mmd"
+    echo "  [create] vizvibe.mmd"
     ((created++))
 fi
 
 # Add to .gitignore (hook scripts + runtime files)
 gitignore_entries=(
-    ".claude/hooks/*-trajectory.js"
+    ".claude/hooks/*-vizvibe.js"
     ".claude/hooks/VIZVIBE.md"
     ".claude/hooks/state.json"
 )
@@ -98,7 +98,7 @@ fi
 echo "Next steps:"
 echo "  1. Start Claude Code in this project"
 echo "  2. Work normally - trajectory will auto-update on each response"
-echo "  3. Open trajectory.mmd to see your work history"
+echo "  3. Open vizvibe.mmd to see your work history"
 echo ""
 echo "For VS Code/Cursor/Antigravity users:"
 echo "  Install the 'Viz Vibe' extension for graph visualization."

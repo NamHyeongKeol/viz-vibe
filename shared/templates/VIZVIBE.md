@@ -1,6 +1,6 @@
 # VIZVIBE.md - Trajectory Management Guide
 
-This document provides instructions for AI assistants on how to maintain the `trajectory.mmd` file as a **context map** for the project.
+This document provides instructions for AI assistants on how to maintain the `vizvibe.mmd` file as a **context map** for the project.
 
 ---
 
@@ -10,9 +10,9 @@ This document provides instructions for AI assistants on how to maintain the `tr
 
 **Viz Vibe** is a graph-based navigator to track your coding trajectory and maintain context across threads. We make human-AI collaboration seamless by keeping coding context clear at a glance.
 
-### What is `trajectory.mmd`?
+### What is `vizvibe.mmd`?
 
-The `trajectory.mmd` file is a **Mermaid flowchart** that serves as:
+The `vizvibe.mmd` file is a **Mermaid flowchart** that serves as:
 
 - A **visual map** of the project's evolution
 - A **shared context** between human and AI
@@ -68,6 +68,15 @@ The **primary data source** is the user's current conversation history with thei
 - **Add missing context**: Include important project history not mentioned in the conversation
 
 **What to look for:**
+
+- **README.md (IMPORTANT!)**: Most users document their project extensively in the README. This is often the best source for understanding:
+
+  - Project purpose and goals
+  - Architecture and design decisions
+  - Setup instructions and dependencies
+  - Current status and roadmap
+
+  **Always read the README first** — it's the user's curated summary of their project.
 
 - **Git logs**: Get the big picture of recent work
   - Focus on the current branch's recent commits
@@ -142,7 +151,7 @@ This is where most mistakes happen — connecting things that shouldn't be conne
 
 ### 1. Graph-Based History
 
-Maintain the project history as a **graph structure** in `trajectory.mmd`:
+Maintain the project history as a **graph structure** in `vizvibe.mmd`:
 
 - **Doesn't have to be a tree** — cycles and multiple paths are allowed
 - Captures the evolution of the project at a **high level**
@@ -240,7 +249,7 @@ A node is closed when:
 
 ### Restructuring the Graph
 
-If the existing `trajectory.mmd` seems **incorrectly structured** based on your new understanding of the project:
+If the existing `vizvibe.mmd` seems **incorrectly structured** based on your new understanding of the project:
 
 - You **may restructure** the graph to better reflect the actual context
 - Reorganize nodes and edges to show the true relationships
@@ -355,7 +364,7 @@ style node fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
 
 ## AI Instructions Summary
 
-1. **Read** `trajectory.mmd` at the start of each session to understand context
+1. **Read** `vizvibe.mmd` at the start of each session to understand context
 2. **Update** after completing significant work
 3. **Add future work** identified during the session as `[opened]` nodes
 4. **Close nodes** when work is done or no longer relevant

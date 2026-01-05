@@ -74,7 +74,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "update_trajectory",
-        description: `Update the trajectory.mmd file with a new node.
+        description: `Update the vizvibe.mmd file with a new node.
 This file uses Mermaid flowchart syntax.
 Call this tool AFTER completing any meaningful work to record your progress.`,
         inputSchema: {
@@ -104,7 +104,7 @@ Call this tool AFTER completing any meaningful work to record your progress.`,
       },
       {
         name: "get_trajectory",
-        description: "Read the current trajectory.mmd file to understand project history",
+        description: "Read the current vizvibe.mmd file to understand project history",
         inputSchema: {
           type: "object",
           properties: {
@@ -126,7 +126,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "update_trajectory") {
     const parsed = UpdateTrajectorySchema.parse(args);
-    const trajectoryPath = path.join(parsed.workspacePath, "trajectory.mmd");
+    const trajectoryPath = path.join(parsed.workspacePath, "vizvibe.mmd");
 
     try {
       // Read existing trajectory
@@ -197,7 +197,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "get_trajectory") {
     const workspacePath = args.workspacePath;
-    const trajectoryPath = path.join(workspacePath, "trajectory.mmd");
+    const trajectoryPath = path.join(workspacePath, "vizvibe.mmd");
 
     try {
       const mermaidCode = fs.readFileSync(trajectoryPath, "utf-8");

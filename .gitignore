@@ -7,6 +7,7 @@ webview-ui/node_modules/
 webview-ui/dist/
 .DS_Store
 
-# Claude Code hook logs
+# Viz Vibe (local install)
+.claude/hooks/*-vizvibe.js
+.claude/hooks/VIZVIBE.md
 .claude/hooks/state.json
-.claude/hooks/*-trajectory.js
