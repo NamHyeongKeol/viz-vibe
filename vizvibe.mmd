@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: antigravity_shortcut
+    %% @lastActive: version_bump_011
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -142,7 +142,9 @@ flowchart TD
     style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style mcp_server fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 
-    %% @node_1767616414072 [ai-task]: Implemented stable node dragging and edge following logic in the VS Code extension, and bumped version to 0.1.1.
-    node_1767616414072["Refine node dragging & Bump version"]
-    mcp_server --> node_1767616414072
-    style node_1767616414072 fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    %% @version_bump_011 [ai-task, closed]: Version 0.1.1 - Kept node dragging, abandoned edge following logic
+    version_bump_011["Version 0.1.1<br/><sub>Node drag kept, edge follow dropped</sub>"]
+    antigravity_shortcut --> version_bump_011
+    style version_bump_011 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    
+    version_bump_011 -.-> ultimate_goal
