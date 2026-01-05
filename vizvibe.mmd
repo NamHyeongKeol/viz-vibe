@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: extension_ux_improve
+    %% @lastActive: antigravity_shortcut
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -57,8 +57,14 @@ flowchart TD
     hook_path_fix("Hook Path Fix<br/><sub>Use $CLAUDE_PROJECT_DIR</sub>")
 
     %% @extension_ux_improve [ai-task, closed]: Extension UX - description in nodes, info card status, keybinding cleanup
+    extension_ux_improve("Extension UX Improve<br/><sub>Description in nodes, status in info card</sub>")
+
+    %% @extension_ux_v2 [ai-task, closed]: Node drag, start node color change
+    extension_ux_v2("Graph UX Improve<br/><sub>Node drag, muted start color</sub>")
+
+    %% @antigravity_shortcut [ai-task, closed]: Shortcut to request .mmd update from AI chat
     subgraph recent [⭐ RECENT]
-        extension_ux_improve("Extension UX Improve<br/><sub>Description in nodes, status in info card</sub>")
+        antigravity_shortcut("Antigravity Shortcut<br/><sub>Ctrl+Shift+Cmd+E copies update request</sub>")
     end
 
     %% @lib_packaging [ai-task, opened]: Library packaging - SDK for Python, Java, JS
@@ -85,7 +91,10 @@ flowchart TD
     mermaid_native --> mcp_server
     claude_code_integration --> hook_path_fix
     extension_bugfix --> extension_ux_improve
-    extension_ux_improve -.-> ultimate_goal
+    extension_ux_improve --> extension_ux_v2
+    antigravity_agent_integration --> antigravity_shortcut
+    extension_ux_v2 -.-> ultimate_goal
+    antigravity_shortcut -.-> ultimate_goal
     lib_packaging -.-> ultimate_goal
     hook_path_fix -.-> ultimate_goal
     mcp_server -.-> ultimate_goal
@@ -97,8 +106,8 @@ flowchart TD
     %% === STYLES ===
     %% GitHub-inspired colors: Open = green, Closed = purple/gray
 
-    %% Start node (teal)
-    style project_start fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
+    %% Start node (muted gray - same as end node)
+    style project_start fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 
     %% Ultimate Goal (muted)
     style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
@@ -117,9 +126,11 @@ flowchart TD
 
     %% Closed tasks continued
     style hook_path_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style extension_ux_improve fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style extension_ux_v2 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% Last active node (highlighted - brighter purple with glow effect)
-    style extension_ux_improve fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style antigravity_shortcut fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 
     %% Open tasks (soft green - like GitHub open)
@@ -130,3 +141,8 @@ flowchart TD
     style codex_cli_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style mcp_server fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+
+    %% @node_1767616414072 [ai-task]: Implemented stable node dragging and edge following logic in the VS Code extension, and bumped version to 0.1.1.
+    node_1767616414072["Refine node dragging & Bump version"]
+    mcp_server --> node_1767616414072
+    style node_1767616414072 fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px

@@ -113,6 +113,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             cursor: grab;
             background-image: radial-gradient(circle, var(--vscode-editorLineNumber-foreground) 0.5px, transparent 0.5px);
             background-size: 20px 20px;
+            user-select: none;
+            -webkit-user-select: none;
         }
         #graph-view.grabbing { cursor: grabbing; }
 
@@ -155,8 +157,11 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         /* Node hover */
         .node rect, .node polygon, .node circle, .node ellipse {
-            cursor: pointer;
+            cursor: grab;
             transition: all 0.15s;
+        }
+        .node.dragging rect, .node.dragging polygon, .node.dragging circle, .node.dragging ellipse {
+            cursor: grabbing;
         }
         .node:hover rect, .node:hover polygon, .node:hover circle {
             filter: brightness(1.15);
@@ -467,6 +472,12 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         let transform = { x: 50, y: 50, scale: 1 };
         let isPanning = false;
         let startPan = { x: 0, y: 0 };
+        
+        // Node drag state
+        let isDraggingNode = false;
+        let draggingNodeId = null;
+        let dragStartPos = { x: 0, y: 0 };
+        let nodeOffsets = {}; // { nodeId: { x, y } }
 
         // Mermaid initialization
         mermaid.initialize({
@@ -620,10 +631,39 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     if (!foundNodeId) return;
 
                     const nodeId = foundNodeId;
-                    nodeEl.style.cursor = 'pointer';
+                    
+                    // Save base transform and apply saved offset if exists
+                    const baseTransform = nodeEl.getAttribute('transform') || '';
+                    nodeEl.setAttribute('data-base-transform', baseTransform);
+                    
+                    if (nodeOffsets[nodeId]) {
+                        const offset = nodeOffsets[nodeId];
+                        nodeEl.setAttribute('transform', baseTransform + ' translate(' + offset.x + ',' + offset.y + ')');
+                    }
 
-                    // Single click - show info
+                    // Node drag handlers
+                    nodeEl.addEventListener('mousedown', (e) => {
+                        if (e.button !== 0) return; // Left button only
+                        e.stopPropagation();
+                        isDraggingNode = true;
+                        draggingNodeId = nodeId;
+                        nodeEl.classList.add('dragging');
+                        
+                        // Get current offset or initialize
+                        const currentOffset = nodeOffsets[nodeId] || { x: 0, y: 0 };
+                        dragStartPos = {
+                            x: e.clientX / transform.scale - currentOffset.x,
+                            y: e.clientY / transform.scale - currentOffset.y
+                        };
+                    });
+
+                    // Single click - show info (only if not dragging)
+                    let dragDistance = 0;
                     nodeEl.addEventListener('click', (e) => {
+                        if (dragDistance > 5) {
+                            dragDistance = 0;
+                            return; // Skip if dragged
+                        }
                         e.stopPropagation();
                         e.preventDefault();
                         showNodeInfo(nodeId);
@@ -813,16 +853,375 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         });
 
         document.addEventListener('mousemove', (e) => {
+            // Node dragging takes priority
+            if (isDraggingNode && draggingNodeId) {
+                const newX = e.clientX / transform.scale - dragStartPos.x;
+                const newY = e.clientY / transform.scale - dragStartPos.y;
+                
+                nodeOffsets[draggingNodeId] = { x: newX, y: newY };
+                
+                // Find and update the node element
+                const container = document.getElementById('mermaid-output');
+                
+                container.querySelectorAll('.node').forEach(nodeEl => {
+                    if (nodeEl.id && (nodeEl.id.includes(draggingNodeId) || nodeEl.id.includes('flowchart-' + draggingNodeId))) {
+                        // Update transform
+                        const baseTransform = nodeEl.getAttribute('data-base-transform') || '';
+                        nodeEl.setAttribute('transform', baseTransform + ' translate(' + newX + ',' + newY + ')');
+                    }
+                });
+                
+                return;
+            }
+            
             if (!isPanning) return;
             transform.x = e.clientX - startPan.x;
             transform.y = e.clientY - startPan.y;
             updateTransform();
         });
+        
+        // Store edge connections parsed from mermaid code
+        let edgeConnections = []; // [{from: 'nodeA', to: 'nodeB', pathIndex: 0}, ...]
+        
+        // Parse edge connections from mermaid code
+        function parseEdgeConnections(code) {
+            edgeConnections = [];
+            // Match patterns like: nodeA --> nodeB, nodeA -.-> nodeB, etc.
+            const edgeRegex = /(\\w+)\\s*(?:-->|-.->|==>|--o|--x)\\s*(\\w+)/g;
+            let match;
+            let index = 0;
+            while ((match = edgeRegex.exec(code)) !== null) {
+                edgeConnections.push({
+                    from: match[1],
+                    to: match[2],
+                    index: index++
+                });
+            }
+        }
+        
+        // Function to update edges connected to a node
+        function updateEdgesForNode(nodeId, offsetX, offsetY) {
+            const container = document.getElementById('mermaid-output');
+            const svg = container.querySelector('svg');
+            if (!svg) return;
+            
+            // Parse connections if not already done
+            if (edgeConnections.length === 0) {
+                parseEdgeConnections(mermaidCode);
+            }
+            
+            // Find edges connected to this node
+            const connectedEdges = edgeConnections.filter(e => e.from === nodeId || e.to === nodeId);
+            if (connectedEdges.length === 0) return;
+            
+            // In Mermaid v10, edges are rendered as path elements
+            // They can be in .edgePaths g elements or directly as path.flowchart-link
+            const allPaths = svg.querySelectorAll('path.flowchart-link, .edgePath path, .edgePaths path');
+            
+            // Also try to find edge labels and markers
+            const edgeGroups = svg.querySelectorAll('.edgePath, .edge, [class*="edge"]');
+            
+            // For each path, try to determine which edge it represents
+            allPaths.forEach((pathEl, pathIndex) => {
+                // Store original path
+                if (!pathEl.hasAttribute('data-original-d')) {
+                    pathEl.setAttribute('data-original-d', pathEl.getAttribute('d') || '');
+                }
+                
+                // Try to find which edge this path belongs to
+                // Method 1: Check parent element ID
+                let parent = pathEl.closest('[id*="-"]') || pathEl.parentElement;
+                let edgeId = parent ? (parent.id || '') : '';
+                
+                // Method 2: Check path's class or data attributes
+                const pathClass = pathEl.getAttribute('class') || '';
+                
+                // Try to match with our edge connections
+                let matchedEdge = null;
+                
+                // Check if edgeId contains node IDs
+                for (const edge of connectedEdges) {
+                    if (edgeId.includes(edge.from) && edgeId.includes(edge.to)) {
+                        matchedEdge = edge;
+                        break;
+                    }
+                    // Also check by index if paths are in order
+                    if (pathIndex === edge.index) {
+                        matchedEdge = edge;
+                        break;
+                    }
+                }
+                
+                // If still no match, check by parent's ID pattern
+                if (!matchedEdge && edgeId) {
+                    for (const edge of connectedEdges) {
+                        // Mermaid often uses format like "L-from-to" or "flowchart-from-to"
+                        if (edgeId.toLowerCase().includes(edge.from.toLowerCase()) || 
+                            edgeId.toLowerCase().includes(edge.to.toLowerCase())) {
+                            matchedEdge = edge;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!matchedEdge) return;
+                
+                const isSource = matchedEdge.from === nodeId;
+                const originalD = pathEl.getAttribute('data-original-d') || '';
+                
+                // Parse and modify the path
+                const pathCommands = parsePathD(originalD);
+                if (pathCommands.length === 0) return;
+                
+                if (isSource) {
+                    // Offset start of path
+                    if (pathCommands[0]) {
+                        pathCommands[0].x = (parseFloat(pathCommands[0].origX) || 0) + offsetX;
+                        pathCommands[0].y = (parseFloat(pathCommands[0].origY) || 0) + offsetY;
+                    }
+                    // Offset first control point for curves
+                    if (pathCommands.length > 1 && pathCommands[1].type === 'C') {
+                        pathCommands[1].x1 = (parseFloat(pathCommands[1].origX1) || 0) + offsetX;
+                        pathCommands[1].y1 = (parseFloat(pathCommands[1].origY1) || 0) + offsetY;
+                    }
+                } else {
+                    // Offset end of path
+                    const lastIdx = pathCommands.length - 1;
+                    if (pathCommands[lastIdx]) {
+                        pathCommands[lastIdx].x = (parseFloat(pathCommands[lastIdx].origX) || 0) + offsetX;
+                        pathCommands[lastIdx].y = (parseFloat(pathCommands[lastIdx].origY) || 0) + offsetY;
+                    }
+                    // Offset last control point for curves
+                    if (pathCommands[lastIdx] && pathCommands[lastIdx].type === 'C') {
+                        pathCommands[lastIdx].x2 = (parseFloat(pathCommands[lastIdx].origX2) || 0) + offsetX;
+                        pathCommands[lastIdx].y2 = (parseFloat(pathCommands[lastIdx].origY2) || 0) + offsetY;
+                    }
+                }
+                
+                const newD = buildPathD(pathCommands);
+                pathEl.setAttribute('d', newD);
+            });
+        }
+        
+        // Parse SVG path 'd' attribute into commands
+        function parsePathD(d) {
+            const commands = [];
+            // Simple regex to extract path commands
+            const regex = /([MLHVCSQTAZ])([^MLHVCSQTAZ]*)/gi;
+            let match;
+            while ((match = regex.exec(d)) !== null) {
+                const type = match[1].toUpperCase();
+                const args = match[2].trim().split(/[\\s,]+/).map(Number).filter(n => !isNaN(n));
+                
+                if (type === 'M' || type === 'L') {
+                    commands.push({ type, x: args[0], y: args[1], origX: args[0], origY: args[1] });
+                } else if (type === 'C') {
+                    commands.push({ 
+                        type, 
+                        x1: args[0], y1: args[1], 
+                        x2: args[2], y2: args[3], 
+                        x: args[4], y: args[5],
+                        origX1: args[0], origY1: args[1],
+                        origX2: args[2], origY2: args[3],
+                        origX: args[4], origY: args[5]
+                    });
+                } else if (type === 'Z') {
+                    commands.push({ type });
+                } else {
+                    // Handle other commands as-is
+                    commands.push({ type, args });
+                }
+            }
+            return commands;
+        }
+        
+        // Build SVG path 'd' attribute from commands
+        function buildPathD(commands) {
+            return commands.map(cmd => {
+                if (cmd.type === 'M' || cmd.type === 'L') {
+                    return cmd.type + cmd.x + ',' + cmd.y;
+                } else if (cmd.type === 'C') {
+                    return cmd.type + cmd.x1 + ',' + cmd.y1 + ' ' + cmd.x2 + ',' + cmd.y2 + ' ' + cmd.x + ',' + cmd.y;
+                } else if (cmd.type === 'Z') {
+                    return 'Z';
+                } else if (cmd.args) {
+                    return cmd.type + cmd.args.join(',');
+                }
+                return '';
+            }).join(' ');
+        }
 
         document.addEventListener('mouseup', () => {
+            // End node dragging
+            if (isDraggingNode && draggingNodeId) {
+                const container = document.getElementById('mermaid-output');
+                container.querySelectorAll('.node').forEach(nodeEl => {
+                    nodeEl.classList.remove('dragging');
+                });
+                
+                isDraggingNode = false;
+                draggingNodeId = null;
+            }
+            
             isPanning = false;
             graphView.classList.remove('grabbing');
         });
+        
+        // Redraw all edges based on current node positions
+        function redrawAllEdges(svg) {
+            // Parse edge connections from mermaid code
+            parseEdgeConnections(mermaidCode);
+            
+            // Hide original Mermaid edges
+            svg.querySelectorAll('.edgePath, .edgePaths').forEach(g => {
+                g.style.display = 'none';
+            });
+            
+            // Remove previously drawn custom edges
+            svg.querySelectorAll('.vizvibe-edge').forEach(el => el.remove());
+            
+            // Create a group for our custom edges
+            let edgeGroup = svg.querySelector('.vizvibe-edges');
+            if (!edgeGroup) {
+                edgeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                edgeGroup.setAttribute('class', 'vizvibe-edges');
+                // Insert before nodes so edges are behind
+                const nodesGroup = svg.querySelector('.nodes') || svg.firstChild;
+                svg.insertBefore(edgeGroup, nodesGroup);
+            }
+            
+            // Draw each edge
+            edgeConnections.forEach(conn => {
+                const fromCenter = getNodeCenter(conn.from);
+                const toCenter = getNodeCenter(conn.to);
+                
+                if (!fromCenter || !toCenter) return;
+                
+                // Create path element
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('class', 'vizvibe-edge');
+                
+                // Calculate bezier curve
+                const dx = toCenter.x - fromCenter.x;
+                const dy = toCenter.y - fromCenter.y;
+                
+                // Control points - create a smooth curve
+                let cx1, cy1, cx2, cy2;
+                
+                if (Math.abs(dy) > Math.abs(dx)) {
+                    // Mostly vertical - curve horizontally
+                    cx1 = fromCenter.x;
+                    cy1 = fromCenter.y + dy * 0.4;
+                    cx2 = toCenter.x;
+                    cy2 = fromCenter.y + dy * 0.6;
+                } else {
+                    // Mostly horizontal - curve vertically
+                    cx1 = fromCenter.x + dx * 0.4;
+                    cy1 = fromCenter.y;
+                    cx2 = fromCenter.x + dx * 0.6;
+                    cy2 = toCenter.y;
+                }
+                
+                const d = 'M' + fromCenter.x + ',' + fromCenter.y + 
+                    ' C' + cx1 + ',' + cy1 + ' ' + cx2 + ',' + cy2 + ' ' + toCenter.x + ',' + toCenter.y;
+                
+                path.setAttribute('d', d);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#475569');
+                path.setAttribute('stroke-width', '1.5');
+                path.setAttribute('marker-end', 'url(#vizvibe-arrow)');
+                
+                edgeGroup.appendChild(path);
+            });
+            
+            // Add arrow marker if not exists
+            if (!svg.querySelector('#vizvibe-arrow')) {
+                const defs = svg.querySelector('defs') || document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                if (!svg.querySelector('defs')) svg.insertBefore(defs, svg.firstChild);
+                
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                marker.setAttribute('id', 'vizvibe-arrow');
+                marker.setAttribute('viewBox', '0 0 10 10');
+                marker.setAttribute('refX', '8');
+                marker.setAttribute('refY', '5');
+                marker.setAttribute('markerWidth', '6');
+                marker.setAttribute('markerHeight', '6');
+                marker.setAttribute('orient', 'auto-start-reverse');
+                
+                const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                arrowPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+                arrowPath.setAttribute('fill', '#475569');
+                
+                marker.appendChild(arrowPath);
+                defs.appendChild(marker);
+            }
+        }
+        
+        // Get node center position (including offset)
+        function getNodeCenter(nodeId) {
+            const container = document.getElementById('mermaid-output');
+            let nodeEl = null;
+            
+            container.querySelectorAll('.node').forEach(el => {
+                if (el.id && (el.id.includes(nodeId) || el.id.includes('flowchart-' + nodeId))) {
+                    nodeEl = el;
+                }
+            });
+            
+            if (!nodeEl) return null;
+            
+            // Get bounding box
+            const bbox = nodeEl.getBBox();
+            const offset = nodeOffsets[nodeId] || { x: 0, y: 0 };
+            
+            // Calculate center with offset
+            return {
+                x: bbox.x + bbox.width / 2 + offset.x,
+                y: bbox.y + bbox.height / 2 + offset.y
+            };
+        }
+        
+        // Reconnect all edges based on current node positions
+        function reconnectEdges(svg) {
+            // Parse connections from mermaid code
+            parseEdgeConnections(mermaidCode);
+            
+            // Get all edge paths
+            const allPaths = svg.querySelectorAll('path.flowchart-link, .edgePath path, .edgePaths path');
+            
+            // Show edges again
+            svg.querySelectorAll('.edgePath, .edgePaths, path.flowchart-link').forEach(edge => {
+                edge.style.opacity = '1';
+            });
+            
+            // For each connection, find and update the corresponding path
+            edgeConnections.forEach((conn, index) => {
+                const fromCenter = getNodeCenter(conn.from);
+                const toCenter = getNodeCenter(conn.to);
+                
+                if (!fromCenter || !toCenter) return;
+                
+                // Find the path for this edge (by index or ID matching)
+                const pathEl = allPaths[index];
+                if (!pathEl) return;
+                
+                // Calculate new path - simple curved line
+                const dx = toCenter.x - fromCenter.x;
+                const dy = toCenter.y - fromCenter.y;
+                
+                // Control points for bezier curve
+                const cx1 = fromCenter.x + dx * 0.3;
+                const cy1 = fromCenter.y;
+                const cx2 = fromCenter.x + dx * 0.7;
+                const cy2 = toCenter.y;
+                
+                // Build new path - M start, C curve to end
+                const newPath = 'M' + fromCenter.x + ',' + fromCenter.y + 
+                    ' C' + cx1 + ',' + cy1 + ' ' + cx2 + ',' + cy2 + ' ' + toCenter.x + ',' + toCenter.y;
+                
+                pathEl.setAttribute('d', newPath);
+            });
+        }
 
         graphView.addEventListener('wheel', (e) => {
             e.preventDefault();
@@ -881,7 +1280,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         // === Node creation ===
         const nodeShapes = {
-            'start': { open: '(["', close: '"])', style: 'fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px' },
+            'start': { open: '(["', close: '"])', style: 'fill:#64748b,stroke:#475569,color:#fff,stroke-width:1px' },
             'end': { open: '(["', close: '"])', style: 'fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px' },
             'ai-task': { open: '["', close: '"]', style: 'fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px' },
             'human-task': { open: '["', close: '"]', style: 'fill:#1e293b,stroke:#6366f1,color:#f8fafc,stroke-width:2px' },

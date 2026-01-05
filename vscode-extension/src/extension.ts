@@ -74,20 +74,36 @@ export function activate(context: vscode.ExtensionContext) {
 
             const workspacePath = workspaceFolders[0].uri.fsPath;
             
-            // Send message to AI chat to trigger trajectory update
-            const message = `Please update vizvibe.mmd with the work just completed.
-Follow the VIZVIBE.md guide for format.
+            // Check if vizvibe.mmd exists
+            const mmdPath = vscode.Uri.joinPath(workspaceFolders[0].uri, 'vizvibe.mmd');
+            let mmdExists = false;
+            try {
+                await vscode.workspace.fs.stat(mmdPath);
+                mmdExists = true;
+            } catch {
+                mmdExists = false;
+            }
+
+            if (!mmdExists) {
+                vscode.window.showWarningMessage('vizvibe.mmd not found. Run "Viz Vibe: Initialize Project" first.');
+                return;
+            }
+            
+            // Construct a message for AI to update trajectory based on recent conversation
+            const message = `[Viz Vibe] Please update vizvibe.mmd based on the work done in this conversation.
+
+**Instructions:**
+1. First, read the vizvibe.mmd file
+2. Add new nodes for the tasks completed in this conversation
+3. Node format: \`%% @node_id [type, state]: description\`
+4. Connect to existing nodes appropriately
+5. Use 'closed' state for completed tasks, 'opened' for in-progress
+
 workspacePath: ${workspacePath}`;
 
-            try {
-                await vscode.commands.executeCommand('workbench.action.chat.open', {
-                    query: message,
-                    isPartialQuery: true
-                });
-                vscode.window.showInformationMessage('Requested AI to update trajectory.');
-            } catch (error) {
-                vscode.window.showErrorMessage(`Failed to open chat: ${error}`);
-            }
+            // Copy to clipboard - this works across all editors
+            await vscode.env.clipboard.writeText(message);
+            vscode.window.showInformationMessage('📋 Viz Vibe: Update request copied to clipboard. Paste in AI chat to update trajectory.');
         })
     );
 }
@@ -179,7 +195,7 @@ async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
     %% @project_start [start]: Viz Vibe initialized
     project_start(["Project Start"])
 
-    style project_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+    style project_start fill:#64748b,stroke:#475569,color:#fff,stroke-width:1px
 `;
 
     await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
@@ -315,7 +331,7 @@ style node_id fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
 **States:** \`opened\` (TODO), \`closed\` (DONE)
 
 **Styles:**
-- Start: \`fill:#10b981,stroke:#059669,color:#fff\`
+- Start: \`fill:#64748b,stroke:#475569,color:#fff\`
 - Closed task: \`fill:#334155,stroke:#475569,color:#f8fafc\`
 - Opened task: \`fill:#1e293b,stroke:#f59e0b,color:#fbbf24\`
 - Blocker: \`fill:#450a0a,stroke:#dc2626,color:#fca5a5\`
