@@ -1,70 +1,77 @@
 flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
-    %% Current Goal: Stabilize Claude Code integration, expand to other platforms
+    %% Current Goal: Expand AI agent integrations to other platforms
 
     %% === START & GOAL ===
 
-    %% @project_start [start, closed]: Viz Vibe 프로젝트 시작 - 그래프 기반 컨텍스트 관리 도구
-    project_start(["Viz Vibe 프로젝트 시작"])
+    %% @project_start [start, closed]: Project started - graph-based context management tool
+    project_start(["Viz Vibe Project Start"])
 
-    %% @ultimate_goal [end, opened]: 궁극적 목표 - 모든 AI 코딩 환경에서 컨텍스트를 시각화하고 세션 간 맥락을 유지
-    ultimate_goal(["Human-AI 협업의 컨텍스트 문제 해결<br/><sub>그래프로 맥락 시각화, 세션 간 기억 유지<br/>모든 AI 코딩 환경에서 동작</sub>"])
+    %% @ultimate_goal [end, opened]: Ultimate goal - visualize context and maintain memory across sessions in all AI coding environments
+    ultimate_goal(["Solve Context Problem in Human-AI Collaboration<br/><sub>Visualize context as graph, persist memory across sessions<br/>Works in all AI coding environments</sub>"])
 
     %% === COMPLETED WORK ===
 
-    %% @mermaid_native [ai-task, closed]: JSON에서 Mermaid .mmd로 전환 - GitHub, Notion 등에서 바로 렌더링 가능
-    mermaid_native["Mermaid 네이티브 포맷 전환<br/><sub>JSON → .mmd, 어디서나 렌더링</sub>"]
+    %% @mermaid_native [ai-task, closed]: Switched from JSON to Mermaid .mmd - renders anywhere (GitHub, Notion, etc.)
+    mermaid_native["Switch to Mermaid Native Format<br/><sub>JSON → .mmd, renders anywhere</sub>"]
 
-    %% @claude_code_hooks [ai-task, closed]: Claude Code 훅 구현 - SessionStart/Stop 훅으로 자동 읽기/업데이트
-    claude_code_hooks["Claude Code 훅 시스템 구현<br/><sub>SessionStart/Stop 자동화</sub>"]
+    %% @claude_code_integration [ai-task, closed]: Claude Code AI agent integration - auto read/update via SessionStart/Stop hooks
+    claude_code_integration["Claude Code AI Agent Integration<br/><sub>Hook-based automation</sub>"]
 
-    %% @vizvibe_guide [ai-task, closed]: VIZVIBE.md 가이드 작성 - AI가 trajectory를 관리하는 방법 문서화
-    vizvibe_guide["VIZVIBE.md 가이드 작성<br/><sub>AI용 trajectory 관리 가이드</sub>"]
+    %% @vizvibe_guide [ai-task, closed]: Created VIZVIBE.md guide - documented how AI manages trajectory
+    vizvibe_guide["VIZVIBE.md Guide<br/><sub>AI trajectory management guide</sub>"]
 
-    %% @install_scripts [ai-task, closed]: 설치 스크립트 제작 - curl 한 줄로 설치/삭제/업데이트 가능
-    install_scripts["CLI 설치 스크립트<br/><sub>curl 원라이너 install/uninstall/update</sub>"]
+    %% @install_scripts [ai-task, closed]: Created install scripts - one-liner curl install/uninstall/update
+    install_scripts["CLI Install Scripts<br/><sub>curl one-liner install/uninstall/update</sub>"]
 
-    %% @vscode_extension [ai-task, closed]: VS Code 확장 개발 - .mmd 파일 그래프 시각화
-    vscode_extension["VS Code 확장 개발<br/><sub>Mermaid 그래프 실시간 시각화</sub>"]
+    %% @vscode_extension [ai-task, closed]: Developed VS Code extension - .mmd file graph visualization with node copy feature
+    vscode_extension["VS Code Extension<br/><sub>Graph visualization + node copy</sub>"]
 
-    %% @read_hook_improve [ai-task, closed]: read-vizvibe.js 개선 - vizvibe.mmd와 VIZVIBE.md 모두 읽기
-    read_hook_improve["init 훅 개선<br/><sub>VIZVIBE.md도 함께 읽도록</sub>"]
+    %% === FUTURE WORK: AI AGENT INTEGRATIONS ===
 
-    %% === FUTURE WORK ===
+    %% @vscode_agent_integration [ai-task, opened]: VS Code AI agent integration - Copilot, other AI extensions
+    vscode_agent_integration["VS Code AI Agent Integration<br/><sub>Copilot and other AI extensions</sub>"]
 
-    %% @lib_packaging [ai-task, opened]: 라이브러리 패키지화 - Python, Java, JS 각 환경에 맞게 SDK 제공
-    lib_packaging["라이브러리 패키지화<br/><sub>Python, Java, JS SDK</sub>"]
+    %% @cursor_agent_integration [ai-task, opened]: Cursor AI agent integration - Rules-based approach, hook when available
+    cursor_agent_integration["Cursor AI Agent Integration<br/><sub>Rules-based, await hook support</sub>"]
 
-    %% @mcp_server [ai-task, opened]: MCP 서버 완성 - 다른 AI 클라이언트에서도 사용 가능하게
-    mcp_server["MCP 서버 완성<br/><sub>범용 AI 클라이언트 지원</sub>"]
+    %% @antigravity_agent_integration [ai-task, opened]: Antigravity AI agent integration - shortcut-based approach for now
+    antigravity_agent_integration["Antigravity AI Agent Integration<br/><sub>Shortcut + gemini.md approach</sub>"]
 
-    %% @codex_cli [ai-task, opened]: Codex CLI 지원 - Claude Code처럼 훅 기반 통합
-    codex_cli["Codex CLI 지원<br/><sub>훅 기반 통합</sub>"]
+    %% @antigravity_hook_support [ai-task, opened]: Antigravity hook support - apply hook-based automation when available
+    antigravity_hook_support["Antigravity Hook Support<br/><sub>Apply hook automation when available</sub>"]
 
-    %% @ide_extensions [ai-task, opened]: IDE 확장 지원 확대 - VS Code, Cursor, Antigravity
-    ide_extensions["IDE 확장 지원 확대<br/><sub>VS Code, Cursor, Antigravity</sub>"]
+    %% @codex_cli_integration [ai-task, opened]: Codex CLI AI agent integration - hook-based like Claude Code
+    codex_cli_integration["Codex CLI AI Agent Integration<br/><sub>Hook-based integration</sub>"]
 
-    %% @improve_docs [ai-task, closed]: 문서 개선 - VIZVIBE.md에 실제 프로젝트 예시 추가
-    improve_docs["문서에 프로젝트 예시 추가<br/><sub>VIZVIBE.md에 실전 예시 포함</sub>"]
+    %% === FUTURE WORK: OTHER ===
+
+    %% @lib_packaging [ai-task, opened]: Library packaging - provide SDK for Python, Java, JS environments
+    lib_packaging["Library Packaging<br/><sub>Python, Java, JS SDK</sub>"]
+
+    %% @mcp_server [ai-task, opened]: Complete MCP server - enable use with other AI clients
+    mcp_server["Complete MCP Server<br/><sub>Universal AI client support</sub>"]
 
     %% === CONNECTIONS ===
     project_start --> mermaid_native
+    mermaid_native --> claude_code_integration
+    mermaid_native --> vscode_extension
+    claude_code_integration --> vizvibe_guide
+    claude_code_integration --> install_scripts
+    claude_code_integration --> lib_packaging
+    claude_code_integration --> codex_cli_integration
+    vscode_extension --> vscode_agent_integration
+    vscode_extension --> cursor_agent_integration
+    vscode_extension --> antigravity_agent_integration
+    antigravity_agent_integration --> antigravity_hook_support
+    mermaid_native --> mcp_server
     lib_packaging -.-> ultimate_goal
     mcp_server -.-> ultimate_goal
-    codex_cli -.-> ultimate_goal
-    ide_extensions -.-> ultimate_goal
-    improve_docs -.-> ultimate_goal
-    mermaid_native --> claude_code_hooks
-    mermaid_native --> vscode_extension
-    claude_code_hooks --> vizvibe_guide
-    claude_code_hooks --> install_scripts
-    claude_code_hooks --> read_hook_improve
-    claude_code_hooks --> lib_packaging
-    claude_code_hooks --> codex_cli
-    mermaid_native --> mcp_server
-    vscode_extension --> ide_extensions
-    vizvibe_guide --> improve_docs
+    codex_cli_integration -.-> ultimate_goal
+    vscode_agent_integration -.-> ultimate_goal
+    cursor_agent_integration -.-> ultimate_goal
+    antigravity_hook_support -.-> ultimate_goal
 
     %% === STYLES ===
     %% Start (emerald)
@@ -75,17 +82,16 @@ flowchart TD
 
     %% Closed AI Tasks (slate)
     style mermaid_native fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style claude_code_hooks fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    style claude_code_integration fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style vizvibe_guide fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style install_scripts fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
     style vscode_extension fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style read_hook_improve fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-
-    %% Recently closed
-    style improve_docs fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
 
     %% Opened AI Tasks (amber border)
+    style vscode_agent_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style cursor_agent_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style antigravity_agent_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style antigravity_hook_support fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    style codex_cli_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
     style lib_packaging fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
     style mcp_server fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style codex_cli fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style ide_extensions fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px

@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (fileName) {
                 const filePath = vscode.Uri.joinPath(workspaceFolders[0].uri, fileName);
                 const defaultContent = `flowchart TD
-    %% @start [start]: 워크플로우 시작점
+    %% @start [start]: Workflow start point
     start(["Start"])
 
     style start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
@@ -68,17 +68,16 @@ export function activate(context: vscode.ExtensionContext) {
             const workspacePath = workspaceFolders[0].uri.fsPath;
             
             // Send message to AI chat to trigger trajectory update
-            const message = `mcp_vizvibe_update_trajectory 도구를 사용해서 방금 완료한 작업을 vizvibe.mmd에 기록해줘.
-workspacePath: ${workspacePath}
-label: [작업 요약을 한 줄로]
-prompt: [상세 설명]`;
+            const message = `Please update vizvibe.mmd with the work just completed.
+Follow the VIZVIBE.md guide for format.
+workspacePath: ${workspacePath}`;
 
             try {
                 await vscode.commands.executeCommand('workbench.action.chat.open', {
                     query: message,
                     isPartialQuery: true
                 });
-                vscode.window.showInformationMessage('📝 AI에게 trajectory 업데이트를 요청했습니다.');
+                vscode.window.showInformationMessage('Requested AI to update trajectory.');
             } catch (error) {
                 vscode.window.showErrorMessage(`Failed to open chat: ${error}`);
             }
@@ -170,7 +169,7 @@ async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
     }
 
     const content = `flowchart TD
-    %% @project_start [start]: Viz Vibe가 초기화되었습니다
+    %% @project_start [start]: Viz Vibe initialized
     project_start(["Project Start"])
 
     style project_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
@@ -271,22 +270,54 @@ mcp_vizvibe_get_trajectory({
 async function updateGlobalGeminiRules() {
     const geminiDir = path.join(os.homedir(), '.gemini');
     const geminiPath = path.join(geminiDir, 'GEMINI.md');
-    
+
     const vizvibeRule = `
-## Viz Vibe: Trajectory Management (Auto-added by Viz Vibe extension)
+## Viz Vibe: Context Management (Auto-added by Viz Vibe extension)
 
-⚠️ **MANDATORY**: After completing ANY task, call \`mcp_vizvibe_update_trajectory\` tool.
+> **SCOPE**: Only apply these rules in repositories where \`vizvibe.mmd\` exists in the project root.
 
-### Usage:
+### File Location
+- **Trajectory file**: \`./vizvibe.mmd\` (project root)
+
+### At conversation start:
+Read \`vizvibe.mmd\` to understand project context and history.
+
+### After completing significant work:
+Update \`vizvibe.mmd\` with the work done.
+
+**When to update:**
+- Major milestone completed
+- New direction/approach decided
+- Blocker discovered
+- Future work planned
+
+**Skip updates for:** trivial fixes, routine tasks, minor refactoring.
+
+### Node Format
+
+Each node needs: metadata comment, node definition, connection, and style.
+
+\`\`\`mermaid
+%% @node_id [type, state]: Description
+node_id["Label<br/><sub>Details</sub>"]
+previous_node --> node_id
+style node_id fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
 \`\`\`
-mcp_vizvibe_update_trajectory({
-  workspacePath: "/path/to/workspace",
-  label: "Brief summary",
-  prompt: "Detailed description"
-})
-\`\`\`
 
-At conversation start, read trajectory with \`mcp_vizvibe_get_trajectory\`.
+**Types:** \`start\`, \`ai-task\`, \`human-task\`, \`condition\`, \`blocker\`, \`end\`
+**States:** \`opened\` (TODO), \`closed\` (DONE)
+
+**Styles:**
+- Start: \`fill:#10b981,stroke:#059669,color:#fff\`
+- Closed task: \`fill:#334155,stroke:#475569,color:#f8fafc\`
+- Opened task: \`fill:#1e293b,stroke:#f59e0b,color:#fbbf24\`
+- Blocker: \`fill:#450a0a,stroke:#dc2626,color:#fca5a5\`
+
+### Graph Principles
+- Connect dependent tasks sequentially (A --> B)
+- Branch independent tasks from same parent (parent --> A, parent --> B)
+- Use dashed lines for future goals (\`-.->\`)
+- Keep it high-level - this is a context map, not a changelog
 `;
 
     try {
@@ -300,14 +331,23 @@ At conversation start, read trajectory with \`mcp_vizvibe_get_trajectory\`.
             existingContent = fs.readFileSync(geminiPath, 'utf-8');
         }
 
-        // Check if vizvibe rule already exists
-        if (existingContent.includes('Viz Vibe: Trajectory Management')) {
+        // Check if new vizvibe rule already exists
+        if (existingContent.includes('Viz Vibe: Context Management')) {
             console.log('Viz Vibe rules already in GEMINI.md');
             return;
         }
 
-        // Append vizvibe rules
-        const newContent = existingContent + '\n' + vizvibeRule;
+        // Remove old MCP-based rule if exists
+        if (existingContent.includes('Viz Vibe: Trajectory Management')) {
+            existingContent = existingContent.replace(
+                /\n## Viz Vibe: Trajectory Management[\s\S]*?(?=\n## |\n# |$)/,
+                ''
+            );
+            console.log('Removed old Viz Vibe MCP rules');
+        }
+
+        // Append new vizvibe rules
+        const newContent = existingContent.trim() + '\n' + vizvibeRule;
         fs.writeFileSync(geminiPath, newContent, 'utf-8');
         console.log('Added Viz Vibe rules to global GEMINI.md');
     } catch (error) {

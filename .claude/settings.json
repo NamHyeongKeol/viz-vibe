@@ -1,6 +1,8 @@
 {
   "permissions": {
-    "allow": ["*"],
+    "allow": [
+      "*"
+    ],
     "defaultMode": "bypassPermissions"
   },
   "hooks": {

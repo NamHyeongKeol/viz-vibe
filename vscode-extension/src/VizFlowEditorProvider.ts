@@ -100,14 +100,14 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             margin: 0 6px;
         }
 
-        /* 메인 컨테이너 */
+        /* Main container */
         .main-container {
             flex: 1;
             display: flex;
             overflow: hidden;
         }
 
-        /* 그래프 뷰 */
+        /* Graph view */
         #graph-view { 
             flex: 1; position: relative; overflow: hidden;
             cursor: grab;
@@ -130,7 +130,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* 소스 뷰 */
+        /* Source view */
         #source-view {
             flex: 1;
             display: none;
@@ -153,7 +153,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             outline: none;
         }
 
-        /* 노드 호버 */
+        /* Node hover */
         .node rect, .node polygon, .node circle, .node ellipse {
             cursor: pointer;
             transition: all 0.15s;
@@ -172,7 +172,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; display: inline-block; margin-right: 6px; }
         .help-hint { font-size: 10px; color: var(--vscode-descriptionForeground); }
 
-        /* 노드 정보 카드 */
+        /* Node info card */
         .info-card {
             position: absolute;
             bottom: 16px; left: 16px;
@@ -200,8 +200,63 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             background: none; border: none; color: var(--vscode-descriptionForeground);
             cursor: pointer; font-size: 14px;
         }
+        .info-card .copy-btn {
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: none; border-radius: 4px; cursor: pointer;
+            font-size: 10px;
+        }
+        .info-card .copy-btn:hover { background: var(--vscode-button-hoverBackground); }
 
-        /* 줌 컨트롤 */
+        /* Context menu */
+        .context-menu {
+            position: fixed;
+            background: var(--vscode-menu-background);
+            border: 1px solid var(--vscode-menu-border);
+            border-radius: 6px;
+            padding: 4px 0;
+            min-width: 160px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 1000;
+            display: none;
+        }
+        .context-menu.active { display: block; }
+        .context-menu-item {
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--vscode-menu-foreground);
+        }
+        .context-menu-item:hover {
+            background: var(--vscode-menu-selectionBackground);
+            color: var(--vscode-menu-selectionForeground);
+        }
+        .context-menu-divider {
+            height: 1px;
+            background: var(--vscode-menu-separatorBackground);
+            margin: 4px 0;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--vscode-notificationsInfoIcon-foreground);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toast.show { opacity: 1; }
+
+        /* Zoom controls */
         .zoom-controls {
             position: absolute;
             bottom: 16px; right: 16px;
@@ -230,7 +285,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             padding: 4px;
         }
 
-        /* 모달 */
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -275,7 +330,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             margin-top: 8px;
         }
 
-        /* 뷰 토글 버튼 */
+        /* View toggle button */
         .view-toggle {
             display: flex;
             background: var(--vscode-button-secondaryBackground);
@@ -312,7 +367,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         
         <div class="toolbar-divider"></div>
         
-        <select id="flowDirection" onchange="changeDirection()" title="레이아웃 방향">
+        <select id="flowDirection" onchange="changeDirection()" title="Layout direction">
             <option value="TD">↓ Top-Down</option>
             <option value="LR">→ Left-Right</option>
             <option value="BT">↑ Bottom-Top</option>
@@ -321,67 +376,80 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         
         <span class="spacer"></span>
         
-        <button class="secondary" onclick="resetView()" title="뷰 리셋">🎯 Reset</button>
+        <button class="secondary" onclick="resetView()" title="Reset view">🎯 Reset</button>
     </div>
 
-    <!-- 메인 컨테이너 -->
+    <!-- Main container -->
     <div class="main-container">
-        <!-- 그래프 뷰 -->
+        <!-- Graph view -->
         <div id="graph-view">
             <div id="canvas-wrapper">
                 <div id="mermaid-container">
                     <div id="mermaid-output"></div>
                 </div>
             </div>
-            
-            <!-- 노드 정보 카드 -->
+
+            <!-- Node info card -->
             <div id="info-card" class="info-card" style="display:none;">
                 <button class="close-btn" onclick="closeInfoCard()">×</button>
                 <h4 id="info-label"></h4>
                 <p id="info-prompt"></p>
+                <button class="copy-btn" onclick="copyNodeInfo()">📋 Copy</button>
             </div>
-            
-            <!-- 줌 컨트롤 -->
+
+            <!-- Zoom controls -->
             <div class="zoom-controls">
-                <button onclick="zoomIn()" title="확대">+</button>
+                <button onclick="zoomIn()" title="Zoom in">+</button>
                 <div class="zoom-level" id="zoomLevel">100%</div>
-                <button onclick="zoomOut()" title="축소">−</button>
-                <button onclick="fitToScreen()" title="화면 맞추기" style="font-size:12px;">⊞</button>
+                <button onclick="zoomOut()" title="Zoom out">−</button>
+                <button onclick="fitToScreen()" title="Fit to screen" style="font-size:12px;">⊞</button>
             </div>
         </div>
 
-        <!-- 소스 뷰 -->
+        <!-- Source view -->
         <div id="source-view">
             <textarea id="source-editor" spellcheck="false"></textarea>
         </div>
     </div>
 
-    <!-- 상태바 -->
+    <!-- Context menu -->
+    <div id="context-menu" class="context-menu">
+        <div class="context-menu-item" onclick="copyNodeId()">Copy Node ID</div>
+        <div class="context-menu-item" onclick="copyNodeLabel()">Copy Label</div>
+        <div class="context-menu-item" onclick="copyNodeDescription()">Copy Description</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="copyNodeAll()">Copy All</div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Status bar -->
     <div class="status-bar">
         <span><span class="status-dot"></span>Ready</span>
         <span id="nodeCount">Nodes: 0</span>
         <span class="spacer"></span>
-        <span class="help-hint">🖱 드래그: 이동 • 스크롤: 줌 • 클릭: 노드 정보</span>
+        <span class="help-hint">🖱 Drag: Pan • Scroll: Zoom • Click: Info • Right-click: Copy</span>
     </div>
 
-    <!-- 노드 추가 모달 -->
+    <!-- Add node modal -->
     <div id="addNodeModal" class="modal-overlay">
         <div class="modal">
-            <h3 id="modalTitle">새 노드 추가</h3>
+            <h3 id="modalTitle">Add New Node</h3>
             <input type="hidden" id="nodeType" />
-            <label>노드 ID (영문, 숫자, _만 가능)</label>
-            <input type="text" id="nodeId" placeholder="예: task_login_impl" />
-            <label>레이블 (화면에 표시)</label>
-            <input type="text" id="nodeLabel" placeholder="예: 로그인 구현 완료" />
-            <label>설명 (상세 내용)</label>
-            <textarea id="nodePrompt" placeholder="예: JWT 인증 기반 로그인 구현"></textarea>
-            <label>연결할 이전 노드 (선택)</label>
+            <label>Node ID (letters, numbers, _ only)</label>
+            <input type="text" id="nodeId" placeholder="e.g. task_login_impl" />
+            <label>Label (displayed on graph)</label>
+            <input type="text" id="nodeLabel" placeholder="e.g. Login Implementation" />
+            <label>Description (details)</label>
+            <textarea id="nodePrompt" placeholder="e.g. JWT-based login implementation"></textarea>
+            <label>Connect from (optional)</label>
             <select id="connectFrom">
-                <option value="">연결 없음</option>
+                <option value="">No connection</option>
             </select>
             <div class="modal-buttons">
-                <button class="secondary" onclick="closeAddNodeModal()">취소</button>
-                <button onclick="confirmAddNode()">추가</button>
+                <button class="secondary" onclick="closeAddNodeModal()">Cancel</button>
+                <button onclick="confirmAddNode()">Add</button>
             </div>
         </div>
     </div>
@@ -392,13 +460,15 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         let mermaidCode = '';
         let currentView = 'graph';
         let nodeMetadata = {}; // {nodeId: {type, prompt}}
+        let selectedNodeId = null;
+        let selectedNodeLabel = '';
         
-        // 줌/패닝 상태
+        // Zoom/pan state
         let transform = { x: 50, y: 50, scale: 1 };
         let isPanning = false;
         let startPan = { x: 0, y: 0 };
 
-        // Mermaid 초기화
+        // Mermaid initialization
         mermaid.initialize({
             startOnLoad: false,
             theme: 'dark',
@@ -420,7 +490,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
         });
 
-        // 메타데이터 파싱 (주석에서 추출)
+        // Parse metadata from comments
         function parseMetadata(code) {
             nodeMetadata = {};
             const metaRegex = /%% @(\\w+) \\[(\\w+(?:-\\w+)?)\\]: (.+)/g;
@@ -433,10 +503,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }
 
-        // 노드 목록 추출
+        // Extract node list
         function extractNodes(code) {
             const nodes = [];
-            // 노드 정의 패턴: nodeId["label"] 또는 nodeId(["label"]) 등
+            // Node definition pattern: nodeId["label"] or nodeId(["label"]) etc
             const nodeRegex = /^\\s+(\\w+)(?:\\[|\\(|\\{)/gm;
             let match;
             while ((match = nodeRegex.exec(code)) !== null) {
@@ -447,7 +517,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             return nodes;
         }
 
-        // 방향 추출
+        // Extract direction
         function extractDirection(code) {
             const match = code.match(/flowchart\\s+(TD|LR|BT|RL)/);
             return match ? match[1] : 'TD';
@@ -461,7 +531,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         async function render() {
             if (!mermaidCode.trim()) {
-                document.getElementById('mermaid-output').innerHTML = '<p style="color:#888;padding:20px;">빈 파일입니다. 노드를 추가하세요.</p>';
+                document.getElementById('mermaid-output').innerHTML = '<p style="color:#888;padding:20px;">Empty file. Add some nodes.</p>';
                 return;
             }
 
@@ -485,44 +555,134 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 const { svg } = await mermaid.render('mermaid-svg', mermaidCode);
                 container.innerHTML = svg;
                 
-                // 노드 클릭 이벤트
+                // Node click/right-click/double-click events
                 nodes.forEach(nodeId => {
                     const nodeEl = container.querySelector('[id*="' + nodeId + '"]');
                     if (nodeEl) {
                         nodeEl.style.cursor = 'pointer';
+                        // Single click - show info
                         nodeEl.onclick = (e) => {
                             e.stopPropagation();
                             showNodeInfo(nodeId);
+                        };
+                        // Double click - copy all
+                        nodeEl.ondblclick = (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            selectedNodeId = nodeId;
+                            copyNodeAll();
+                        };
+                        // Right click - context menu
+                        nodeEl.oncontextmenu = (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            selectedNodeId = nodeId;
+                            // Get label from node element
+                            const textEl = nodeEl.querySelector('.nodeLabel, text, foreignObject');
+                            selectedNodeLabel = textEl ? textEl.textContent.trim() : nodeId;
+                            showContextMenu(e.clientX, e.clientY);
                         };
                     }
                 });
 
                 document.getElementById('nodeCount').innerText = 'Nodes: ' + nodes.length;
             } catch (e) {
-                container.innerHTML = '<p style="color:#ef4444;padding:20px;">렌더링 오류: ' + e.message + '</p>';
+                container.innerHTML = '<p style="color:#ef4444;padding:20px;">Render error: ' + e.message + '</p>';
             }
         }
 
         function showNodeInfo(nodeId) {
             const meta = nodeMetadata[nodeId] || {};
+            selectedNodeId = nodeId;
+            // Get label from rendered node
+            const container = document.getElementById('mermaid-output');
+            const nodeEl = container.querySelector('[id*="' + nodeId + '"]');
+            const textEl = nodeEl ? nodeEl.querySelector('.nodeLabel, text, foreignObject') : null;
+            selectedNodeLabel = textEl ? textEl.textContent.trim() : nodeId;
+
             document.getElementById('info-card').style.display = 'block';
             document.getElementById('info-label').innerText = '[' + (meta.type || 'unknown').toUpperCase() + '] ' + nodeId;
-            document.getElementById('info-prompt').innerText = meta.prompt || '(설명 없음)';
+            document.getElementById('info-prompt').innerText = meta.prompt || '(No description)';
         }
 
         function closeInfoCard() {
             document.getElementById('info-card').style.display = 'none';
         }
 
+        // Context menu functions
+        function showContextMenu(x, y) {
+            const menu = document.getElementById('context-menu');
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('active');
+        }
+
+        function hideContextMenu() {
+            document.getElementById('context-menu').classList.remove('active');
+        }
+
+        // Copy functions
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy');
+            });
+            hideContextMenu();
+        }
+
+        function copyNodeId() {
+            if (selectedNodeId) {
+                copyToClipboard(selectedNodeId);
+            }
+        }
+
+        function copyNodeLabel() {
+            if (selectedNodeLabel) {
+                copyToClipboard(selectedNodeLabel);
+            }
+        }
+
+        function copyNodeDescription() {
+            const meta = nodeMetadata[selectedNodeId] || {};
+            copyToClipboard(meta.prompt || '');
+        }
+
+        function copyNodeAll() {
+            if (!selectedNodeId) return;
+            const meta = nodeMetadata[selectedNodeId] || {};
+            const text = 'ID: ' + selectedNodeId + '\\nType: ' + (meta.type || 'unknown') + '\\nLabel: ' + selectedNodeLabel + '\\nDescription: ' + (meta.prompt || '');
+            copyToClipboard(text);
+        }
+
+        function copyNodeInfo() {
+            copyNodeAll();
+        }
+
+        // Close context menu on click outside
+        document.addEventListener('click', hideContextMenu);
+        document.addEventListener('contextmenu', (e) => {
+            if (!e.target.closest('.node')) {
+                hideContextMenu();
+            }
+        });
+
         function updateConnectDropdown(nodes) {
             const select = document.getElementById('connectFrom');
-            select.innerHTML = '<option value="">연결 없음</option>';
+            select.innerHTML = '<option value="">No connection</option>';
             nodes.forEach(id => {
                 select.innerHTML += '<option value="' + id + '">' + id + '</option>';
             });
         }
 
-        // === 뷰 전환 ===
+        // === View switching ===
         function switchView(view) {
             currentView = view;
             const graphView = document.getElementById('graph-view');
@@ -545,13 +705,13 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }
 
-        // 소스 에디터 변경 감지
+        // Source editor change detection
         document.getElementById('source-editor').addEventListener('input', (e) => {
             mermaidCode = e.target.value;
             vscode.postMessage({ type: 'update', mermaidCode });
         });
 
-        // === 줌/패닝 ===
+        // === Zoom/Panning ===
         const graphView = document.getElementById('graph-view');
         
         graphView.addEventListener('mousedown', (e) => {
@@ -620,7 +780,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             updateTransform();
         }
 
-        // === 방향 변경 ===
+        // === Direction change ===
         function changeDirection() {
             const newDir = document.getElementById('flowDirection').value;
             mermaidCode = mermaidCode.replace(/flowchart\\s+(TD|LR|BT|RL)/, 'flowchart ' + newDir);
@@ -628,7 +788,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             render();
         }
 
-        // === 노드 추가 ===
+        // === Node creation ===
         const nodeShapes = {
             'start': { open: '(["', close: '"])', style: 'fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px' },
             'end': { open: '(["', close: '"])', style: 'fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px' },
@@ -640,7 +800,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         function openAddNodeModal(type) {
             document.getElementById('nodeType').value = type;
-            document.getElementById('modalTitle').innerText = '새 ' + type.toUpperCase() + ' 노드 추가';
+            document.getElementById('modalTitle').innerText = 'Add New ' + type.toUpperCase() + ' Node';
             document.getElementById('nodeId').value = 'node_' + Date.now();
             document.getElementById('nodeLabel').value = '';
             document.getElementById('nodePrompt').value = '';
@@ -661,30 +821,30 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             
             const shape = nodeShapes[type] || nodeShapes['ai-task'];
             
-            // 새 코드 생성
+            // Generate new code
             let newCode = '';
-            
-            // 메타데이터 주석
+
+            // Metadata comment
             if (prompt) {
                 newCode += '    %% @' + nodeId + ' [' + type + ']: ' + prompt.replace(/\\n/g, ' ') + '\\n';
             }
             
-            // 노드 정의
+            // Node definition
             newCode += '    ' + nodeId + shape.open + label + shape.close + '\\n';
-            
-            // 엣지 (연결)
+
+            // Edge (connection)
             if (connectFrom) {
                 newCode += '    ' + connectFrom + ' --> ' + nodeId + '\\n';
             }
-            
-            // 스타일
+
+            // Style
             newCode += '    style ' + nodeId + ' ' + shape.style + '\\n';
-            
-            // 기존 코드에 추가
+
+            // Add to existing code
             if (!mermaidCode.trim()) {
                 mermaidCode = 'flowchart TD\\n' + newCode;
             } else {
-                // Styles 섹션 앞에 추가하거나 끝에 추가
+                // Add before styles section or at end
                 const stylesMatch = mermaidCode.match(/\\n(\\s*style\\s)/);
                 if (stylesMatch) {
                     const pos = mermaidCode.indexOf(stylesMatch[0]);
@@ -699,7 +859,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             render();
         }
 
-        // === 메시지 핸들러 ===
+        // === Message handler ===
         window.onmessage = (e) => {
             if (e.data.type === 'load') {
                 mermaidCode = e.data.mermaidCode || '';
@@ -711,7 +871,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
         };
 
-        // 모달 닫기
+        // Close modal
         document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.onclick = (e) => {
                 if (e.target.classList.contains('modal-overlay')) {
@@ -720,7 +880,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             };
         });
 
-        // Enter 키
+        // Enter key
         document.getElementById('nodeLabel').onkeydown = (e) => {
             if (e.key === 'Enter') confirmAddNode();
         };
