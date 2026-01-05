@@ -2,56 +2,61 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
+    %% @lastActive: design_renewal
 
-    %% === START & GOAL ===
-
+    %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
-    project_start(["Viz Vibe Project Start"])
+    project_start("Viz Vibe Project Start<br/><sub>Graph-based context management</sub>")
 
-    %% @ultimate_goal [end, opened]: Ultimate goal - visualize context and maintain memory across sessions in all AI coding environments
-    ultimate_goal(["Solve Context Problem in Human-AI Collaboration<br/><sub>Visualize context as graph, persist memory across sessions<br/>Works in all AI coding environments</sub>"])
+    %% @ultimate_goal [end, opened]: Ultimate goal - visualize context across all AI coding environments
+    ultimate_goal("Solve Context Problem<br/><sub>Visualize context, persist memory across sessions</sub>")
 
     %% === COMPLETED WORK ===
+    %% @mermaid_native [ai-task, closed]: Switched from JSON to Mermaid .mmd
+    mermaid_native("Mermaid Native Format<br/><sub>JSON → .mmd, renders anywhere</sub>")
 
-    %% @mermaid_native [ai-task, closed]: Switched from JSON to Mermaid .mmd - renders anywhere (GitHub, Notion, etc.)
-    mermaid_native["Switch to Mermaid Native Format<br/><sub>JSON → .mmd, renders anywhere</sub>"]
+    %% @claude_code_integration [ai-task, closed]: Claude Code AI agent integration via hooks
+    claude_code_integration("Claude Code Integration<br/><sub>Hook-based automation</sub>")
 
-    %% @claude_code_integration [ai-task, closed]: Claude Code AI agent integration - auto read/update via SessionStart/Stop hooks
-    claude_code_integration["Claude Code AI Agent Integration<br/><sub>Hook-based automation</sub>"]
+    %% @vizvibe_guide [ai-task, closed]: Created VIZVIBE.md guide
+    vizvibe_guide("VIZVIBE.md Guide<br/><sub>AI trajectory management guide</sub>")
 
-    %% @vizvibe_guide [ai-task, closed]: Created VIZVIBE.md guide - documented how AI manages trajectory
-    vizvibe_guide["VIZVIBE.md Guide<br/><sub>AI trajectory management guide</sub>"]
+    %% @install_scripts [ai-task, closed]: Created install scripts
+    install_scripts("CLI Install Scripts<br/><sub>curl one-liner install/uninstall</sub>")
 
-    %% @install_scripts [ai-task, closed]: Created install scripts - one-liner curl install/uninstall/update
-    install_scripts["CLI Install Scripts<br/><sub>curl one-liner install/uninstall/update</sub>"]
+    %% @vscode_extension [ai-task, closed]: VS Code extension with graph visualization and node copy
+    vscode_extension("VS Code Extension<br/><sub>Graph visualization + node copy</sub>")
 
-    %% @vscode_extension [ai-task, closed]: Developed VS Code extension - .mmd file graph visualization with node copy feature
-    vscode_extension["VS Code Extension<br/><sub>Graph visualization + node copy</sub>"]
+    %% @lastactive_tracking [ai-task, closed]: Added lastActiveNode tracking to state.json and hooks
+    lastactive_tracking("Last Active Tracking<br/><sub>state.json + hooks update</sub>")
+
+    %% @design_renewal [ai-task, closed]: GitHub-style design - green/purple colors, rounded rectangles
+    subgraph recent [⭐ RECENT]
+        design_renewal("Design Renewal<br/><sub>GitHub-style colors, rounded nodes</sub>")
+    end
 
     %% === FUTURE WORK: AI AGENT INTEGRATIONS ===
+    %% @vscode_agent_integration [ai-task, opened]: VS Code AI agent integration
+    vscode_agent_integration("VS Code AI Integration<br/><sub>Copilot and other AI extensions</sub>")
 
-    %% @vscode_agent_integration [ai-task, opened]: VS Code AI agent integration - Copilot, other AI extensions
-    vscode_agent_integration["VS Code AI Agent Integration<br/><sub>Copilot and other AI extensions</sub>"]
+    %% @cursor_agent_integration [ai-task, opened]: Cursor AI agent integration
+    cursor_agent_integration("Cursor AI Integration<br/><sub>Rules-based approach</sub>")
 
-    %% @cursor_agent_integration [ai-task, opened]: Cursor AI agent integration - Rules-based approach, hook when available
-    cursor_agent_integration["Cursor AI Agent Integration<br/><sub>Rules-based, await hook support</sub>"]
+    %% @antigravity_agent_integration [ai-task, opened]: Antigravity AI agent integration
+    antigravity_agent_integration("Antigravity AI Integration<br/><sub>Shortcut + gemini.md approach</sub>")
 
-    %% @antigravity_agent_integration [ai-task, opened]: Antigravity AI agent integration - shortcut-based approach for now
-    antigravity_agent_integration["Antigravity AI Agent Integration<br/><sub>Shortcut + gemini.md approach</sub>"]
+    %% @antigravity_hook_support [ai-task, opened]: Antigravity hook support when available
+    antigravity_hook_support("Antigravity Hook Support<br/><sub>Apply hook automation when available</sub>")
 
-    %% @antigravity_hook_support [ai-task, opened]: Antigravity hook support - apply hook-based automation when available
-    antigravity_hook_support["Antigravity Hook Support<br/><sub>Apply hook automation when available</sub>"]
-
-    %% @codex_cli_integration [ai-task, opened]: Codex CLI AI agent integration - hook-based like Claude Code
-    codex_cli_integration["Codex CLI AI Agent Integration<br/><sub>Hook-based integration</sub>"]
+    %% @codex_cli_integration [ai-task, opened]: Codex CLI AI agent integration
+    codex_cli_integration("Codex CLI Integration<br/><sub>Hook-based integration</sub>")
 
     %% === FUTURE WORK: OTHER ===
+    %% @lib_packaging [ai-task, opened]: Library packaging - SDK for Python, Java, JS
+    lib_packaging("Library Packaging<br/><sub>Python, Java, JS SDK</sub>")
 
-    %% @lib_packaging [ai-task, opened]: Library packaging - provide SDK for Python, Java, JS environments
-    lib_packaging["Library Packaging<br/><sub>Python, Java, JS SDK</sub>"]
-
-    %% @mcp_server [ai-task, opened]: Complete MCP server - enable use with other AI clients
-    mcp_server["Complete MCP Server<br/><sub>Universal AI client support</sub>"]
+    %% @mcp_server [ai-task, opened]: Complete MCP server
+    mcp_server("MCP Server<br/><sub>Universal AI client support</sub>")
 
     %% === CONNECTIONS ===
     project_start --> mermaid_native
@@ -61,6 +66,8 @@ flowchart TD
     claude_code_integration --> install_scripts
     claude_code_integration --> lib_packaging
     claude_code_integration --> codex_cli_integration
+    vscode_extension --> lastactive_tracking
+    lastactive_tracking --> design_renewal
     vscode_extension --> vscode_agent_integration
     vscode_extension --> cursor_agent_integration
     vscode_extension --> antigravity_agent_integration
@@ -74,24 +81,32 @@ flowchart TD
     antigravity_hook_support -.-> ultimate_goal
 
     %% === STYLES ===
-    %% Start (emerald)
-    style project_start fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
+    %% GitHub-inspired colors: Open = green, Closed = purple/gray
 
-    %% Ultimate Goal (gray - end node)
-    style ultimate_goal fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
+    %% Start node (teal)
+    style project_start fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
 
-    %% Closed AI Tasks (slate)
-    style mermaid_native fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style claude_code_integration fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style vizvibe_guide fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style install_scripts fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-    style vscode_extension fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
+    %% Ultimate Goal (muted)
+    style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 
-    %% Opened AI Tasks (amber border)
-    style vscode_agent_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style cursor_agent_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style antigravity_agent_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style antigravity_hook_support fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style codex_cli_integration fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style lib_packaging fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-    style mcp_server fill:#1e293b,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
+    %% Closed tasks (soft purple - like GitHub merged)
+    style mermaid_native fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style claude_code_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style vizvibe_guide fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style install_scripts fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style vscode_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    style lastactive_tracking fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    %% Last active node (highlighted - brighter purple with glow effect)
+    style design_renewal fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+
+    %% Open tasks (soft green - like GitHub open)
+    style vscode_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style cursor_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style antigravity_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style antigravity_hook_support fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style codex_cli_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style mcp_server fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px

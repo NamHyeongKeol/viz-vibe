@@ -424,50 +424,78 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: [describe the final objective]
     %% Current Goal: [describe immediate focus]
+    %% @lastActive: node_id
 
     %% === NODES ===
     %% @node_id [type, state]: Description
-    node_id(["Label"])
+    node_id("Label")
 
     %% === EDGES ===
     node_a --> node_b
 
     %% === STYLES ===
-    style node_id fill:#color,stroke:#color,color:#fff
+    style node_id fill:#1a1a2e,stroke:#color,color:#text
 ```
 
-### Node Types
+### Last Active Node Tracking
 
-| Type         | Shape       | Style         | Use Case                |
-| ------------ | ----------- | ------------- | ----------------------- |
-| `start`      | `(["..."])` | Green         | Project/phase beginning |
-| `ai-task`    | `["..."]`   | Slate         | AI work, implementation |
-| `human-task` | `["..."]`   | Indigo border | Human decision/action   |
-| `condition`  | `{"..."}`   | Amber border  | Decision point, branch  |
-| `blocker`    | `{{"..."}}` | Red           | Dead end, blocked path  |
-| `end`        | `(["..."])` | Gray          | Completion point        |
+**Important**: Always update the `%% @lastActive: node_id` line when you work on a node.
 
-### Style Reference
+This marker:
+- Shows which node was most recently worked on
+- Gets highlighted with a brighter style in the graph
+- Helps users see at a glance what was last touched
+
+### Node Shape
+
+Use rounded rectangles `("...")` for all nodes. This creates a clean, uniform look:
 
 ```mermaid
-%% Start (emerald)
-style node fill:#10b981,stroke:#059669,color:#fff,stroke-width:2px
-
-%% AI Task (slate gray)
-style node fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-
-%% Human Task (indigo border)
-style node fill:#1e293b,stroke:#6366f1,color:#f8fafc,stroke-width:2px
-
-%% Condition (amber border)
-style node fill:#0f172a,stroke:#f59e0b,color:#fbbf24,stroke-width:2px
-
-%% Blocker (red)
-style node fill:#450a0a,stroke:#dc2626,color:#fca5a5,stroke-width:2px
-
-%% End (gray)
-style node fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
+node_id("Node Label")
 ```
+
+### Node Types (in metadata only)
+
+| Type         | Use Case                |
+| ------------ | ----------------------- |
+| `start`      | Project/phase beginning |
+| `ai-task`    | AI work, implementation |
+| `human-task` | Human decision/action   |
+| `condition`  | Decision point, branch  |
+| `blocker`    | Dead end, blocked path  |
+| `end`        | Completion point        |
+
+### Style Reference (GitHub-inspired)
+
+All nodes use dark background with colored borders:
+
+```mermaid
+%% Start node (teal)
+style node fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
+
+%% Closed tasks (soft purple - like GitHub merged)
+style node fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+%% Open tasks (soft green - like GitHub open)
+style node fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+
+%% Last active node (highlighted purple)
+style node fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+
+%% Blocker (soft red)
+style node fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+
+%% End/Goal (muted gray)
+style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+```
+
+**Color meanings:**
+- **Green border**: Open/TODO tasks
+- **Purple border**: Closed/Done tasks
+- **Bright purple (highlighted)**: Last active node
+- **Teal border**: Start node
+- **Gray border**: End/Goal node
+- **Red border**: Blocker
 
 ---
 
@@ -475,8 +503,10 @@ style node fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
 
 1. **Read** `vizvibe.mmd` at the start of each session to understand context
 2. **Update** after completing significant work
-3. **Add future work** identified during the session as `[opened]` nodes
-4. **Close nodes** when work is done or no longer relevant
-5. **Delete nodes** that are trivial or mistaken
-6. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
-7. **Keep it high-level** — this is a map, not a changelog
+3. **Update `@lastActive`** — always set `%% @lastActive: node_id` to the node you just worked on
+4. **Add future work** identified during the session as `[opened]` nodes
+5. **Close nodes** when work is done or no longer relevant
+6. **Delete nodes** that are trivial or mistaken
+7. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
+8. **Keep it high-level** — this is a map, not a changelog
+9. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed)

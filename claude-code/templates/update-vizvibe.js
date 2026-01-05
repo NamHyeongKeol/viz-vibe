@@ -26,8 +26,32 @@ function getState() {
   return 'idle';
 }
 
-function setState(mode) {
-  fs.writeFileSync(STATE_FILE, JSON.stringify({ mode, updatedAt: new Date().toISOString() }));
+function setState(mode, lastActiveNode = null) {
+  const state = { mode, updatedAt: new Date().toISOString() };
+  if (lastActiveNode !== null) {
+    state.lastActiveNode = lastActiveNode;
+  } else {
+    // Preserve existing lastActiveNode
+    try {
+      const existing = JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8'));
+      if (existing.lastActiveNode) {
+        state.lastActiveNode = existing.lastActiveNode;
+      }
+    } catch (e) {}
+  }
+  fs.writeFileSync(STATE_FILE, JSON.stringify(state));
+}
+
+function extractLastActiveNode(projectDir) {
+  const trajectoryPath = path.join(projectDir, 'vizvibe.mmd');
+  try {
+    const content = fs.readFileSync(trajectoryPath, 'utf-8');
+    // Look for %% @lastActive: node_id
+    const match = content.match(/%% @lastActive:\s*(\w+)/);
+    return match ? match[1] : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 // Read stdin
@@ -47,7 +71,9 @@ process.stdin.on('end', () => {
 
     // Prevent infinite loop: if already in hook continuation, let Claude stop
     if (input.stop_hook_active) {
-      setState('idle');  // Reset state so next conversation triggers update
+      const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+      const lastActive = extractLastActiveNode(projectDir);
+      setState('idle', lastActive);  // Reset state and update lastActiveNode
       process.exit(0);
     }
 
@@ -82,7 +108,8 @@ process.stdin.on('end', () => {
 
     if (currentState === 'updating') {
       // Just finished updating trajectory, reset to idle and skip
-      setState('idle');
+      const lastActive = extractLastActiveNode(projectDir);
+      setState('idle', lastActive);
       process.exit(0);
     }
 

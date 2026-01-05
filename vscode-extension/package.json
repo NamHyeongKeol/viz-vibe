@@ -44,8 +44,8 @@
     "keybindings": [
       {
         "command": "vizVibe.recordTurn",
-        "key": "alt+cmd+v",
-        "mac": "alt+cmd+v",
+        "key": "ctrl+shift+alt+v",
+        "mac": "ctrl+shift+cmd+v",
         "when": "editorTextFocus || !editorTextFocus"
       }
     ],

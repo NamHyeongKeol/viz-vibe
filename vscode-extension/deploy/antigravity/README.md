@@ -52,7 +52,7 @@ Skip updates for trivial fixes or routine tasks.
 
 When AI doesn't auto-update, use the shortcut to prompt:
 
-- **Alt+Cmd+V**: Record current turn / prompt AI to update vizvibe.mmd
+- **Ctrl+Shift+Cmd+V** (Mac) / **Ctrl+Shift+Alt+V** (Windows/Linux): Record current turn / prompt AI to update vizvibe.mmd
 
 This shortcut helps users manually trigger trajectory updates when the AI doesn't do it automatically.
 
