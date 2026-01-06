@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: vscode_marketplace_publish
+    %% @lastActive: antigravity_gemini_integration
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -146,12 +146,19 @@ flowchart TD
     style version_bump_011 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
     %% @vscode_marketplace_publish [ai-task, closed]: Published to VSCode Marketplace v0.1.5
-    subgraph recent [⭐ RECENT]
-        vscode_marketplace_publish["VSCode Marketplace<br/><sub>Published v0.1.5, Public</sub>"]
-    end
+    vscode_marketplace_publish["VSCode Marketplace<br/><sub>Published v0.1.5, Public</sub>"]
     version_bump_011 --> vscode_marketplace_publish
-    style vscode_marketplace_publish fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style vscode_marketplace_publish fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    
+    %% @antigravity_gemini_integration [ai-task, closed]: Full VIZVIBE.md in GEMINI.md, auto-init, custom editor fix
+    subgraph recent [⭐ RECENT]
+        antigravity_gemini_integration["Antigravity Integration<br/><sub>GEMINI.md full guide, auto-init v0.1.12</sub>"]
+    end
+    vscode_marketplace_publish --> antigravity_gemini_integration
+    antigravity_agent_integration --> antigravity_gemini_integration
+    style antigravity_gemini_integration fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
     
     version_bump_011 -.-> ultimate_goal
     vscode_marketplace_publish -.-> ultimate_goal
+    antigravity_gemini_integration -.-> ultimate_goal

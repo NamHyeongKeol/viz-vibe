@@ -2,7 +2,7 @@
   "name": "viz-vibe",
   "displayName": "Viz Vibe",
   "description": "A graph-based workflow interface for seamless Human-AI collaboration",
-  "version": "0.1.5",
+  "version": "0.1.12",
   "icon": "assets/logo.png",
   "publisher": "viz-vibe",
   "repository": {
@@ -82,7 +82,7 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "cp ../LICENSE ./LICENSE && cp ../README.md ./README.md && npm run compile",
+    "vscode:prepublish": "cp ../LICENSE ./LICENSE && cp ../README.md ./README.md && cp ../shared/templates/VIZVIBE.md ./VIZVIBE.md && npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",

@@ -114,32 +114,25 @@ async function checkAndPromptInitialization(context: vscode.ExtensionContext) {
 
     const workspaceRoot = workspaceFolders[0].uri;
 
-    // Check if already initialized in this workspace
-    const workspaceKey = `${VIZVIBE_INITIALIZED_KEY}.${workspaceRoot.fsPath}`;
-    const alreadyAsked = context.globalState.get<boolean>(workspaceKey);
-    if (alreadyAsked) return;
-
     // Check if .mmd file already exists
     const mmdFiles = await vscode.workspace.findFiles('**/*.mmd', '**/node_modules/**', 1);
     if (mmdFiles.length > 0) {
-        // Already has mmd, ensure global rules exist
+        // Already has mmd, just ensure global rules exist
         await updateGlobalGeminiRules();
         return;
     }
 
-    // Show prompt
+    // No .mmd file - always ask (no alreadyAsked check)
     const selection = await vscode.window.showInformationMessage(
         '🚀 Would you like to set up Viz Vibe for this project?\n\nAI will automatically record work history in a graph.',
         'Yes',
-        'No',
-        'Don\'t ask again'
+        'No'
     );
 
     if (selection === 'Yes') {
         await initializeVizVibe(context, false);
-    } else if (selection === 'Don\'t ask again') {
-        await context.globalState.update(workspaceKey, true);
     }
+    // If 'No' - just skip, will ask again next time project is opened
 }
 
 async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: boolean) {
@@ -171,8 +164,8 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
             );
             if (openTrajectory) {
                 const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
-                const doc = await vscode.workspace.openTextDocument(trajectoryUri);
-                await vscode.window.showTextDocument(doc);
+                // Open with Custom Editor (Graph View) directly
+                await vscode.commands.executeCommand('vscode.openWith', trajectoryUri, 'vizVibe.vizflowEditor');
             }
         }
     } catch (error) {
@@ -311,56 +304,47 @@ async function updateGlobalGeminiRules() {
     const geminiDir = path.join(os.homedir(), '.gemini');
     const geminiPath = path.join(geminiDir, 'GEMINI.md');
 
-    const vizvibeRule = `
+    try {
+        // Try to read VIZVIBE.md from the extension's bundled files
+        const extensionPath = vscode.extensions.getExtension('viz-vibe.viz-vibe')?.extensionPath;
+        let vizvibeContent = '';
+        
+        if (extensionPath) {
+            const vizvibeMdPath = path.join(extensionPath, 'VIZVIBE.md');
+            if (fs.existsSync(vizvibeMdPath)) {
+                vizvibeContent = fs.readFileSync(vizvibeMdPath, 'utf-8');
+            }
+        }
+        
+        // Fallback: try to read from workspace's shared/templates
+        if (!vizvibeContent) {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            if (workspaceFolders) {
+                const templatePath = path.join(workspaceFolders[0].uri.fsPath, 'shared', 'templates', 'VIZVIBE.md');
+                if (fs.existsSync(templatePath)) {
+                    vizvibeContent = fs.readFileSync(templatePath, 'utf-8');
+                }
+            }
+        }
+
+        // If still no content, use a minimal fallback
+        if (!vizvibeContent) {
+            console.log('VIZVIBE.md not found, using minimal rules');
+            vizvibeContent = getMinimalVizVibeRules();
+        }
+
+        // Create the rule block with scope prefix
+        const vizvibeRule = `
 ## Viz Vibe: Context Management (Auto-added by Viz Vibe extension)
 
-> **SCOPE**: Only apply these rules in repositories where \`vizvibe.mmd\` exists in the project root.
+> **⚠️ SCOPE**: Only apply these rules in repositories where \`vizvibe.mmd\` exists in the project root.
+> If \`vizvibe.mmd\` does not exist, ignore this entire section.
 
-### File Location
-- **Trajectory file**: \`./vizvibe.mmd\` (project root)
+---
 
-### At conversation start:
-Read \`vizvibe.mmd\` to understand project context and history.
-
-### After completing significant work:
-Update \`vizvibe.mmd\` with the work done.
-
-**When to update:**
-- Major milestone completed
-- New direction/approach decided
-- Blocker discovered
-- Future work planned
-
-**Skip updates for:** trivial fixes, routine tasks, minor refactoring.
-
-### Node Format
-
-Each node needs: metadata comment, node definition, connection, and style.
-
-\`\`\`mermaid
-%% @node_id [type, state]: Description
-node_id["Label<br/><sub>Details</sub>"]
-previous_node --> node_id
-style node_id fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
-\`\`\`
-
-**Types:** \`start\`, \`ai-task\`, \`human-task\`, \`condition\`, \`blocker\`, \`end\`
-**States:** \`opened\` (TODO), \`closed\` (DONE)
-
-**Styles:**
-- Start: \`fill:#64748b,stroke:#475569,color:#fff\`
-- Closed task: \`fill:#334155,stroke:#475569,color:#f8fafc\`
-- Opened task: \`fill:#1e293b,stroke:#f59e0b,color:#fbbf24\`
-- Blocker: \`fill:#450a0a,stroke:#dc2626,color:#fca5a5\`
-
-### Graph Principles
-- Connect dependent tasks sequentially (A --> B)
-- Branch independent tasks from same parent (parent --> A, parent --> B)
-- Use dashed lines for future goals (\`-.->\`)
-- Keep it high-level - this is a context map, not a changelog
+${vizvibeContent}
 `;
 
-    try {
         // Ensure .gemini directory exists
         if (!fs.existsSync(geminiDir)) {
             fs.mkdirSync(geminiDir, { recursive: true });
@@ -389,10 +373,43 @@ style node_id fill:#334155,stroke:#475569,color:#f8fafc,stroke-width:1px
         // Append new vizvibe rules
         const newContent = existingContent.trim() + '\n' + vizvibeRule;
         fs.writeFileSync(geminiPath, newContent, 'utf-8');
-        console.log('Added Viz Vibe rules to global GEMINI.md');
+        console.log('Added Viz Vibe rules (full VIZVIBE.md) to global GEMINI.md');
     } catch (error) {
         console.error('Failed to update global GEMINI.md:', error);
     }
+}
+
+/**
+ * Minimal fallback rules when VIZVIBE.md is not found
+ */
+function getMinimalVizVibeRules(): string {
+    return `# Viz Vibe Trajectory Guide
+
+## File Location
+- **Trajectory file**: \`./vizvibe.mmd\` (project root)
+
+## At conversation start:
+Read \`vizvibe.mmd\` to understand project context and history.
+
+## After completing significant work:
+Update \`vizvibe.mmd\` with the work done.
+
+## Node Format
+\`\`\`mermaid
+%% @node_id [type, state]: Description
+node_id["Label<br/><sub>Details</sub>"]
+previous_node --> node_id
+style node_id fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+\`\`\`
+
+**Types:** \`start\`, \`ai-task\`, \`human-task\`, \`condition\`, \`blocker\`, \`end\`
+**States:** \`opened\` (TODO), \`closed\` (DONE)
+
+**Styles (GitHub-inspired):**
+- Open tasks (green): \`fill:#1a1a2e,stroke:#4ade80,color:#86efac\`
+- Closed tasks (purple): \`fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd\`
+- Last active (bright purple): \`fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff\`
+`;
 }
 
 async function setDefaultEditorForMmd() {
