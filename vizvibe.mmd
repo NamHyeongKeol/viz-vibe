@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: antigravity_gemini_integration
+    %% @lastActive: claude_code_auto_draft
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -151,14 +151,20 @@ flowchart TD
     style vscode_marketplace_publish fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
     %% @antigravity_gemini_integration [ai-task, closed]: Full VIZVIBE.md in GEMINI.md, auto-init, custom editor fix
-    subgraph recent [⭐ RECENT]
-        antigravity_gemini_integration["Antigravity Integration<br/><sub>GEMINI.md full guide, auto-init v0.1.12</sub>"]
-    end
+    antigravity_gemini_integration["Antigravity Integration<br/><sub>GEMINI.md full guide, auto-init v0.1.12</sub>"]
     vscode_marketplace_publish --> antigravity_gemini_integration
     antigravity_agent_integration --> antigravity_gemini_integration
-    style antigravity_gemini_integration fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style antigravity_gemini_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    
+    %% @claude_code_auto_draft [ai-task, closed]: Auto-detect template state and prompt Claude to create initial trajectory
+    subgraph recent [⭐ RECENT]
+        claude_code_auto_draft["Claude Code Auto Draft<br/><sub>SessionStart hook detects empty, prompts draft</sub>"]
+    end
+    claude_code_integration --> claude_code_auto_draft
+    style claude_code_auto_draft fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
     
     version_bump_011 -.-> ultimate_goal
     vscode_marketplace_publish -.-> ultimate_goal
     antigravity_gemini_integration -.-> ultimate_goal
+    claude_code_auto_draft -.-> ultimate_goal

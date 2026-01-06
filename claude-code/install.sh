@@ -95,10 +95,35 @@ if [ "$manual_merge" = true ]; then
     echo ""
 fi
 
-echo "Next steps:"
-echo "  1. Start Claude Code in this project"
-echo "  2. Work normally - trajectory will auto-update on each response"
-echo "  3. Open vizvibe.mmd to see your work history"
+# Detect if running inside Claude Code
+if [ -n "$CLAUDE_PROJECT_DIR" ]; then
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "✨ Installation complete inside Claude Code!"
+    echo ""
+    echo "📝 Would you like Claude to create an initial trajectory?"
+    echo ""
+    echo "   Just ask Claude:"
+    echo "   \"Please read .claude/hooks/VIZVIBE.md and create an initial"
+    echo "    trajectory in vizvibe.mmd based on our conversation history"
+    echo "    and the codebase.\""
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+else
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "✨ Installation complete!"
+    echo ""
+    echo "⚠️  You are not inside a Claude Code session."
+    echo ""
+    echo "Next steps:"
+    echo "  1. Start Claude Code in this project"
+    echo "  2. Claude will automatically prompt you to create a trajectory"
+    echo "  3. Work normally - trajectory will auto-update on each response"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+fi
+
 echo ""
 echo "For VS Code/Cursor/Antigravity users:"
 echo "  Install the 'Viz Vibe' extension for graph visualization."

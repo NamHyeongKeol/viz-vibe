@@ -46,15 +46,20 @@ if (lastActiveNode) {
 
 // Extract node descriptions from comments
 const nodeDescriptions = [];
+const nodeIds = [];
 const lines = trajectory.split('\n');
 for (const line of lines) {
   const match = line.match(/%% @([\w-]+) \[([\w-]+)(?:,\s*\w+)?\]: (.+)/);
   if (match) {
     const [, nodeId, nodeType, description] = match;
+    nodeIds.push(nodeId);
     const isActive = nodeId === lastActiveNode ? ' ⬅️ RECENT' : '';
     nodeDescriptions.push(`- [${nodeType}] ${description}${isActive}`);
   }
 }
+
+// Check if trajectory is in template state (only has project_start node)
+const isTemplateState = nodeIds.length === 1 && nodeIds[0] === 'project_start';
 
 // Read VIZVIBE.md if exists
 let vizvibeMdContent = '';
@@ -63,8 +68,34 @@ if (fs.existsSync(vizvibePath)) {
 }
 
 // Build context message
-const lastActiveInfo = lastActiveNode ? `\nLast active node: ${lastActiveNode}` : '';
-let context = `=== Viz Vibe: Project Trajectory ===
+let context;
+
+if (isTemplateState) {
+  // Template state - request initial trajectory creation
+  context = `=== Viz Vibe: Initial Setup Required ===
+
+⚠️ **ACTION REQUIRED**: This project has Viz Vibe installed but the trajectory is empty (template state).
+
+Please create an initial trajectory based on:
+1. Our conversation history (if any)
+2. The codebase structure and recent git commits
+3. README.md and other documentation
+
+Read the guide at .claude/hooks/VIZVIBE.md for detailed instructions on how to structure the trajectory.
+
+After analyzing the project, update vizvibe.mmd with:
+- Project goals (ultimate and current)
+- Completed work as [closed] nodes
+- Planned work as [opened] nodes
+- Proper connections between related nodes
+
+---
+${vizvibeMdContent}
+`;
+} else {
+  // Normal state - show current trajectory
+  const lastActiveInfo = lastActiveNode ? `\nLast active node: ${lastActiveNode}` : '';
+  context = `=== Viz Vibe: Project Trajectory ===
 
 This project uses Viz Vibe to track work history. When you complete tasks, update vizvibe.mmd.
 ${lastActiveInfo}
@@ -78,6 +109,7 @@ ${nodeDescriptions.length > 5 ? `\n... and ${nodeDescriptions.length - 5} more n
 ---
 ${vizvibeMdContent}
 `;
+}
 
 // Output as JSON with additionalContext
 const output = {
