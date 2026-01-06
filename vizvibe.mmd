@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: version_bump_011
+    %% @lastActive: vscode_marketplace_publish
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -63,9 +63,7 @@ flowchart TD
     extension_ux_v2("Graph UX Improve<br/><sub>Node drag, muted start color</sub>")
 
     %% @antigravity_shortcut [ai-task, closed]: Shortcut to request .mmd update from AI chat
-    subgraph recent [⭐ RECENT]
-        antigravity_shortcut("Antigravity Shortcut<br/><sub>Ctrl+Shift+Cmd+E copies update request</sub>")
-    end
+    antigravity_shortcut("Antigravity Shortcut<br/><sub>Ctrl+Shift+Cmd+E copies update request</sub>")
 
     %% @lib_packaging [ai-task, opened]: Library packaging - SDK for Python, Java, JS
     lib_packaging("Library Packaging<br/><sub>Python, Java, JS SDK</sub>")
@@ -130,7 +128,7 @@ flowchart TD
     style extension_ux_v2 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% Last active node (highlighted - brighter purple with glow effect)
-    style antigravity_shortcut fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style antigravity_shortcut fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 
     %% Open tasks (soft green - like GitHub open)
@@ -147,4 +145,13 @@ flowchart TD
     antigravity_shortcut --> version_bump_011
     style version_bump_011 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
+    %% @vscode_marketplace_publish [ai-task, closed]: Published to VSCode Marketplace v0.1.5
+    subgraph recent [⭐ RECENT]
+        vscode_marketplace_publish["VSCode Marketplace<br/><sub>Published v0.1.5, Public</sub>"]
+    end
+    version_bump_011 --> vscode_marketplace_publish
+    style vscode_marketplace_publish fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+    
     version_bump_011 -.-> ultimate_goal
+    vscode_marketplace_publish -.-> ultimate_goal
