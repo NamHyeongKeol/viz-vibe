@@ -45,47 +45,98 @@ Users typically install Viz Vibe **while keeping their current AI conversation s
 
 **Creating a good initial graph is essential.**
 
-The **primary data source** is the user's current conversation history with their AI assistant. This reveals:
+When creating the first draft of `vizvibe.mmd`, gather information from these sources **in priority order**:
+
+#### Priority 1: Current Conversation History (Primary Source)
+
+The user's current conversation with their AI assistant is the most valuable source. This reveals:
 
 - What the user has been working on
 - What decisions were made
 - What's still pending
 - What blockers were encountered
 
-**AI assistants should:**
+Thoroughly read the conversation history and extract key milestones, decisions, and pending work.
 
-1. Thoroughly read the current conversation history
-2. Extract key milestones, decisions, and pending work
-3. Create a well-structured initial trajectory graph
-4. Capture both completed work (`closed`) and planned work (`opened`)
+#### Priority 2: Git History (6 Months)
 
-### Always Review Codebase and Git History
+Review the project's git history to understand the broader trajectory:
 
-**Even when conversation history seems sufficient**, always examine the codebase and git history to:
+```bash
+# Recommended: Whichever gives more coverage
+git log --oneline --since="6 months ago"  # For projects with sparse commits
+git log --oneline -n 300                   # For active projects with many commits
+```
+
+**Guideline:**
+
+- If the project has **many recent commits**: limit to 300 commits
+- If the project has **fewer than 300 commits in 6 months**: view the full 6 months
+
+This ensures:
+
+- Active projects don't overwhelm with too much history
+- Quieter projects still get full recent context
+
+**What to look for:**
+
+- Major feature additions and refactoring
+- Branch patterns and merge history
+- Commit message themes (what areas are actively developed)
+- Don't analyze each commit in detail — understand the overall trajectory
+
+#### Priority 3: README and Project Documentation
+
+Most users document their project extensively in the README. This is often the best source for understanding:
+
+- Project purpose and goals
+- Architecture and design decisions
+- Setup instructions and dependencies
+- Current status and roadmap
+
+**Always read the README** — it's the user's curated summary of their project.
+
+Also look for:
+
+- `CONTRIBUTING.md`, `ARCHITECTURE.md`, or similar docs
+- `TODO.md` or issue tracking files
+- Package manifests (`package.json`, `pyproject.toml`, etc.) for project metadata
+
+#### Priority 4: Ask the User for Feedback and TODO/Plans
+
+**After creating the initial draft**, ask the user for both feedback and additional context:
+
+> "I've created an initial trajectory based on our conversation, git history, and project docs.
+>
+> 1. **Is anything incorrect or would you like to change anything?** (Did I misunderstand something?)
+> 2. **Do you have any TODO lists, project plans, or important context** that should be included?"
+
+This two-part question helps:
+
+- **Correct misunderstandings** before they propagate through future updates
+- **Add missing context** like TODOs and plans the user has in mind
+- **Build a more accurate trajectory** through user feedback
+
+This approach works better than asking before the draft because:
+
+- The user can see the graph format first and understand what kind of info is useful
+- The flow feels more natural ("here's what I found → anything wrong or to add?")
+- Doesn't block the initial draft creation if the user is busy
+
+**Important:** Apply user feedback immediately and add any TODOs/plans as `[opened]` nodes with appropriate connections.
+
+---
+
+### Combining All Sources
+
+**Key principle**: The conversation is the starting point, but the trajectory should reflect the **full project context** — including things the user didn't explicitly mention.
+
+When combining information:
 
 - **Fill gaps**: Capture work that happened before this conversation or in other sessions
 - **Verify understanding**: Confirm that conversation context matches actual code state
 - **Add missing context**: Include important project history not mentioned in the conversation
-
-**What to look for:**
-
-- **README.md (IMPORTANT!)**: Most users document their project extensively in the README. This is often the best source for understanding:
-
-  - Project purpose and goals
-  - Architecture and design decisions
-  - Setup instructions and dependencies
-  - Current status and roadmap
-
-  **Always read the README first** — it's the user's curated summary of their project.
-
-- **Git logs**: Get the big picture of recent work
-  - Focus on the current branch's recent commits
-  - Understand relationships with other branches
-  - Don't analyze each commit in detail — understand the trajectory
-- **Code structure**: Understand project organization and patterns
-- **Recent changes**: Identify what's actively being developed
-
-**Key principle**: The conversation is the starting point, but the trajectory should reflect the **full project context** — including things the user didn't explicitly mention.
+- **Resolve conflicts**: When sources disagree, git history is usually the source of truth for what actually happened
 
 ### Capture the Human-AI Perspective
 
@@ -462,6 +513,7 @@ flowchart TD
 **Important**: Always update the `%% @lastActive: node_id` line when you work on a node.
 
 This marker:
+
 - Shows which node was most recently worked on
 - Gets highlighted with a brighter style in the graph
 - Helps users see at a glance what was last touched
@@ -510,6 +562,7 @@ style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 ```
 
 **Color meanings:**
+
 - **Green border**: Open/TODO tasks
 - **Purple border**: Closed/Done tasks
 - **Bright purple (highlighted)**: Last active node

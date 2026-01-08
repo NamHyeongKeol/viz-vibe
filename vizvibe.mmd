@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: claude_code_auto_draft
+    %% @lastActive: cursor_hook_via_extension
 
     %% === START ===
     %% @project_start [start, closed]: Project started - graph-based context management tool
@@ -157,14 +157,23 @@ flowchart TD
     style antigravity_gemini_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
     %% @claude_code_auto_draft [ai-task, closed]: Auto-detect template state and prompt Claude to create initial trajectory
-    subgraph recent [⭐ RECENT]
-        claude_code_auto_draft["Claude Code Auto Draft<br/><sub>SessionStart hook detects empty, prompts draft</sub>"]
-    end
+    claude_code_auto_draft["Claude Code Auto Draft<br/><sub>SessionStart hook detects empty, prompts draft</sub>"]
     claude_code_integration --> claude_code_auto_draft
-    style claude_code_auto_draft fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
-    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+    style claude_code_auto_draft fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
     version_bump_011 -.-> ultimate_goal
     vscode_marketplace_publish -.-> ultimate_goal
     antigravity_gemini_integration -.-> ultimate_goal
     claude_code_auto_draft -.-> ultimate_goal
+    
+
+    
+    %% @cursor_hook_via_extension [ai-task, closed]: Extension auto-sets up .cursor/hooks.json in Cursor environment
+    subgraph recent [RECENT]
+        cursor_hook_via_extension["Cursor Hook via Extension<br/><sub>Extension creates .cursor/hooks.json</sub>"]
+    end
+    cursor_agent_integration --> cursor_hook_via_extension
+    claude_code_integration --> cursor_hook_via_extension
+    style cursor_hook_via_extension fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+    cursor_hook_via_extension -.-> ultimate_goal

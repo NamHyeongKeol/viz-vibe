@@ -1,15 +1,17 @@
 # Cursor Deployment
 
-Cursor supports VS Code compatible extensions via Open VSX or manual installation.
+Cursor is a VS Code fork that supports native hooks for AI agent integration.
 
-## Installation
+## Extension Installation
 
-### Option 1: Manual VSIX Install
+### Option 1: Open VSX (Recommended)
+
+Search for "Viz Vibe" in Cursor's Extensions panel.
+
+### Option 2: Manual VSIX Install
 
 ```bash
 cd vscode-extension
-
-# Package
 npm run package
 
 # In Cursor:
@@ -17,23 +19,27 @@ npm run package
 # Select viz-vibe-*.vsix
 ```
 
-### Option 2: Open VSX (if supported)
+## Hook Integration
 
-```bash
-npm run publish:ovsx
-```
+Cursor supports hooks similar to Claude Code. The extension automatically sets up hooks when initialized in a Cursor environment.
 
-## Cursor-specific Notes
+Hooks location: `.cursor/hooks.json`
 
-- Uses the same extension code as VS Code
-- Works alongside Cursor's AI features
-- Recommended: Add vizvibe update instructions to Rules
+Available hooks:
 
-## Rules Configuration (Optional)
+- `beforeSubmitPrompt` - Injects trajectory context before each prompt
+- `stop` - Prompts trajectory update after AI completes
 
-Add to Cursor's Rules:
+## Manual Hook Setup
 
-```
-After completing work, update vizvibe.mmd.
-Refer to VIZVIBE.md guide for format.
+If auto-setup doesn't work, create `.cursor/hooks.json`:
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [{ "command": "node .cursor/hooks/read-vizvibe.js" }],
+    "stop": [{ "command": "node .cursor/hooks/update-vizvibe.js" }]
+  }
+}
 ```
