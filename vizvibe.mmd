@@ -213,3 +213,15 @@ flowchart TD
     vscode_extension --> node_click_detail_view
     style node_click_detail_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     node_click_detail_view -.-> ultimate_goal
+    
+    %% @node_date_author_display [ai-task, opened]
+    node_date_author_display["Node Date/Author Labels<br/><sub>Display small date and author metadata<br/>directly on each node in the graph view,<br/>allowing users to quickly see when nodes<br/>were created and by whom without<br/>clicking or opening source view</sub>"]
+    vscode_extension --> node_date_author_display
+    style node_date_author_display fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    node_date_author_display -.-> ultimate_goal
+    
+    %% @source_view_edit_search [ai-task, opened]
+    source_view_edit_search["Source View Edit & Search<br/><sub>Enable editing and searching directly<br/>in the source view panel, allowing users<br/>to modify vizvibe.mmd content and find<br/>specific text without switching to a<br/>separate editor window</sub>"]
+    vscode_extension --> source_view_edit_search
+    style source_view_edit_search fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    source_view_edit_search -.-> ultimate_goal
