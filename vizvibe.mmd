@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: cursor_hook_via_extension
+    %% @lastActive: graph_search_feature
 
     %% === START ===
     %% @project_start [start, closed]
@@ -169,11 +169,35 @@ flowchart TD
 
     
     %% @cursor_hook_via_extension [ai-task, closed]
-    subgraph recent [RECENT]
-        cursor_hook_via_extension["Cursor Hook via Extension<br/><sub>Extension now auto-detects when<br/>running in Cursor IDE environment<br/>and automatically creates .cursor/<br/>hooks.json with appropriate hook<br/>configurations, eliminating manual setup</sub>"]
-    end
+    cursor_hook_via_extension["Cursor Hook via Extension<br/><sub>Extension now auto-detects when<br/>running in Cursor IDE environment<br/>and automatically creates .cursor/<br/>hooks.json with appropriate hook<br/>configurations, eliminating manual setup</sub>"]
     cursor_agent_integration --> cursor_hook_via_extension
     claude_code_integration --> cursor_hook_via_extension
-    style cursor_hook_via_extension fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
-    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+    style cursor_hook_via_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_via_extension -.-> ultimate_goal
+    
+    %% @graph_search_feature [ai-task, opened]
+    subgraph recent [RECENT]
+        graph_search_feature["Graph Search (Cmd+F)<br/><sub>Implement search functionality<br/>in the graph viewer that allows<br/>users to find nodes by title or<br/>description using Cmd+F keyboard<br/>shortcut - TOP PRIORITY feature</sub>"]
+    end
+    vscode_extension --> graph_search_feature
+    style graph_search_feature fill:#1f2e1a,stroke:#4ade80,color:#86efac,stroke-width:2px
+    style recent fill:transparent,stroke:#4ade80,color:#4ade80,stroke-width:2px,stroke-dasharray:5 5
+    graph_search_feature -.-> ultimate_goal
+    
+    %% @initial_view_focus [ai-task, opened]
+    initial_view_focus["Focus RECENT on Open<br/><sub>When vizvibe.mmd first opens,<br/>center the view on RECENT subgraph<br/>instead of top-left corner, with<br/>zoomed-out scale to show context<br/>around active work area</sub>"]
+    vscode_extension --> initial_view_focus
+    style initial_view_focus fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    initial_view_focus -.-> ultimate_goal
+    
+    %% @archive_old_nodes [ai-task, opened]
+    archive_old_nodes["Archive Old Nodes<br/><sub>Add functionality to separate<br/>old/completed nodes into archive<br/>files, keeping the main vizvibe.mmd<br/>focused on recent and active work<br/>while preserving full history</sub>"]
+    vscode_extension --> archive_old_nodes
+    style archive_old_nodes fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    archive_old_nodes -.-> ultimate_goal
+    
+    %% @github_sync_feature [ai-task, opened]
+    github_sync_feature["GitHub Sync<br/><sub>Fetch repository info from user's<br/>GitHub account (commits, PRs, issues)<br/>and reflect them in the trajectory<br/>graph automatically, bridging code<br/>changes with visual context</sub>"]
+    mermaid_native --> github_sync_feature
+    style github_sync_feature fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    github_sync_feature -.-> ultimate_goal
