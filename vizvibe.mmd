@@ -207,3 +207,9 @@ flowchart TD
     antigravity_gemini_integration --> antigravity_gemini_auto_sync
     style antigravity_gemini_auto_sync fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     antigravity_gemini_auto_sync -.-> ultimate_goal
+    
+    %% @node_click_detail_view [ai-task, opened]
+    node_click_detail_view["Single-Click Node Details<br/><sub>Enable clicking a node in the graph<br/>view to display detailed content that<br/>is visible in the source view, showing<br/>full metadata and descriptions without<br/>needing to switch to source editor</sub>"]
+    vscode_extension --> node_click_detail_view
+    style node_click_detail_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    node_click_detail_view -.-> ultimate_goal
