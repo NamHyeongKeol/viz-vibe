@@ -380,7 +380,7 @@ flowchart TD
     mermaid_native("Mermaid Native Format<br/><sub>Migrated from custom JSON schema<br/>to native Mermaid .mmd format,<br/>enabling rendering in GitHub, VS Code,<br/>and any Mermaid-compatible viewer</sub>")
 
     %% @claude_code_integration [ai-task, closed]
-    claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation for<br/>Claude Code that automatically reads<br/>and updates vizvibe.mmd on session start<br/>and after user messages</sub>")
+    claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages</sub>")
 
     %% @vizvibe_guide [ai-task, closed]
     vizvibe_guide("VIZVIBE.md Guide<br/><sub>Created comprehensive documentation<br/>that teaches AI assistants how to<br/>read, update, and maintain vizvibe.mmd<br/>files with proper styling conventions</sub>")
@@ -399,7 +399,7 @@ flowchart TD
 
     %% === FUTURE WORK: AI AGENT INTEGRATIONS ===
     %% @vscode_agent_integration [ai-task, opened]
-    vscode_agent_integration("VS Code Copilot Integration<br/><sub>Integrate with VS Code's built-in AI<br/>features like GitHub Copilot Chat<br/>to automatically provide trajectory<br/>context when asking questions</sub>")
+    vscode_agent_integration("VS Code Copilot Integration<br/><sub>Integrate with VS Code's built-in<br/>AI features like GitHub Copilot Chat<br/>to automatically provide trajectory<br/>context when asking questions</sub>")
 
     %% @cursor_agent_integration [ai-task, opened]
     cursor_agent_integration("Cursor IDE Integration<br/><sub>Implement integration with Cursor IDE<br/>using .cursorrules file to inject<br/>trajectory management instructions<br/>into Cursor's AI assistant context</sub>")
@@ -411,7 +411,7 @@ flowchart TD
     antigravity_hook_support("Antigravity Hook Automation<br/><sub>Apply the same hook-based automation<br/>pattern used in Claude Code once<br/>Antigravity adds support for lifecycle<br/>hooks like SessionStart</sub>")
 
     %% @codex_cli_integration [ai-task, opened]
-    codex_cli_integration("Codex CLI Integration<br/><sub>Implement hook-based integration for<br/>OpenAI's Codex CLI tool, enabling<br/>automatic trajectory reading and<br/>updating during coding sessions</sub>")
+    codex_cli_integration("Codex CLI Integration<br/><sub>Implement hook-based integration<br/>for OpenAI's Codex CLI tool, enabling<br/>automatic trajectory reading and<br/>updating during coding sessions</sub>")
 
     %% === FUTURE WORK: OTHER ===
     %% @lib_packaging [ai-task, opened]
@@ -442,6 +442,12 @@ flowchart TD
     cursor_agent_integration -.-> ultimate_goal
     antigravity_hook_support -.-> ultimate_goal
 
+    %% === RECENT WORK HIGHLIGHT ===
+    %% Use subgraph to visually highlight recently completed work
+    subgraph recent [RECENT]
+        design_renewal
+    end
+
     %% === STYLES ===
     %% GitHub-inspired colors: Open = green, Closed = purple/gray
 
@@ -462,6 +468,9 @@ flowchart TD
     %% Last active node (highlighted - brighter purple)
     style design_renewal fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
+    %% Recent subgraph style (dashed purple border)
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+
     %% Open tasks (soft green - like GitHub open)
     style vscode_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style cursor_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
@@ -475,16 +484,17 @@ flowchart TD
 ### Key Patterns in This Example
 
 1. **Start & Goal nodes**: Project start (teal) and ultimate goal (gray) frame the trajectory
-2. **Title + Description format**: `("Short Title<br/><sub>Multi-line description<br/>with line breaks</sub>")` — Shows both what and why
-3. **Detailed descriptions with line breaks**: Each node contains a comprehensive description using `<br/>` tags to control line breaks and prevent nodes from getting too wide
+2. **Title + Description format**: `("Title<br/><sub>Line 1<br/>Line 2<br/>Line 3<br/>Line 4</sub>")` — 1 title + 3-4 description lines
+3. **Narrow and tall nodes**: Each line is ~30-35 characters, creating compact vertical nodes rather than wide horizontal ones
 4. **Metadata without description**: The `%% @node_id [type, state]` comment does NOT include a description — all descriptions go in the node content using `<sub>` tags
 5. **Clear separation**: Completed work (closed) vs Future work (opened)
 6. **@lastActive marker**: `design_renewal` is marked as last active with highlighted purple style
-7. **Parallel branches from same parent**:
+7. **RECENT subgraph**: Wrap the last active node in `subgraph recent [RECENT]` to create a dashed purple border box labeled "RECENT", making it easy to spot the most recent work at a glance
+8. **Parallel branches from same parent**:
    - `claude_code_integration` → `lib_packaging`, `codex_cli_integration` (independent CLI integrations)
    - `vscode_extension` → `vscode_agent_integration`, `cursor_agent_integration` (IDE-related work)
-8. **Dashed lines to ultimate goal (-.->)**: Shows what needs to be done but not yet achieved
-9. **GitHub-inspired colors**: Green border = open, Purple border = closed, Bright purple = last active
+9. **Dashed lines to ultimate goal (-.->)**: Shows what needs to be done but not yet achieved
+10. **GitHub-inspired colors**: Green border = open, Purple border = closed, Bright purple = last active
 
 ---
 
@@ -530,44 +540,44 @@ node_id("Node Label")
 
 ### Node Content Format
 
-**IMPORTANT**: Each node should contain a **short title** and a **detailed multi-line description** using the following format:
+**IMPORTANT**: Each node should contain a **short title** (1 line) and a **detailed description** (3-4 lines) using the following format:
 
 ```mermaid
 %% @node_id [ai-task, closed]
-node_id("Short Title<br/><sub>Comprehensive description with<br/>multiple lines that explain the<br/>what, why, and how of this node</sub>")
+node_id("Short Title<br/><sub>First line of description that explains<br/>what this node is about and why,<br/>including technical details and<br/>any outcomes or dependencies</sub>")
 ```
 
 **Key rules:**
 
 - **Title line**: Keep short and descriptive (e.g., "Claude Code Hook Integration")
-- **Description in `<sub>` tag**: Write comprehensive explanation with `<br/>` line breaks
+- **Description in `<sub>` tag**: Write 3-4 lines with `<br/>` between each line
 - **Metadata comment**: Only contains `@node_id [type, state]` — NO description text
-- **Line breaks with `<br/>`**: Use these to control node width and improve readability
+- **Line width**: Keep each line around 30-35 characters to prevent wide nodes
 
 **Guidelines for descriptions:**
 
-- **Be comprehensive**: Write full sentences that explain the what, why, and how
-- **Include technical details**: Mention specific technologies, APIs, or approaches used
-- **Use line breaks**: Add `<br/>` every **30-35 characters** to prevent wide nodes
-- **Describe outcomes**: Explain what the completion of this node enables or achieves
+- **Be comprehensive**: Write full sentences explaining what, why, and how
+- **Include technical details**: Mention specific technologies, APIs, or approaches
+- **Short lines, more of them**: Add `<br/>` frequently for narrow, tall nodes
+- **Describe outcomes**: Explain what the completion of this node enables
 
 **Example comparison:**
 
-❌ **Too short, too wide**:
-
-```mermaid
-%% @claude_code_integration [ai-task, closed]: Claude Code AI agent integration via hooks
-claude_code_integration("Claude Code Integration<br/><sub>Hook-based automation</sub>")
-```
-
-✅ **Good format — detailed content with frequent line breaks, no metadata description**:
+❌ **Too short (lacks detail)**:
 
 ```mermaid
 %% @claude_code_integration [ai-task, closed]
-claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation for<br/>Claude Code that automatically reads<br/>and updates vizvibe.mmd on session start<br/>and after user messages</sub>")
+claude_code_integration("Claude Code Integration<br/><sub>Hook-based automation</sub>")
 ```
 
-**No character limit**: Mermaid has no strict character limit for node content. Write as much detail as needed, but use `<br/>` every 30-35 characters to keep nodes visually compact.
+✅ **Good format — rich content with frequent line breaks**:
+
+```mermaid
+%% @claude_code_integration [ai-task, closed]
+claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages</sub>")
+```
+
+**Goal**: Nodes should be **narrow and tall** (many short lines) rather than **wide and short** (few long lines).
 
 ### Node Types (in metadata only)
 
