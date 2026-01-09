@@ -82,7 +82,7 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "cp ../LICENSE ./LICENSE && cp ../README.md ./README.md && cp ../shared/templates/VIZVIBE.md ./VIZVIBE.md && npm run compile",
+    "vscode:prepublish": "cp ../LICENSE ./LICENSE && cp ../README.md ./README.md && cp ../shared/templates/VIZVIBE.md ./VIZVIBE.md && rm -rf ./shared && cp -r ../shared ./shared && npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
