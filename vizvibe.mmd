@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: graph_search_feature
+    %% @lastActive: antigravity_gemini_auto_sync
 
     %% === START ===
     %% @project_start [start, closed]
@@ -201,3 +201,9 @@ flowchart TD
     mermaid_native --> github_sync_feature
     style github_sync_feature fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     github_sync_feature -.-> ultimate_goal
+    
+    %% @antigravity_gemini_auto_sync [ai-task, opened]
+    antigravity_gemini_auto_sync["GEMINI.md Auto Sync<br/><sub>When users update the Viz Vibe<br/>extension to a new version,<br/>automatically sync GEMINI.md with<br/>the latest VIZVIBE.md content<br/>without requiring manual action</sub>"]
+    antigravity_gemini_integration --> antigravity_gemini_auto_sync
+    style antigravity_gemini_auto_sync fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    antigravity_gemini_auto_sync -.-> ultimate_goal
