@@ -106,6 +106,16 @@ workspacePath: ${workspacePath}`;
             vscode.window.showInformationMessage('📋 Viz Vibe: Update request copied to clipboard. Paste in AI chat to update trajectory.');
         })
     );
+
+    // Register search command for graph view (Cmd+F)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('vizVibe.searchGraph', () => {
+            // This command is triggered by keybinding, the webview handles it via message
+            // The webview itself captures keyboard events, but VS Code intercepts Cmd+F
+            // So we need to send a message to the active webview
+            VizFlowEditorProvider.triggerSearch();
+        })
+    );
 }
 
 async function checkAndPromptInitialization(context: vscode.ExtensionContext) {

@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 
 export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
   public static readonly viewType = 'vizVibe.vizflowEditor';
+  
+  // Track active webview panel for search command
+  private static activeWebviewPanel: vscode.WebviewPanel | null = null;
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     return vscode.window.registerCustomEditorProvider(
@@ -14,6 +17,13 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
     );
   }
 
+  // Trigger search in the active webview (called from extension.ts via Cmd+F)
+  public static triggerSearch(): void {
+    if (VizFlowEditorProvider.activeWebviewPanel) {
+      VizFlowEditorProvider.activeWebviewPanel.webview.postMessage({ type: 'openSearch' });
+    }
+  }
+
   constructor(private readonly context: vscode.ExtensionContext) { }
 
   public async resolveCustomTextEditor(
@@ -23,6 +33,16 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
   ): Promise<void> {
     webviewPanel.webview.options = { enableScripts: true };
     webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+
+    // Track this as the active webview panel
+    VizFlowEditorProvider.activeWebviewPanel = webviewPanel;
+    
+    // Update active panel when view state changes
+    webviewPanel.onDidChangeViewState(e => {
+      if (e.webviewPanel.active) {
+        VizFlowEditorProvider.activeWebviewPanel = e.webviewPanel;
+      }
+    });
 
     // Handle messages from webview
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
@@ -46,7 +66,12 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
       }
     });
 
-    webviewPanel.onDidDispose(() => changeDocumentSubscription.dispose());
+    webviewPanel.onDidDispose(() => {
+      changeDocumentSubscription.dispose();
+      if (VizFlowEditorProvider.activeWebviewPanel === webviewPanel) {
+        VizFlowEditorProvider.activeWebviewPanel = null;
+      }
+    });
     updateWebview();
   }
 
@@ -261,6 +286,82 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         }
         .toast.show { opacity: 1; }
 
+        /* Search box */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-box {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--vscode-input-background);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 200;
+            min-width: 280px;
+        }
+        .search-box.active { display: flex; gap: 8px; align-items: center; }
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--vscode-input-foreground);
+            font-size: 12px;
+            min-width: 180px;
+        }
+        .search-box input::placeholder { color: var(--vscode-input-placeholderForeground); }
+        .search-info {
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            white-space: nowrap;
+        }
+        .search-nav {
+            display: flex;
+            gap: 2px;
+        }
+        .search-nav button {
+            padding: 2px 6px;
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .search-nav button:hover { background: var(--vscode-button-hoverBackground); }
+        .search-close {
+            background: none !important;
+            color: var(--vscode-descriptionForeground) !important;
+            font-size: 14px !important;
+            padding: 2px 4px !important;
+        }
+
+        /* Node highlight for search */
+        .node.search-match rect,
+        .node.search-match polygon,
+        .node.search-match circle,
+        .node.search-match ellipse {
+            filter: brightness(1.2) drop-shadow(0 0 8px rgba(74, 222, 128, 0.6));
+        }
+        .node.search-current rect,
+        .node.search-current polygon,
+        .node.search-current circle,
+        .node.search-current ellipse {
+            filter: brightness(1.4) drop-shadow(0 0 12px rgba(250, 204, 21, 0.8));
+            stroke: #facc15 !important;
+            stroke-width: 3px !important;
+        }
+        .node.search-dimmed {
+            opacity: 0.3;
+        }
+
         /* Zoom controls */
         .zoom-controls {
             position: absolute;
@@ -381,6 +482,21 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         
         <span class="spacer"></span>
         
+        <div class="search-container">
+            <button class="secondary" onclick="toggleSearch()" title="Search nodes (Cmd+F)">🔍 Search</button>
+            <div id="search-box" class="search-box">
+                <input type="text" id="search-input" placeholder="Search nodes..." autocomplete="off" />
+                <span id="search-info" class="search-info"></span>
+                <div class="search-nav">
+                    <button onclick="navigateSearch(-1)" title="Previous (Shift+Enter)">▲</button>
+                    <button onclick="navigateSearch(1)" title="Next (Enter)">▼</button>
+                </div>
+                <button class="search-close" onclick="closeSearch()">×</button>
+            </div>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
         <button class="secondary" onclick="resetView()" title="Reset view">🎯 Reset</button>
     </div>
 
@@ -434,7 +550,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         <span><span class="status-dot"></span>Ready</span>
         <span id="nodeCount">Nodes: 0</span>
         <span class="spacer"></span>
-        <span class="help-hint">🖱 Drag: Pan • Scroll: Zoom • Click: Info • Right-click: Copy</span>
+        <span class="help-hint">🖱 Drag: Pan • Scroll: Zoom • Click: Info • Cmd+F: Search</span>
     </div>
 
     <!-- Add node modal -->
@@ -478,6 +594,11 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         let draggingNodeId = null;
         let dragStartPos = { x: 0, y: 0 };
         let nodeOffsets = {}; // { nodeId: { x, y } }
+        
+        // Search state
+        let searchResults = [];
+        let currentSearchIndex = -1;
+        let isSearchActive = false;
 
         // Mermaid initialization
         mermaid.initialize({
@@ -1358,6 +1479,11 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 } else {
                     document.getElementById('source-editor').value = mermaidCode;
                 }
+            } else if (e.data.type === 'openSearch') {
+                // Triggered by VS Code command (Cmd+F keybinding)
+                if (currentView === 'graph') {
+                    openSearch();
+                }
             }
         };
 
@@ -1370,10 +1496,220 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             };
         });
 
-        // Enter key
+        // Enter key for node creation
         document.getElementById('nodeLabel').onkeydown = (e) => {
             if (e.key === 'Enter') confirmAddNode();
         };
+
+        // === Search functionality ===
+        function toggleSearch() {
+            const searchBox = document.getElementById('search-box');
+            if (searchBox.classList.contains('active')) {
+                closeSearch();
+            } else {
+                openSearch();
+            }
+        }
+
+        function openSearch() {
+            const searchBox = document.getElementById('search-box');
+            searchBox.classList.add('active');
+            isSearchActive = true;
+            document.getElementById('search-input').focus();
+        }
+
+        function closeSearch() {
+            const searchBox = document.getElementById('search-box');
+            searchBox.classList.remove('active');
+            isSearchActive = false;
+            clearSearchHighlights();
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-info').textContent = '';
+            searchResults = [];
+            currentSearchIndex = -1;
+        }
+
+        function performSearch(query) {
+            clearSearchHighlights();
+            searchResults = [];
+            currentSearchIndex = -1;
+
+            if (!query.trim()) {
+                document.getElementById('search-info').textContent = '';
+                return;
+            }
+
+            const lowerQuery = query.toLowerCase();
+            const container = document.getElementById('mermaid-output');
+            const nodes = extractNodes(mermaidCode);
+
+            // Search in node labels and metadata descriptions
+            nodes.forEach(nodeId => {
+                const meta = nodeMetadata[nodeId] || {};
+                const label = getNodeLabelText(nodeId) || nodeId;
+                const description = meta.prompt || '';
+                
+                if (label.toLowerCase().includes(lowerQuery) || 
+                    description.toLowerCase().includes(lowerQuery) ||
+                    nodeId.toLowerCase().includes(lowerQuery)) {
+                    searchResults.push(nodeId);
+                }
+            });
+
+            // Update UI
+            if (searchResults.length > 0) {
+                document.getElementById('search-info').textContent = '1/' + searchResults.length;
+                currentSearchIndex = 0;
+                highlightSearchResults();
+                focusOnNode(searchResults[0]);
+            } else {
+                document.getElementById('search-info').textContent = '0 results';
+            }
+        }
+
+        function getNodeLabelText(nodeId) {
+            const container = document.getElementById('mermaid-output');
+            let nodeEl = null;
+            container.querySelectorAll('.node').forEach(el => {
+                if (el.id && (el.id.includes(nodeId) || el.id.includes('flowchart-' + nodeId))) {
+                    nodeEl = el;
+                }
+            });
+            if (!nodeEl) return nodeId;
+            
+            const textEl = nodeEl.querySelector('.nodeLabel, text, foreignObject');
+            if (textEl) {
+                let text = textEl.textContent || textEl.innerText || '';
+                return text.trim();
+            }
+            return nodeId;
+        }
+
+        function highlightSearchResults() {
+            const container = document.getElementById('mermaid-output');
+            const allNodes = container.querySelectorAll('.node');
+            const nodes = extractNodes(mermaidCode);
+
+            // Dim all nodes if search is active
+            if (searchResults.length > 0) {
+                allNodes.forEach(nodeEl => {
+                    let foundNodeId = null;
+                    for (const nid of nodes) {
+                        if (nodeEl.id && (nodeEl.id.includes(nid) || nodeEl.id.includes('flowchart-' + nid))) {
+                            foundNodeId = nid;
+                            break;
+                        }
+                    }
+                    if (foundNodeId && !searchResults.includes(foundNodeId)) {
+                        nodeEl.classList.add('search-dimmed');
+                    }
+                });
+            }
+
+            // Highlight matches
+            searchResults.forEach((nodeId, index) => {
+                allNodes.forEach(nodeEl => {
+                    if (nodeEl.id && (nodeEl.id.includes(nodeId) || nodeEl.id.includes('flowchart-' + nodeId))) {
+                        nodeEl.classList.remove('search-dimmed');
+                        if (index === currentSearchIndex) {
+                            nodeEl.classList.add('search-current');
+                            nodeEl.classList.remove('search-match');
+                        } else {
+                            nodeEl.classList.add('search-match');
+                            nodeEl.classList.remove('search-current');
+                        }
+                    }
+                });
+            });
+        }
+
+        function clearSearchHighlights() {
+            const container = document.getElementById('mermaid-output');
+            container.querySelectorAll('.node').forEach(nodeEl => {
+                nodeEl.classList.remove('search-match', 'search-current', 'search-dimmed');
+            });
+        }
+
+        function navigateSearch(direction) {
+            if (searchResults.length === 0) return;
+            
+            currentSearchIndex = (currentSearchIndex + direction + searchResults.length) % searchResults.length;
+            document.getElementById('search-info').textContent = (currentSearchIndex + 1) + '/' + searchResults.length;
+            highlightSearchResults();
+            focusOnNode(searchResults[currentSearchIndex]);
+        }
+
+        function focusOnNode(nodeId) {
+            const graphView = document.getElementById('graph-view');
+            const container = document.getElementById('mermaid-output');
+            const canvasWrapper = document.getElementById('canvas-wrapper');
+            let nodeEl = null;
+            
+            container.querySelectorAll('.node').forEach(el => {
+                if (el.id && (el.id.includes(nodeId) || el.id.includes('flowchart-' + nodeId))) {
+                    nodeEl = el;
+                }
+            });
+            
+            if (!nodeEl) return;
+            
+            // Get current positions using getBoundingClientRect (screen coordinates)
+            const nodeRect = nodeEl.getBoundingClientRect();
+            const graphRect = graphView.getBoundingClientRect();
+            const wrapperRect = canvasWrapper.getBoundingClientRect();
+            
+            // Calculate where the node center currently is in screen coordinates
+            const nodeCenterScreenX = nodeRect.left + nodeRect.width / 2;
+            const nodeCenterScreenY = nodeRect.top + nodeRect.height / 2;
+            
+            // Calculate where we want it (center of graph view)
+            const targetScreenX = graphRect.left + graphRect.width / 2;
+            const targetScreenY = graphRect.top + graphRect.height / 2;
+            
+            // Calculate the difference we need to move
+            const deltaX = targetScreenX - nodeCenterScreenX;
+            const deltaY = targetScreenY - nodeCenterScreenY;
+            
+            // Apply delta to current transform
+            transform.x += deltaX;
+            transform.y += deltaY;
+            
+            updateTransform();
+        }
+
+        // Search input handlers
+        const searchInput = document.getElementById('search-input');
+        let searchTimeout = null;
+        
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(e.target.value);
+            }, 150);
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    navigateSearch(-1);
+                } else {
+                    navigateSearch(1);
+                }
+            } else if (e.key === 'Escape') {
+                closeSearch();
+            }
+        });
+
+        // Cmd+F / Ctrl+F keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+                e.preventDefault();
+                if (currentView === 'graph') {
+                    openSearch();
+                }
+            }
+        });
 
         updateTransform();
     </script>

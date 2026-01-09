@@ -45,6 +45,10 @@
       {
         "command": "vizVibe.test",
         "title": "Viz Vibe: Test Keybinding"
+      },
+      {
+        "command": "vizVibe.searchGraph",
+        "title": "Viz Vibe: Search in Graph"
       }
     ],
     "keybindings": [
@@ -53,6 +57,12 @@
         "key": "ctrl+shift+alt+e",
         "mac": "ctrl+shift+cmd+e",
         "when": "editorTextFocus || !editorTextFocus"
+      },
+      {
+        "command": "vizVibe.searchGraph",
+        "key": "ctrl+f",
+        "mac": "cmd+f",
+        "when": "activeCustomEditorId == vizVibe.vizflowEditor"
       }
     ],
     "languages": [
