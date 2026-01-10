@@ -50,6 +50,9 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         const edit = new vscode.WorkspaceEdit();
         edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), message.mermaidCode);
         await vscode.workspace.applyEdit(edit);
+      } else if (message.type === 'openInDefaultEditor') {
+        // Open file in VS Code's default text editor for native search
+        await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
       }
     });
 
@@ -155,29 +158,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             display: inline-block;
             border: 1px solid var(--vscode-editorWidget-border);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        /* Source view */
-        #source-view {
-            flex: 1;
-            display: none;
-            flex-direction: column;
-        }
-        #source-view.active { display: flex; }
-        #graph-view.hidden { display: none; }
-
-        #source-editor {
-            flex: 1;
-            width: 100%;
-            background: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);
-            border: none;
-            padding: 16px;
-            font-family: 'SF Mono', Monaco, Consolas, monospace;
-            font-size: 12px;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
         }
 
         /* Node hover */
@@ -335,6 +315,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             cursor: pointer;
             font-size: 11px;
         }
+
         .search-nav button:hover { background: var(--vscode-button-hoverBackground); }
         .search-close {
             background: none !important;
@@ -436,21 +417,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             margin-top: 8px;
         }
 
-        /* View toggle button */
-        .view-toggle {
-            display: flex;
-            background: var(--vscode-button-secondaryBackground);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .view-toggle button {
-            border-radius: 0;
-            border: none;
-        }
-        .view-toggle button.active {
-            background: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-        }
     </style>
 </head>
 <body>
@@ -458,10 +424,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
     <div class="toolbar">
         <span class="toolbar-title">Viz Vibe</span>
         
-        <div class="view-toggle">
-            <button id="btnGraphView" class="active" onclick="switchView('graph')">📊 Graph</button>
-            <button id="btnSourceView" onclick="switchView('source')">📝 Source</button>
-        </div>
+        <button class="secondary" onclick="openInDefaultEditor()" title="Open in VS Code editor">📝 Edit Source</button>
         
         <div class="toolbar-divider"></div>
         
@@ -527,10 +490,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             </div>
         </div>
 
-        <!-- Source view -->
-        <div id="source-view">
-            <textarea id="source-editor" spellcheck="false"></textarea>
-        </div>
     </div>
 
     <!-- Context menu -->
@@ -579,22 +538,21 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         const vscode = acquireVsCodeApi();
         
         let mermaidCode = '';
-        let currentView = 'graph';
         let nodeMetadata = {}; // {nodeId: {type, prompt}}
         let selectedNodeId = null;
         let selectedNodeLabel = '';
-        
+
         // Zoom/pan state
         let transform = { x: 50, y: 50, scale: 1 };
         let isPanning = false;
         let startPan = { x: 0, y: 0 };
-        
+
         // Node drag state
         let isDraggingNode = false;
         let draggingNodeId = null;
         let dragStartPos = { x: 0, y: 0 };
         let nodeOffsets = {}; // { nodeId: { x, y } }
-        
+
         // Search state
         let searchResults = [];
         let currentSearchIndex = -1;
@@ -934,34 +892,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             });
         }
 
-        // === View switching ===
-        function switchView(view) {
-            currentView = view;
-            const graphView = document.getElementById('graph-view');
-            const sourceView = document.getElementById('source-view');
-            const btnGraph = document.getElementById('btnGraphView');
-            const btnSource = document.getElementById('btnSourceView');
-            
-            if (view === 'graph') {
-                graphView.classList.remove('hidden');
-                sourceView.classList.remove('active');
-                btnGraph.classList.add('active');
-                btnSource.classList.remove('active');
-                render();
-            } else {
-                graphView.classList.add('hidden');
-                sourceView.classList.add('active');
-                btnGraph.classList.remove('active');
-                btnSource.classList.add('active');
-                document.getElementById('source-editor').value = mermaidCode;
-            }
+        // Open file in VS Code's default editor
+        function openInDefaultEditor() {
+            vscode.postMessage({ type: 'openInDefaultEditor' });
         }
-
-        // Source editor change detection
-        document.getElementById('source-editor').addEventListener('input', (e) => {
-            mermaidCode = e.target.value;
-            vscode.postMessage({ type: 'update', mermaidCode });
-        });
 
         // === Zoom/Panning ===
         const graphView = document.getElementById('graph-view');
@@ -1474,16 +1408,9 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         window.onmessage = (e) => {
             if (e.data.type === 'load') {
                 mermaidCode = e.data.mermaidCode || '';
-                if (currentView === 'graph') {
-                    render();
-                } else {
-                    document.getElementById('source-editor').value = mermaidCode;
-                }
+                render();
             } else if (e.data.type === 'openSearch') {
-                // Triggered by VS Code command (Cmd+F keybinding)
-                if (currentView === 'graph') {
-                    openSearch();
-                }
+                openSearch();
             }
         };
 
@@ -1705,9 +1632,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         document.addEventListener('keydown', (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
                 e.preventDefault();
-                if (currentView === 'graph') {
-                    openSearch();
-                }
+                openSearch();
             }
         });
 
