@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: edit_source_button
+    %% @lastActive: figma_scroll_pan
 
     %% === START ===
     %% @project_start [start, closed]
@@ -216,19 +216,19 @@ flowchart TD
     node_date_author_display -.-> vscode_ext_ui_ux
     
     %% @edit_source_button [ai-task, closed]
-    subgraph recent [RECENT]
-        edit_source_button["Edit Source Button<br/><sub>Replace embedded source view with<br/>Edit Source button that opens file in<br/>VS Code default editor, enabling native<br/>search, undo/redo, and all editor features</sub>"]
-    end
+    edit_source_button["Edit Source Button<br/><sub>Replace embedded source view with<br/>Edit Source button that opens file in<br/>VS Code default editor, enabling native<br/>search, undo/redo, and all editor features</sub>"]
 
-    %% @figma_scroll_pan [ai-task, opened]
-    figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, allowing intuitive canvas<br/>navigation without click-and-drag</sub>"]
+    %% @figma_scroll_pan [ai-task, closed]
+    subgraph recent [RECENT]
+        figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
+    end
 
     vscode_extension --> edit_source_button
     graph_search_feature --> edit_source_button
     vscode_extension --> figma_scroll_pan
-    style edit_source_button fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style edit_source_button fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
-    style figma_scroll_pan fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style figma_scroll_pan fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     edit_source_button -.-> vscode_ext_ui_ux
     figma_scroll_pan -.-> vscode_ext_ui_ux
     

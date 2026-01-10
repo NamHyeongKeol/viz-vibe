@@ -509,7 +509,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         <span><span class="status-dot"></span>Ready</span>
         <span id="nodeCount">Nodes: 0</span>
         <span class="spacer"></span>
-        <span class="help-hint">🖱 Drag: Pan • Scroll: Zoom • Click: Info • Cmd+F: Search</span>
+        <span class="help-hint">🖱 Scroll: Pan • ⌘/Ctrl+Scroll: Zoom • Click: Info • Cmd+F: Search</span>
     </div>
 
     <!-- Add node modal -->
@@ -1278,21 +1278,33 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             });
         }
 
+        // Figma-style navigation: Scroll = Pan, Ctrl/Cmd+Scroll or Pinch = Zoom
         graphView.addEventListener('wheel', (e) => {
             e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            const newScale = Math.max(0.2, Math.min(3, transform.scale * delta));
             
-            const rect = graphView.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-            
-            transform.x = mx - (mx - transform.x) * (newScale / transform.scale);
-            transform.y = my - (my - transform.y) * (newScale / transform.scale);
-            transform.scale = newScale;
+            // Pinch zoom on trackpad sets ctrlKey to true
+            // Also support Ctrl+scroll (Windows) and Cmd+scroll (Mac)
+            if (e.ctrlKey || e.metaKey) {
+                // Zoom mode
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.max(0.2, Math.min(3, transform.scale * delta));
+                
+                const rect = graphView.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                
+                // Zoom toward mouse position
+                transform.x = mx - (mx - transform.x) * (newScale / transform.scale);
+                transform.y = my - (my - transform.y) * (newScale / transform.scale);
+                transform.scale = newScale;
+            } else {
+                // Pan mode - scroll to move canvas
+                transform.x -= e.deltaX;
+                transform.y -= e.deltaY;
+            }
             
             updateTransform();
-        });
+        }, { passive: false });
 
         function zoomIn() {
             transform.scale = Math.min(3, transform.scale * 1.2);
