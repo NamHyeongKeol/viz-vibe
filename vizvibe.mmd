@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: source_view_edit_search
+    %% @lastActive: edit_source_button
 
     %% === START ===
     %% @project_start [start, closed]
@@ -217,12 +217,12 @@ flowchart TD
     style node_date_author_display fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     node_date_author_display -.-> ultimate_goal
     
-    %% @source_view_edit_search [ai-task, closed]
+    %% @edit_source_button [ai-task, closed]
     subgraph recent [RECENT]
-        source_view_edit_search["Source View Edit & Search<br/><sub>Enable editing and searching directly<br/>in the source view panel, allowing users<br/>to modify vizvibe.mmd content and find<br/>specific text without switching to a<br/>separate editor window</sub>"]
+        edit_source_button["Edit Source Button<br/><sub>Replace embedded source view with<br/>Edit Source button that opens file in<br/>VS Code default editor, enabling native<br/>search, undo/redo, and all editor features</sub>"]
     end
-    vscode_extension --> source_view_edit_search
-    graph_search_feature --> source_view_edit_search
-    style source_view_edit_search fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    vscode_extension --> edit_source_button
+    graph_search_feature --> edit_source_button
+    style edit_source_button fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
-    source_view_edit_search -.-> ultimate_goal
+    edit_source_button -.-> ultimate_goal
