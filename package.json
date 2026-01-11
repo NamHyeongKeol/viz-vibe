@@ -1,0 +1,17 @@
+{
+  "name": "viz-vibe-monorepo",
+  "private": true,
+  "description": "Viz Vibe - Graph-based workflow interface for Human-AI collaboration",
+  "scripts": {
+    "build": "node esbuild.js",
+    "build:prod": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "serve": "node esbuild.js --serve",
+    "package": "cd vscode-extension && npm run package",
+    "clean": "rm -rf vscode-extension/dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
+

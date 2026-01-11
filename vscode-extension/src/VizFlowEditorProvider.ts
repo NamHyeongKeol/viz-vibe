@@ -24,7 +24,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
     _token: vscode.CancellationToken
   ): Promise<void> {
     webviewPanel.webview.options = { enableScripts: true };
-    webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+    webviewPanel.webview.html = this.getHtmlForWebview();
 
     // Handle messages from webview
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
@@ -52,37 +52,22 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
     updateWebview();
   }
 
-  private getHtmlForWebview(webview: vscode.Webview): string {
-    // Get paths to shared webview resources
-    // In development: ../shared/webview (relative to vscode-extension)
-    // In production: ./shared/webview (copied during build)
-    let sharedWebviewPath = path.join(this.context.extensionPath, 'shared', 'webview');
+  private getHtmlForWebview(): string {
+    // esbuild creates index.html with inlined CSS/JS, just read and return it
+    const htmlPath = path.join(this.context.extensionPath, 'dist', 'webview', 'index.html');
     
-    // Fallback to development path if production path doesn't exist
-    if (!fs.existsSync(sharedWebviewPath)) {
-      sharedWebviewPath = path.join(this.context.extensionPath, '..', 'shared', 'webview');
+    if (fs.existsSync(htmlPath)) {
+      return fs.readFileSync(htmlPath, 'utf8');
     }
     
-    // Create URIs for webview resources
-    const stylesUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(sharedWebviewPath, 'styles.css'))
-    );
-    const platformUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(sharedWebviewPath, 'platform.js'))
-    );
-    const appUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(sharedWebviewPath, 'app.js'))
-    );
-
-    // Read HTML template
-    const htmlTemplatePath = path.join(sharedWebviewPath, 'index.html');
-    let html = fs.readFileSync(htmlTemplatePath, 'utf8');
-
-    // Replace placeholders with actual URIs
-    html = html.replace('{{stylesUri}}', stylesUri.toString());
-    html = html.replace('{{platformUri}}', platformUri.toString());
-    html = html.replace('{{appUri}}', appUri.toString());
-
-    return html;
+    // Fallback error message
+    return `<!DOCTYPE html>
+<html>
+<body style="padding:20px;color:#ff6b6b;">
+  <h2>⚠️ Webview files not found</h2>
+  <p>Please run <code>npm run build</code> from the project root.</p>
+  <p>Expected path: ${htmlPath}</p>
+</body>
+</html>`;
   }
 }

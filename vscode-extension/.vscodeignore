@@ -1,0 +1,24 @@
+# Source files
+src/**
+**/*.ts
+tsconfig.json
+
+# Old build output (replaced by dist/)
+out/**
+
+# Old shared folder (now built into dist/webview/)
+shared/**
+
+# Development files
+.vscode/**
+node_modules/**
+*.map
+
+# Other
+.gitignore
+.eslintrc*
+**/*.md
+!README.md
+!VIZVIBE.md
+
+
