@@ -100,8 +100,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             align-items: center; z-index: 100;
             flex-wrap: wrap;
         }
-        .toolbar-title { font-weight: 600; font-size: 13px; margin-right: 12px; }
-        .toolbar-title::before { content: '✨ '; }
         .toolbar button {
             padding: 4px 10px;
             background: var(--vscode-button-background);
@@ -121,11 +119,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             border: 1px solid var(--vscode-dropdown-border);
             border-radius: 4px;
             font-size: 11px;
-        }
-        .toolbar-divider {
-            width: 1px; height: 20px;
-            background: var(--vscode-editorWidget-border);
-            margin: 0 6px;
         }
 
         /* Main container */
@@ -422,29 +415,17 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 <body>
     <!-- 툴바 -->
     <div class="toolbar">
-        <span class="toolbar-title">Viz Vibe</span>
-        
         <button class="secondary" onclick="openInDefaultEditor()" title="Open in VS Code editor">📝 Edit Source</button>
-        
-        <div class="toolbar-divider"></div>
-        
-        <button onclick="openAddNodeModal('start')" title="Start">+ Start</button>
-        <button onclick="openAddNodeModal('ai-task')" title="AI Task">+ AI</button>
-        <button onclick="openAddNodeModal('human-task')" title="Human Task">+ Human</button>
-        <button onclick="openAddNodeModal('condition')" title="Condition">+ Cond</button>
-        <button onclick="openAddNodeModal('blocker')" title="Blocker">+ Block</button>
-        
-        <div class="toolbar-divider"></div>
-        
+
         <select id="flowDirection" onchange="changeDirection()" title="Layout direction">
             <option value="TD">↓ Top-Down</option>
             <option value="LR">→ Left-Right</option>
             <option value="BT">↑ Bottom-Top</option>
             <option value="RL">← Right-Left</option>
         </select>
-        
+
         <span class="spacer"></span>
-        
+
         <div class="search-container">
             <button class="secondary" onclick="toggleSearch()" title="Search nodes (Cmd+F)">🔍 Search</button>
             <div id="search-box" class="search-box">
@@ -457,10 +438,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 <button class="search-close" onclick="closeSearch()">×</button>
             </div>
         </div>
-        
-        <div class="toolbar-divider"></div>
-        
-        <button class="secondary" onclick="resetView()" title="Reset view">🎯 Reset</button>
     </div>
 
     <!-- Main container -->

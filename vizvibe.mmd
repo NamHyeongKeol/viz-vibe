@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: node_date_author_display
+    %% @lastActive: simplify_topbar
 
     %% === START ===
     %% @project_start [start, closed, 2026-01-09, nam]
@@ -212,7 +212,7 @@ flowchart TD
     %% @node_date_author_display [ai-task, closed, 2026-01-12, nam]
     node_date_author_display["Node Date/Author Labels<br/><sub>Extended metadata format to support<br/>date and author fields. Nodes now<br/>display date/author labels below<br/>description. Info card also shows<br/>date/author with icons.</sub>"]
     vscode_extension --> node_date_author_display
-    style node_date_author_display fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style node_date_author_display fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     node_date_author_display -.-> vscode_ext_ui_ux
     
     %% @edit_source_button [ai-task, closed, 2026-01-10, nam]
@@ -222,7 +222,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        node_date_author_display
+        simplify_topbar
     end
 
     %% @stop_hook_reliability [ai-task, opened, 2026-01-12, nam]
@@ -240,10 +240,10 @@ flowchart TD
     edit_source_button -.-> vscode_ext_ui_ux
     figma_scroll_pan -.-> vscode_ext_ui_ux
     
-    %% @simplify_topbar [ai-task, opened, 2026-01-11, nam]
+    %% @simplify_topbar [ai-task, closed, 2026-01-12, nam]
     simplify_topbar["Simplify Graph Top Bar<br/><sub>Streamline the graph view header bar<br/>by removing unnecessary UI elements<br/>and consolidating controls for a<br/>cleaner, more focused interface</sub>"]
     vscode_extension --> simplify_topbar
-    style simplify_topbar fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style simplify_topbar fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     simplify_topbar -.-> vscode_ext_ui_ux
     
     %% @init_screen_message [ai-task, opened, 2026-01-11, nam]
