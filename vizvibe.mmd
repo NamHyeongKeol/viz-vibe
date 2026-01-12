@@ -2,71 +2,71 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: focus_race_condition_fix
+    %% @lastActive: node_date_author_display
 
     %% === START ===
-    %% @project_start [start, closed]
+    %% @project_start [start, closed, 2026-01-09, nam]
     project_start("Viz Vibe Project Start<br/><sub>Graph-based context management tool<br/>that visualizes coding trajectory<br/>as a Mermaid flowchart, enabling<br/>persistent memory across AI sessions</sub>")
 
-    %% @ultimate_goal [end, opened]
+    %% @ultimate_goal [end, opened, 2026-01-09, nam]
     ultimate_goal("Solve the Context Problem<br/><sub>Enable developers to visualize their<br/>coding journey, persist memory across<br/>sessions, and seamlessly share context<br/>with any AI assistant regardless of platform</sub>")
 
     %% === COMPLETED WORK ===
-    %% @mermaid_native [ai-task, closed]
+    %% @mermaid_native [ai-task, closed, 2026-01-09, nam]
     mermaid_native("Mermaid Native Format<br/><sub>Migrated from custom JSON schema<br/>to native Mermaid .mmd format,<br/>enabling rendering in GitHub, VS Code,<br/>and any Mermaid-compatible viewer<br/>without additional tooling</sub>")
 
-    %% @claude_code_integration [ai-task, closed]
+    %% @claude_code_integration [ai-task, closed, 2026-01-09, nam]
     claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages<br/>using SessionStart/AfterUserMessage hooks</sub>")
 
-    %% @vizvibe_guide [ai-task, closed]
+    %% @vizvibe_guide [ai-task, closed, 2026-01-09, nam]
     vizvibe_guide("VIZVIBE.md Guide<br/><sub>Created comprehensive documentation<br/>that teaches AI assistants how to<br/>read, update, and maintain vizvibe.mmd<br/>files, including node states, connection<br/>types, and styling conventions</sub>")
 
-    %% @install_scripts [ai-task, closed]
+    %% @install_scripts [ai-task, closed, 2026-01-09, nam]
     install_scripts("CLI Install Scripts<br/><sub>Developed curl-based one-liner<br/>installation scripts that set up<br/>Claude Code hooks and copy templates,<br/>with corresponding uninstall scripts<br/>for clean removal when needed</sub>")
 
-    %% @vscode_extension [ai-task, closed]
+    %% @vscode_extension [ai-task, closed, 2026-01-09, nam]
     vscode_extension("VS Code Extension<br/><sub>Built VS Code extension featuring<br/>interactive graph visualization of<br/>vizvibe.mmd, click-to-copy node info<br/>for AI prompts, custom editor for<br/>.mmd files, and keyboard shortcuts</sub>")
 
-    %% @lastactive_tracking [ai-task, closed]
+    %% @lastactive_tracking [ai-task, closed, 2026-01-09, nam]
     lastactive_tracking("Last Active Tracking<br/><sub>Implemented tracking of the most<br/>recently worked-on node via @lastActive<br/>marker in .mmd comments, with visual<br/>highlighting in graph view and<br/>automatic updates from hooks</sub>")
 
-    %% @design_renewal [ai-task, closed]
+    %% @design_renewal [ai-task, closed, 2026-01-09, nam]
     design_renewal("GitHub-Inspired Design<br/><sub>Redesigned graph styling with<br/>GitHub-inspired color palette:<br/>green borders for open tasks,<br/>purple borders for closed tasks,<br/>and highlighted glow for last active</sub>")
 
-    %% @extension_bugfix [ai-task, closed]
+    %% @extension_bugfix [ai-task, closed, 2026-01-09, nam]
     extension_bugfix("Extension Bug Fixes<br/><sub>Fixed regex pattern for extracting<br/>node information from Mermaid syntax,<br/>resolved keybinding conflicts, and<br/>added diagnostic test command for<br/>troubleshooting copy functionality</sub>")
 
     %% === FUTURE WORK: AI AGENT INTEGRATIONS ===
-    %% @vscode_agent_integration [ai-task, opened]
+    %% @vscode_agent_integration [ai-task, opened, 2026-01-09, nam]
     vscode_agent_integration("VS Code Copilot Integration<br/><sub>Integrate with VS Code's built-in<br/>AI features like GitHub Copilot Chat<br/>to automatically provide trajectory<br/>context when developers ask questions<br/>about their project</sub>")
 
-    %% @cursor_agent_integration [ai-task, opened]
+    %% @cursor_agent_integration [ai-task, opened, 2026-01-09, nam]
     cursor_agent_integration("Cursor IDE Integration<br/><sub>Implement integration with Cursor IDE<br/>using .cursorrules file to inject<br/>trajectory management instructions<br/>into Cursor's AI assistant context</sub>")
 
-    %% @antigravity_agent_integration [ai-task, opened]
+    %% @antigravity_agent_integration [ai-task, opened, 2026-01-09, nam]
     antigravity_agent_integration("Antigravity AI Integration<br/><sub>Integrate with Google's Antigravity<br/>by injecting VIZVIBE.md content into<br/>~/.gemini/GEMINI.md global rules file<br/>and providing keyboard shortcuts</sub>")
 
-    %% @antigravity_hook_support [ai-task, opened]
+    %% @antigravity_hook_support [ai-task, opened, 2026-01-09, nam]
     antigravity_hook_support("Antigravity Hook Automation<br/><sub>Apply the same hook-based automation<br/>pattern used in Claude Code once<br/>Antigravity adds support for lifecycle<br/>hooks like SessionStart</sub>")
 
 
     %% === FUTURE WORK: OTHER ===
-    %% @hook_path_fix [ai-task, closed]
+    %% @hook_path_fix [ai-task, closed, 2026-01-09, nam]
     hook_path_fix("Hook Path Fix<br/><sub>Fixed hook scripts to use<br/>$CLAUDE_PROJECT_DIR environment variable<br/>instead of relative paths, ensuring<br/>hooks work correctly regardless of<br/>which directory the user runs from</sub>")
 
-    %% @extension_ux_improve [ai-task, closed]
+    %% @extension_ux_improve [ai-task, closed, 2026-01-09, nam]
     extension_ux_improve("Extension UX v1<br/><sub>Enhanced node display to show<br/>descriptions from sub tags, added<br/>open/closed/lastActive status indicators<br/>to info card, cleaned up keybinding<br/>behavior and conflicts</sub>")
 
-    %% @extension_ux_v2 [ai-task, closed]
+    %% @extension_ux_v2 [ai-task, closed, 2026-01-09, nam]
     extension_ux_v2("Graph UX Improvements<br/><sub>Added node dragging functionality<br/>for manual graph layout adjustment,<br/>changed start node color from teal<br/>to muted gray for better visual<br/>hierarchy with focus on active work</sub>")
 
-    %% @antigravity_shortcut [ai-task, closed]
+    %% @antigravity_shortcut [ai-task, closed, 2026-01-09, nam]
     antigravity_shortcut("Antigravity Shortcut<br/><sub>Implemented Ctrl+Shift+Cmd+E keyboard<br/>shortcut that copies a pre-formatted<br/>prompt to clipboard, asking AI to<br/>update vizvibe.mmd based on recent<br/>conversation history</sub>")
 
-    %% @lib_packaging [ai-task, opened]
+    %% @lib_packaging [ai-task, opened, 2026-01-09, nam]
     lib_packaging("Multi-Language SDK<br/><sub>Package vizvibe functionality as<br/>installable SDKs for Python (PyPI),<br/>JavaScript (npm), and Java (Maven)<br/>to enable programmatic trajectory<br/>management from any codebase</sub>")
 
-    %% @mcp_server [ai-task, opened]
+    %% @mcp_server [ai-task, opened, 2026-01-09, nam]
     mcp_server("MCP Server<br/><sub>Build a Model Context Protocol server<br/>that exposes trajectory read/update<br/>tools, enabling any MCP-compatible<br/>AI client to manage vizvibe.mmd<br/>without platform-specific integrations</sub>")
 
     %% === CONNECTIONS ===
@@ -138,23 +138,23 @@ flowchart TD
     style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style mcp_server fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 
-    %% @version_bump_011 [ai-task, closed]
+    %% @version_bump_011 [ai-task, closed, 2026-01-09, nam]
     version_bump_011["Version 0.1.1<br/><sub>Released version 0.1.1 with node<br/>dragging feature retained, but removed<br/>complex edge-following logic that was<br/>causing visual glitches and incorrect<br/>edge rendering</sub>"]
     antigravity_shortcut --> version_bump_011
     style version_bump_011 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
-    %% @vscode_marketplace_publish [ai-task, closed]
+    %% @vscode_marketplace_publish [ai-task, closed, 2026-01-09, nam]
     vscode_marketplace_publish["VS Code Marketplace<br/><sub>Successfully published Viz Vibe<br/>extension to VS Code Marketplace<br/>as version 0.1.5, making it publicly<br/>available for any VS Code user<br/>to install and use</sub>"]
     version_bump_011 --> vscode_marketplace_publish
     style vscode_marketplace_publish fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
-    %% @antigravity_gemini_integration [ai-task, closed]
+    %% @antigravity_gemini_integration [ai-task, closed, 2026-01-09, nam]
     antigravity_gemini_integration["Antigravity GEMINI.md<br/><sub>Implemented automatic injection of<br/>complete VIZVIBE.md content into<br/>~/.gemini/GEMINI.md on extension<br/>activation, with auto-initialization<br/>prompts for new projects (v0.1.12)</sub>"]
     vscode_marketplace_publish --> antigravity_gemini_integration
     antigravity_agent_integration --> antigravity_gemini_integration
     style antigravity_gemini_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
-    %% @claude_code_auto_draft [ai-task, closed]
+    %% @claude_code_auto_draft [ai-task, closed, 2026-01-09, nam]
     claude_code_auto_draft["Claude Code Auto Draft<br/><sub>Implemented SessionStart hook logic<br/>that detects when vizvibe.mmd contains<br/>only the default template, then prompts<br/>Claude to generate an initial trajectory<br/>draft from conversation and git history</sub>"]
     claude_code_integration --> claude_code_auto_draft
     style claude_code_auto_draft fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
@@ -166,64 +166,70 @@ flowchart TD
     
 
     
-    %% @cursor_hook_via_extension [ai-task, closed]
+    %% @cursor_hook_via_extension [ai-task, closed, 2026-01-09, nam]
     cursor_hook_via_extension["Cursor Hook via Extension<br/><sub>Extension now auto-detects when<br/>running in Cursor IDE environment<br/>and automatically creates .cursor/<br/>hooks.json with appropriate hook<br/>configurations, eliminating manual setup</sub>"]
     cursor_agent_integration --> cursor_hook_via_extension
     claude_code_integration --> cursor_hook_via_extension
     style cursor_hook_via_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_via_extension -.-> ultimate_goal
     
-    %% @graph_search_feature [ai-task, closed]
+    %% @graph_search_feature [ai-task, closed, 2026-01-10, nam]
     graph_search_feature["Graph Search (Cmd+F)<br/><sub>Implement search functionality<br/>in the graph viewer that allows<br/>users to find nodes by title or<br/>description using Cmd+F keyboard<br/>shortcut - TOP PRIORITY feature</sub>"]
     vscode_extension --> graph_search_feature
     style graph_search_feature fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     graph_search_feature -.-> vscode_ext_ui_ux
     
-    %% @initial_view_focus [ai-task, closed]
+    %% @initial_view_focus [ai-task, closed, 2026-01-12, nam]
     initial_view_focus["Focus RECENT on Open<br/><sub>When vizvibe.mmd first opens,<br/>center the view on RECENT subgraph<br/>instead of top-left corner, with<br/>zoomed-out scale to show context<br/>around active work area</sub>"]
     vscode_extension --> initial_view_focus
     style initial_view_focus fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     initial_view_focus -.-> vscode_ext_ui_ux
     
-    %% @archive_old_nodes [ai-task, opened]
+    %% @archive_old_nodes [ai-task, opened, 2026-01-10, nam]
     archive_old_nodes["Archive Old Nodes<br/><sub>Add functionality to separate<br/>old/completed nodes into archive<br/>files, keeping the main vizvibe.mmd<br/>focused on recent and active work<br/>while preserving full history</sub>"]
     vscode_extension --> archive_old_nodes
     style archive_old_nodes fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     archive_old_nodes -.-> vscode_ext_ui_ux
     
-    %% @github_sync_feature [ai-task, opened]
+    %% @github_sync_feature [ai-task, opened, 2026-01-10, nam]
     github_sync_feature["GitHub Sync<br/><sub>Fetch repository info from user's<br/>GitHub account (commits, PRs, issues)<br/>and reflect them in the trajectory<br/>graph automatically, bridging code<br/>changes with visual context</sub>"]
     mermaid_native --> github_sync_feature
     style github_sync_feature fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     github_sync_feature -.-> ultimate_goal
     
-    %% @antigravity_gemini_auto_sync [ai-task, opened]
+    %% @antigravity_gemini_auto_sync [ai-task, opened, 2026-01-10, nam]
     antigravity_gemini_auto_sync["GEMINI.md Auto Sync<br/><sub>When users update the Viz Vibe<br/>extension to a new version,<br/>automatically sync GEMINI.md with<br/>the latest VIZVIBE.md content<br/>without requiring manual action</sub>"]
     antigravity_gemini_integration --> antigravity_gemini_auto_sync
     style antigravity_gemini_auto_sync fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     antigravity_gemini_auto_sync -.-> ultimate_goal
     
-    %% @node_click_detail_view [ai-task, opened]
+    %% @node_click_detail_view [ai-task, opened, 2026-01-10, nam]
     node_click_detail_view["Single-Click Node Details<br/><sub>Enable clicking a node in the graph<br/>view to display detailed content that<br/>is visible in the source view, showing<br/>full metadata and descriptions without<br/>needing to switch to source editor</sub>"]
     vscode_extension --> node_click_detail_view
     style node_click_detail_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     node_click_detail_view -.-> vscode_ext_ui_ux
     
-    %% @node_date_author_display [ai-task, opened]
-    node_date_author_display["Node Date/Author Labels<br/><sub>Display small date and author metadata<br/>directly on each node in the graph view,<br/>allowing users to quickly see when nodes<br/>were created and by whom without<br/>clicking or opening source view</sub>"]
+    %% @node_date_author_display [ai-task, closed, 2026-01-12, nam]
+    node_date_author_display["Node Date/Author Labels<br/><sub>Extended metadata format to support<br/>date and author fields. Nodes now<br/>display date/author labels below<br/>description. Info card also shows<br/>date/author with icons.</sub>"]
     vscode_extension --> node_date_author_display
-    style node_date_author_display fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style node_date_author_display fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     node_date_author_display -.-> vscode_ext_ui_ux
     
-    %% @edit_source_button [ai-task, closed]
+    %% @edit_source_button [ai-task, closed, 2026-01-10, nam]
     edit_source_button["Edit Source Button<br/><sub>Replace embedded source view with<br/>Edit Source button that opens file in<br/>VS Code default editor, enabling native<br/>search, undo/redo, and all editor features</sub>"]
 
-    %% @figma_scroll_pan [ai-task, closed]
+    %% @figma_scroll_pan [ai-task, closed, 2026-01-11, nam]
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        focus_race_condition_fix
+        node_date_author_display
     end
+
+    %% @stop_hook_reliability [ai-task, opened, 2026-01-12, nam]
+    stop_hook_reliability["Stop Hook Reliability<br/><sub>Stop hook doesn't always fire when<br/>Claude pauses mid-conversation to ask<br/>for direction. Investigate using<br/>UserPromptSubmit hook as fallback<br/>to ensure vizvibe updates on next<br/>user input if Stop was missed</sub>"]
+    claude_code_integration --> stop_hook_reliability
+    style stop_hook_reliability fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    stop_hook_reliability -.-> ultimate_goal
 
     vscode_extension --> edit_source_button
     graph_search_feature --> edit_source_button
@@ -234,80 +240,80 @@ flowchart TD
     edit_source_button -.-> vscode_ext_ui_ux
     figma_scroll_pan -.-> vscode_ext_ui_ux
     
-    %% @simplify_topbar [ai-task, opened]
+    %% @simplify_topbar [ai-task, opened, 2026-01-11, nam]
     simplify_topbar["Simplify Graph Top Bar<br/><sub>Streamline the graph view header bar<br/>by removing unnecessary UI elements<br/>and consolidating controls for a<br/>cleaner, more focused interface</sub>"]
     vscode_extension --> simplify_topbar
     style simplify_topbar fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     simplify_topbar -.-> vscode_ext_ui_ux
     
-    %% @init_screen_message [ai-task, opened]
+    %% @init_screen_message [ai-task, opened, 2026-01-11, nam]
     init_screen_message["Initialization Prompt Message<br/><sub>Display prominent message on the<br/>initialization screen: 'Ask your AI Agent<br/>to setup vizvibe!' guiding users to<br/>request trajectory setup from their agent</sub>"]
     vscode_extension --> init_screen_message
     style init_screen_message fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     init_screen_message -.-> vscode_ext_ui_ux
     
-    %% @focus_recent_on_change [ai-task, closed]
+    %% @focus_recent_on_change [ai-task, closed, 2026-01-12, nam]
     focus_recent_on_change["Focus RECENT on View Change<br/><sub>When opening vizvibe.mmd file or<br/>switching between LR/TB view directions,<br/>automatically pan and center the graph<br/>view to focus on the RECENT node</sub>"]
     vscode_extension --> focus_recent_on_change
     initial_view_focus --> focus_recent_on_change
     style focus_recent_on_change fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     focus_recent_on_change -.-> vscode_ext_ui_ux
 
-    %% @focus_race_condition_fix [blocker, closed]
+    %% @focus_race_condition_fix [blocker, closed, 2026-01-12, nam]
     focus_race_condition_fix["Focus Race Condition Fix<br/><sub>Issues: 1) changeDirection calling render<br/>directly caused double-render with doc sync<br/>2) cached targetEl became stale 3) transform.x+=<br/>accumulated old values. Fix: use pendingFocus<br/>flag, find elements fresh in single 150ms<br/>timeout, reset transform to 0,0 first</sub>"]
     focus_recent_on_change --> focus_race_condition_fix
     focus_race_condition_fix -.-> vscode_ext_ui_ux
-    style focus_race_condition_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style focus_race_condition_fix fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
 
-    %% @vscode_ext_ui_ux [milestone, opened]
+    %% @vscode_ext_ui_ux [milestone, opened, 2026-01-11, nam]
     vscode_ext_ui_ux["VS Code Extension UI/UX<br/><sub>Comprehensive improvements to the<br/>Viz Vibe VS Code extension's user<br/>interface and experience, making<br/>trajectory visualization more intuitive</sub>"]
     style vscode_ext_ui_ux fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:2px
     vscode_ext_ui_ux -.-> ultimate_goal
 
-    %% @browser_view [ai-task, opened]
+    %% @browser_view [ai-task, opened, 2026-01-11, nam]
     browser_view["Browser View<br/><sub>Create a web-based viewer for<br/>vizvibe.mmd files that can be accessed<br/>from any browser, enabling trajectory<br/>visualization without VS Code</sub>"]
     mermaid_native --> browser_view
     style browser_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     browser_view -.-> ultimate_goal
     
     %% === PLUGIN INTEGRATIONS ===
-    %% @ai_agent_plugins [ai-task, opened]
+    %% @ai_agent_plugins [ai-task, opened, 2026-01-11, nam]
     ai_agent_plugins["AI Agent Plugins<br/><sub>Create plugins for various AI coding<br/>platforms to enable vizvibe.mmd<br/>trajectory management across different<br/>AI-assisted development environments</sub>"]
     mermaid_native --> ai_agent_plugins
     style ai_agent_plugins fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     ai_agent_plugins -.-> ultimate_goal
     
-    %% @open_code_plugin [ai-task, opened]
+    %% @open_code_plugin [ai-task, opened, 2026-01-11, nam]
     open_code_plugin["Open Code Plugin<br/><sub>Build plugin for Open Code platform<br/>that enables automatic vizvibe.mmd<br/>reading and updating during AI-assisted<br/>coding sessions</sub>"]
     ai_agent_plugins --> open_code_plugin
     style open_code_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     open_code_plugin -.-> ultimate_goal
     
-    %% @oh_my_opencode_plugin [ai-task, opened]
+    %% @oh_my_opencode_plugin [ai-task, opened, 2026-01-11, nam]
     oh_my_opencode_plugin["oh-my-opencode Plugin<br/><sub>Create plugin for oh-my-opencode<br/>framework enabling trajectory management<br/>integration with enhanced terminal-based<br/>AI coding workflows</sub>"]
     ai_agent_plugins --> oh_my_opencode_plugin
     style oh_my_opencode_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     oh_my_opencode_plugin -.-> ultimate_goal
     
-    %% @claude_code_plugin [ai-task, opened]
+    %% @claude_code_plugin [ai-task, opened, 2026-01-11, nam]
     claude_code_plugin["Claude Code Plugin<br/><sub>Package existing Claude Code hook<br/>integration as a standalone plugin<br/>for easy installation and distribution<br/>via official plugin channels</sub>"]
     claude_code_integration --> claude_code_plugin
     style claude_code_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     claude_code_plugin -.-> ultimate_goal
     
-    %% @codex_cli_plugin [ai-task, opened]
+    %% @codex_cli_plugin [ai-task, opened, 2026-01-11, nam]
     codex_cli_plugin["Codex CLI Plugin<br/><sub>Develop plugin for OpenAI Codex CLI<br/>that integrates trajectory management<br/>into command-line AI coding assistant<br/>workflows</sub>"]
     ai_agent_plugins --> codex_cli_plugin
     style codex_cli_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     codex_cli_plugin -.-> ultimate_goal
     
-    %% @gemini_cli_plugin [ai-task, opened]
+    %% @gemini_cli_plugin [ai-task, opened, 2026-01-11, nam]
     gemini_cli_plugin["Gemini CLI Plugin<br/><sub>Create plugin for Google Gemini CLI<br/>enabling automatic vizvibe.mmd context<br/>injection and trajectory updates during<br/>Gemini-powered coding sessions</sub>"]
     ai_agent_plugins --> gemini_cli_plugin
     style gemini_cli_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     gemini_cli_plugin -.-> ultimate_goal
     
-    %% @vibe_kanban_plugin [ai-task, opened]
+    %% @vibe_kanban_plugin [ai-task, opened, 2026-01-11, nam]
     vibe_kanban_plugin["Vibe Kanban Plugin<br/><sub>Build plugin for Vibe Kanban tool<br/>that syncs trajectory nodes with<br/>kanban board cards, bridging visual<br/>project management with code context</sub>"]
     ai_agent_plugins --> vibe_kanban_plugin
     style vibe_kanban_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px

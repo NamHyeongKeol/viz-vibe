@@ -597,14 +597,17 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 lastActiveNodeId = lastActiveMatch[1];
             }
 
-            // Support both old format [type] and new format [type, state]
-            const metaRegex = /%% @(\\w+) \\[([\\w-]+)(?:,\\s*(\\w+))?\\]: (.+)/g;
+            // Support formats: [type], [type, state], [type, state, date], [type, state, date, author]
+            // Description after colon is optional
+            const metaRegex = /%% @(\\w+) \\[([\\w-]+)(?:,\\s*(\\w+))?(?:,\\s*([\\d-]+))?(?:,\\s*([\\w@.-]+))?\\](?::\\s*(.+))?/g;
             let match;
             while ((match = metaRegex.exec(code)) !== null) {
                 nodeMetadata[match[1]] = {
                     type: match[2],
                     state: match[3] || 'opened',
-                    prompt: match[4]
+                    date: match[4] || null,
+                    author: match[5] || null,
+                    prompt: match[6] || null
                 };
             }
         }
@@ -635,7 +638,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             document.getElementById('zoomLevel').innerText = Math.round(transform.scale * 100) + '%';
         }
 
-        // Add descriptions to node definitions before rendering
+        // Add descriptions and date/author to node definitions before rendering
         function addDescriptionsToCode(code) {
             const lines = code.split('\\n');
             const result = [];
@@ -644,19 +647,31 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 // Skip comments and style lines
                 if (!line.trim().startsWith('%') && !line.trim().startsWith('style')) {
                     for (const [nodeId, meta] of Object.entries(nodeMetadata)) {
-                        if (!meta.prompt) continue;
                         // Check if this line defines this node (contains nodeId followed by ( or [)
                         const nodePattern = new RegExp('^\\\\s*' + nodeId + '\\\\s*[\\\\(\\\\[]');
                         if (nodePattern.test(line) && line.includes('"')) {
                             // Find the last " in the line
                             const lastQuoteIdx = line.lastIndexOf('"');
                             if (lastQuoteIdx > 0) {
-                                // Truncate if too long (150 chars)
-                                let desc = meta.prompt;
-                                if (desc.length > 150) {
-                                    desc = desc.substring(0, 147) + '...';
+                                let additions = '';
+                                // Add prompt/description if available
+                                if (meta.prompt) {
+                                    let desc = meta.prompt;
+                                    if (desc.length > 150) {
+                                        desc = desc.substring(0, 147) + '...';
+                                    }
+                                    additions += '<br/><span style="font-size:10px;opacity:0.6">' + desc + '</span>';
                                 }
-                                newLine = line.slice(0, lastQuoteIdx) + '<br/><span style="font-size:10px;opacity:0.6">' + desc + '</span>' + line.slice(lastQuoteIdx);
+                                // Build date/author label if available
+                                if (meta.date || meta.author) {
+                                    const parts = [];
+                                    if (meta.date) parts.push(meta.date);
+                                    if (meta.author) parts.push(meta.author);
+                                    additions += '<br/><span style="font-size:9px;opacity:0.4;color:#888">' + parts.join(' · ') + '</span>';
+                                }
+                                if (additions) {
+                                    newLine = line.slice(0, lastQuoteIdx) + additions + line.slice(lastQuoteIdx);
+                                }
                                 break;
                             }
                         }
@@ -816,9 +831,18 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             let statusText = state === 'closed' ? '✓ Closed' : '○ Open';
             if (isRecent) statusText += '  •  ⭐ Recent';
 
+            // Add date/author if available
+            let dateAuthorText = '';
+            if (meta.date || meta.author) {
+                const parts = [];
+                if (meta.date) parts.push('📅 ' + meta.date);
+                if (meta.author) parts.push('👤 ' + meta.author);
+                dateAuthorText = '\\n' + parts.join('  •  ');
+            }
+
             document.getElementById('info-card').style.display = 'block';
             document.getElementById('info-label').innerText = selectedNodeLabel;
-            document.getElementById('info-prompt').innerText = statusText + '\\n\\n' + (meta.prompt || '');
+            document.getElementById('info-prompt').innerText = statusText + dateAuthorText + '\\n\\n' + (meta.prompt || '');
         }
 
         function closeInfoCard() {
