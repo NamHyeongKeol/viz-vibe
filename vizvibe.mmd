@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: figma_scroll_pan
+    %% @lastActive: initial_view_focus
 
     %% === START ===
     %% @project_start [start, closed]
@@ -179,10 +179,10 @@ flowchart TD
     style graph_search_feature fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     graph_search_feature -.-> vscode_ext_ui_ux
     
-    %% @initial_view_focus [ai-task, opened]
+    %% @initial_view_focus [ai-task, closed]
     initial_view_focus["Focus RECENT on Open<br/><sub>When vizvibe.mmd first opens,<br/>center the view on RECENT subgraph<br/>instead of top-left corner, with<br/>zoomed-out scale to show context<br/>around active work area</sub>"]
     vscode_extension --> initial_view_focus
-    style initial_view_focus fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style initial_view_focus fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     initial_view_focus -.-> vscode_ext_ui_ux
     
     %% @archive_old_nodes [ai-task, opened]
@@ -219,16 +219,18 @@ flowchart TD
     edit_source_button["Edit Source Button<br/><sub>Replace embedded source view with<br/>Edit Source button that opens file in<br/>VS Code default editor, enabling native<br/>search, undo/redo, and all editor features</sub>"]
 
     %% @figma_scroll_pan [ai-task, closed]
+    figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
+
     subgraph recent [RECENT]
-        figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
+        initial_view_focus
     end
 
     vscode_extension --> edit_source_button
     graph_search_feature --> edit_source_button
     vscode_extension --> figma_scroll_pan
     style edit_source_button fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style figma_scroll_pan fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
-    style figma_scroll_pan fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     edit_source_button -.-> vscode_ext_ui_ux
     figma_scroll_pan -.-> vscode_ext_ui_ux
     
