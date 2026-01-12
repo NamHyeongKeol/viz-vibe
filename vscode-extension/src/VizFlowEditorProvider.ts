@@ -560,6 +560,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         // Initial load state - for focusing on RECENT node on first open
         let isFirstLoad = true;
+        // Flag for focusing on RECENT after direction change
+        let pendingFocusOnRecent = false;
 
         // Mermaid initialization
         mermaid.initialize({
@@ -1344,8 +1346,9 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         function changeDirection() {
             const newDir = document.getElementById('flowDirection').value;
             mermaidCode = mermaidCode.replace(/flowchart\\s+(TD|LR|BT|RL)/, 'flowchart ' + newDir);
+            // Set flag to focus on RECENT after document update cycle completes
+            pendingFocusOnRecent = true;
             vscode.postMessage({ type: 'update', mermaidCode });
-            render();
         }
 
         // === Node creation ===
@@ -1424,13 +1427,12 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             if (e.data.type === 'load') {
                 mermaidCode = e.data.mermaidCode || '';
                 await render();
-                
-                // Focus on RECENT node on first load
-                if (isFirstLoad) {
+
+                // Focus on RECENT node on first load or after direction change
+                if (isFirstLoad || pendingFocusOnRecent) {
                     isFirstLoad = false;
-                    setTimeout(() => {
-                        focusOnRecentNode();
-                    }, 100);
+                    pendingFocusOnRecent = false;
+                    focusOnRecentNode();
                 }
             } else if (e.data.type === 'openSearch') {
                 openSearch();
@@ -1629,48 +1631,50 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         // Focus on RECENT subgraph or lastActive node on initial load
         function focusOnRecentNode() {
-            const container = document.getElementById('mermaid-output');
-            const svg = container.querySelector('svg');
-            if (!svg) return;
-
-            // Strategy 1: Find RECENT subgraph cluster
-            let targetEl = svg.querySelector('.cluster[id*=\"recent\"], .cluster[id*=\"RECENT\"], g[id*=\"recent\"], g[id*=\"RECENT\"]');
-            
-            // Strategy 2: If no RECENT subgraph, find lastActive node
-            if (!targetEl && lastActiveNodeId) {
-                container.querySelectorAll('.node').forEach(el => {
-                    if (el.id && (el.id.includes(lastActiveNodeId) || el.id.includes('flowchart-' + lastActiveNodeId))) {
-                        targetEl = el;
-                    }
-                });
-            }
-
-            // Strategy 3: If still nothing, just fit to screen
-            if (!targetEl) {
-                fitToScreen();
-                return;
-            }
-
-            // Get element bounds and center on it with slight zoom out
-            const graphView = document.getElementById('graph-view');
-            const graphRect = graphView.getBoundingClientRect();
-
-            // Set zoom level slightly zoomed out for context
+            // Reset transform to origin first, then set scale
+            transform.x = 0;
+            transform.y = 0;
             transform.scale = 0.8;
             updateTransform();
 
-            // Need to recalculate after scale change
+            // Wait for DOM to settle, then find and center on target
             setTimeout(() => {
-                const newTargetRect = targetEl.getBoundingClientRect();
-                const targetCenterX = newTargetRect.left + newTargetRect.width / 2;
-                const targetCenterY = newTargetRect.top + newTargetRect.height / 2;
+                const container = document.getElementById('mermaid-output');
+                const svg = container.querySelector('svg');
+                if (!svg) return;
+
+                // Strategy 1: Find RECENT subgraph cluster (only .cluster class)
+                let targetEl = svg.querySelector('.cluster[id*="recent"], .cluster[id*="RECENT"]');
+
+                // Strategy 2: If no RECENT subgraph, find lastActive node
+                if (!targetEl && lastActiveNodeId) {
+                    container.querySelectorAll('.node').forEach(el => {
+                        if (el.id && (el.id.includes(lastActiveNodeId) || el.id.includes('flowchart-' + lastActiveNodeId))) {
+                            targetEl = el;
+                        }
+                    });
+                }
+
+                // Strategy 3: If still nothing, just fit to screen
+                if (!targetEl) {
+                    fitToScreen();
+                    return;
+                }
+
+                const graphView = document.getElementById('graph-view');
+                const graphRect = graphView.getBoundingClientRect();
+                const targetRect = targetEl.getBoundingClientRect();
+
+                const targetCenterX = targetRect.left + targetRect.width / 2;
+                const targetCenterY = targetRect.top + targetRect.height / 2;
                 const graphCenterX = graphRect.left + graphRect.width / 2;
                 const graphCenterY = graphRect.top + graphRect.height / 2;
 
-                transform.x += graphCenterX - targetCenterX;
-                transform.y += graphCenterY - targetCenterY;
+                // Calculate offset to center target in viewport
+                transform.x = graphCenterX - targetCenterX;
+                transform.y = graphCenterY - targetCenterY;
                 updateTransform();
-            }, 50);
+            }, 150);
         }
 
         // Search input handlers
