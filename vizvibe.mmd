@@ -69,6 +69,35 @@ flowchart TD
     %% @mcp_server [ai-task, opened, 2026-01-09, nam]
     mcp_server("MCP Server<br/><sub>Build a Model Context Protocol server<br/>that exposes trajectory read/update<br/>tools, enabling any MCP-compatible<br/>AI client to manage vizvibe.mmd<br/>without platform-specific integrations</sub>")
 
+    %% === NODE HISTORY FEATURE ===
+    %% @node_history_guide [ai-task, closed, 2026-01-12, HEYDAY]
+    %% @history[node_history_guide]:
+    %%   2026-01-12 | planned | Design node history format for tracking task lifecycle
+    %%   2026-01-12 | completed | Added Node History Management section to VIZVIBE.md
+    node_history_guide["Node History Guide<br/><sub>Added history tracking format to<br/>VIZVIBE.md: @history blocks for<br/>single task completion and branch<br/>collapse for exploration consolidation</sub>"]
+
+    %% @node_history_ui [ai-task, closed, 2026-01-12, HEYDAY]
+    %% @history[node_history_ui]:
+    %%   2026-01-12 | planned | Implement history display in Extension when clicking nodes
+    %%   2026-01-12 | completed | Added CSS timeline styles, @history parsing, and showNodeInfo rendering
+    node_history_ui["History Timeline UI ✅<br/><sub>Implemented history timeline display:<br/>parse @history blocks, render entries<br/>with state badges, support collapsed<br/>sections with original node IDs</sub>"]
+
+    %% @node_history_expand [ai-task, closed, 2026-01-12, HEYDAY]
+    %% @history[node_history_expand]:
+    %%   2026-01-12 | planned | Allow expanding collapsed branches back into graph view
+    %%   2026-01-12 | completed | Implemented expandable graph logic: nodes inject collapsed branches, styling based on history outcome
+    node_history_expand["Expand Collapsed History ✅<br/><sub>Added 'Expand Graph' button to nodes<br/>with collapsed history. Clicking injects<br/>past exploration nodes back into the<br/>graph with outcome-based styling.</sub>"]
+
+    %% @demo_history_collapse [ai-task, closed, 2026-01-12, HEYDAY]
+    %% @history[demo_history_collapse]:
+    %%   2026-01-12 | planned | Create demo for branch collapse feature
+    %%   --- collapsed: exploration_branches ---
+    %%   2026-01-12 | try_branch_a | tried | Approach A - failed with timeout
+    %%   2026-01-12 | try_branch_b | completed | Approach B - success!
+    %%   --- /collapsed ---
+    %%   2026-01-12 | completed | Demo node created with collapsed branches
+    demo_history_collapse["Demo: Branch Collapse<br/><sub>This node contains collapsed history.<br/>Click to see the 'Expand Graph' button<br/>and click it to see the past branches.</sub>"]
+
     %% === CONNECTIONS ===
     project_start --> mermaid_native
     mermaid_native --> claude_code_integration
@@ -99,6 +128,13 @@ flowchart TD
     cursor_agent_integration -.-> ultimate_goal
     antigravity_hook_support -.-> ultimate_goal
 
+    vizvibe_guide --> node_history_guide
+    node_history_guide --> node_history_ui
+    node_history_ui --> node_history_expand
+    node_history_expand --> demo_history_collapse
+    vscode_extension --> node_history_ui
+    vscode_extension --> demo_history_collapse
+
     %% === STYLES ===
     %% GitHub-inspired colors: Open = green, Closed = purple/gray
 
@@ -127,7 +163,6 @@ flowchart TD
 
     %% Last active node (highlighted - brighter purple with glow effect)
     style antigravity_shortcut fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
-    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 
     %% Open tasks (soft green - like GitHub open)
     style vscode_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
@@ -209,7 +244,7 @@ flowchart TD
     style node_click_detail_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     node_click_detail_view -.-> vscode_ext_ui_ux
     
-    %% @node_date_author_display [ai-task, closed, 2026-01-12, nam]
+    %% @node_date_author_display [ai-task, closed, 2026-01-12, HEYDAY]
     node_date_author_display["Node Date/Author Labels<br/><sub>Extended metadata format to support<br/>date and author fields. Nodes now<br/>display date/author labels below<br/>description. Info card also shows<br/>date/author with icons.</sub>"]
     vscode_extension --> node_date_author_display
     style node_date_author_display fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
@@ -225,7 +260,7 @@ flowchart TD
         simplify_topbar
     end
 
-    %% @stop_hook_reliability [ai-task, opened, 2026-01-12, nam]
+    %% @stop_hook_reliability [ai-task, opened, 2026-01-12, HEYDAY]
     stop_hook_reliability["Stop Hook Reliability<br/><sub>Stop hook doesn't always fire when<br/>Claude pauses mid-conversation to ask<br/>for direction. Investigate using<br/>UserPromptSubmit hook as fallback<br/>to ensure vizvibe updates on next<br/>user input if Stop was missed</sub>"]
     claude_code_integration --> stop_hook_reliability
     style stop_hook_reliability fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
@@ -237,10 +272,19 @@ flowchart TD
     style edit_source_button fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style figma_scroll_pan fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+
+    style node_history_guide fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style node_history_ui fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style node_history_expand fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style demo_history_collapse fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
     edit_source_button -.-> vscode_ext_ui_ux
     figma_scroll_pan -.-> vscode_ext_ui_ux
+    node_history_ui -.-> vscode_ext_ui_ux
+    node_history_expand -.-> vscode_ext_ui_ux
+    demo_history_collapse -.-> vscode_ext_ui_ux
     
-    %% @simplify_topbar [ai-task, closed, 2026-01-12, nam]
+    %% @simplify_topbar [ai-task, closed, 2026-01-12, HEYDAY]
     simplify_topbar["Simplify Graph Top Bar<br/><sub>Streamline the graph view header bar<br/>by removing unnecessary UI elements<br/>and consolidating controls for a<br/>cleaner, more focused interface</sub>"]
     vscode_extension --> simplify_topbar
     style simplify_topbar fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
@@ -252,7 +296,7 @@ flowchart TD
     style init_screen_message fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     init_screen_message -.-> vscode_ext_ui_ux
     
-    %% @focus_recent_on_change [ai-task, closed, 2026-01-12, nam]
+    %% @focus_recent_on_change [ai-task, closed, 2026-01-12, HEYDAY]
     focus_recent_on_change["Focus RECENT on View Change<br/><sub>When opening vizvibe.mmd file or<br/>switching between LR/TB view directions,<br/>automatically pan and center the graph<br/>view to focus on the RECENT node</sub>"]
     vscode_extension --> focus_recent_on_change
     initial_view_focus --> focus_recent_on_change

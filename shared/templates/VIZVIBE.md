@@ -296,6 +296,192 @@ A node is closed when:
 
 ---
 
+## Node History Management
+
+Nodes can accumulate history to preserve the journey from planning to completion. This helps understand **what was intended, what was tried, and what ultimately worked**.
+
+### Why Track History?
+
+When you revisit a node later, you want to understand:
+
+- **Original intent**: What problem were we trying to solve?
+- **Approaches tried**: What options did we explore?
+- **Decision rationale**: Why did we choose this path?
+- **Outcome**: What was the final result?
+
+Without history, closed nodes only show the end state — losing valuable context about the journey.
+
+### History States
+
+Use these states in history entries to track the lifecycle:
+
+| State         | Meaning                                    | Example                                     |
+| ------------- | ------------------------------------------ | ------------------------------------------- |
+| `planned`     | Initial plan or goal identified            | "Implement feature X using approach Y"      |
+| `in-progress` | Work has started                           | "Started implementation, facing issue Z"    |
+| `pivoted`     | Direction changed based on learnings       | "Switching from Y to Z approach"            |
+| `tried`       | Attempted but didn't work out              | "Tried approach Y - hit limitation"         |
+| `blocked`     | Cannot proceed due to external factor      | "Waiting for API access"                    |
+| `completed`   | Successfully finished                      | "Feature X implemented via approach Z"      |
+| `abandoned`   | Deliberately stopped, not relevant anymore | "No longer needed after requirement change" |
+
+### History Format
+
+Add `@history[node_id]:` block before the node definition:
+
+```mermaid
+%% @node_id [type, state]
+%% @history[node_id]:
+%%   DATE | STATE | CONTENT
+%%   DATE | STATE | CONTENT
+node_id["Current Title<br/><sub>Current state description</sub>"]
+```
+
+**Format rules:**
+
+- Each history entry: `DATE | STATE | CONTENT`
+- DATE format: `YYYY-MM-DD`
+- STATE: One of the states defined above
+- CONTENT: Brief description (one line)
+
+---
+
+### Case 1: Single Task Completion (History Append)
+
+When a single node progresses from plan to completion **without branching**, append history entries to track the journey.
+
+**Use this when:**
+
+- Task A was planned → Task A was executed → Task A is done
+- No sub-tasks or alternative approaches were explored
+- The work stayed within the original scope
+
+**Example:**
+
+```mermaid
+%% @feature_auth [ai-task, closed]
+%% @history[feature_auth]:
+%%   2026-01-10 | planned | Implement JWT-based authentication
+%%   2026-01-11 | in-progress | Started with passport-jwt library
+%%   2026-01-12 | completed | JWT auth working with refresh tokens
+feature_auth["JWT Authentication ✅<br/><sub>Implemented JWT-based auth with<br/>refresh token rotation using<br/>passport-jwt library</sub>"]
+```
+
+**Graph visualization:**
+
+- Shows only the current state (completed)
+- Clicking the node reveals the full history timeline
+
+---
+
+### Case 2: Branch Exploration and Collapse
+
+When achieving a goal requires **exploring multiple approaches** (B, C, D) and one succeeds, collapse the exploration into the parent node's history.
+
+**Use this when:**
+
+- Goal A required exploring approaches B, C, D
+- After trying them, approach C was the winner
+- B and D are no longer needed as separate nodes
+- We want to preserve **what was tried and why** without cluttering the graph
+
+**Before (During Exploration):**
+
+```mermaid
+%% @goal_optimize [ai-task, opened]: Optimize page load time
+goal_optimize["Optimize Load Time<br/><sub>Page takes 5s to load,<br/>need to reduce to under 2s</sub>"]
+
+%% @try_lazy_load [ai-task, opened]: Try lazy loading
+try_lazy_load["Try Lazy Loading<br/><sub>Defer non-critical resources</sub>"]
+
+%% @try_cdn [ai-task, opened]: Try CDN
+try_cdn["Try CDN<br/><sub>Serve assets from edge</sub>"]
+
+%% @try_compression [ai-task, opened]: Try compression
+try_compression["Try Compression<br/><sub>Gzip/Brotli for responses</sub>"]
+
+goal_optimize --> try_lazy_load
+goal_optimize --> try_cdn
+goal_optimize --> try_compression
+```
+
+**After (Collapsed - CDN was the answer):**
+
+```mermaid
+%% @goal_optimize [ai-task, closed]
+%% @history[goal_optimize]:
+%%   2026-01-10 | planned | Optimize page load time from 5s to under 2s
+%%   --- collapsed: optimization_exploration ---
+%%   2026-01-11 | try_lazy_load | tried | Lazy loading - reduced to 4s, not enough
+%%   2026-01-11 | try_cdn | completed | CDN - reduced to 1.5s, success!
+%%   2026-01-12 | try_compression | abandoned | Not needed, CDN was sufficient
+%%   --- /collapsed ---
+%%   2026-01-12 | completed | Achieved 1.5s load time via CDN integration
+goal_optimize["Optimize Load Time ✅<br/><sub>Reduced from 5s to 1.5s<br/>using CloudFront CDN for<br/>static asset delivery</sub>"]
+```
+
+**What happens during collapse:**
+
+1. Parent node (goal_optimize) is updated to show final result
+2. Child nodes (try_lazy_load, try_cdn, try_compression) are **removed from graph**
+3. Child nodes' outcomes are **preserved in @history** with `--- collapsed ---` block
+4. Original node IDs are kept in history for traceability
+
+---
+
+### Collapsed History Format
+
+```mermaid
+%% @history[parent_node_id]:
+%%   DATE | STATE | CONTENT (regular history entries)
+%%   --- collapsed: BRANCH_NAME ---
+%%   DATE | ORIGINAL_NODE_ID | STATE | CONTENT
+%%   DATE | ORIGINAL_NODE_ID | STATE | CONTENT
+%%   --- /collapsed ---
+%%   DATE | STATE | CONTENT (entries after collapse)
+```
+
+- `--- collapsed: BRANCH_NAME ---`: Start of collapsed section
+- `ORIGINAL_NODE_ID`: The ID of the node that was collapsed (for traceability)
+- `--- /collapsed ---`: End of collapsed section
+
+### When to Collapse vs Keep Separate
+
+| Situation                                                | Action                                       |
+| -------------------------------------------------------- | -------------------------------------------- |
+| Exploration branches that served only to find the answer | **Collapse** into parent                     |
+| Each branch produced independently valuable work         | **Keep separate**, close each                |
+| Branch became its own significant feature                | **Keep separate**, may become new parent     |
+| Dead ends that have learning value                       | **Collapse** with `tried` or `blocked` state |
+
+### AI Collapse Workflow
+
+When a goal is achieved through exploration:
+
+1. **Identify the winning approach** and update parent node with result
+2. **Ask the user**: "These exploration branches (B, C, D) can be collapsed into the parent node's history. Should I collapse them?"
+3. If yes:
+   - Add collapsed history block to parent
+   - Remove child nodes from graph
+   - Remove edges from parent to children
+   - Update parent's style to closed
+4. If no:
+   - Keep child nodes, mark each as closed with appropriate outcome
+
+---
+
+### Advanced: Expanding Collapsed History (Future Feature)
+
+> **Note**: This feature is planned for future implementation.
+
+Collapsed branches can be expanded back into the graph for detailed review:
+
+- Extension will support "Expand History" action on nodes with collapsed blocks
+- Expanded nodes appear as read-only historical reference
+- Helps when revisiting old decisions or explaining to new team members
+
+---
+
 ## Managing the Graph
 
 ### Restructuring the Graph
@@ -630,9 +816,11 @@ style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 1. **Read** `vizvibe.mmd` at the start of each session to understand context
 2. **Update** after completing significant work
 3. **Update `@lastActive`** — always set `%% @lastActive: node_id` to the node you just worked on
-4. **Add future work** identified during the session as `[opened]` nodes
-5. **Close nodes** when work is done or no longer relevant
-6. **Delete nodes** that are trivial or mistaken
-7. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
-8. **Keep it high-level** — this is a map, not a changelog
-9. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed)
+4. **Track history** — add `@history[node_id]:` entries for significant state changes (planned → completed)
+5. **Propose collapse** — when exploration branches complete, ask user if they should be collapsed into parent
+6. **Add future work** identified during the session as `[opened]` nodes
+7. **Close nodes** when work is done or no longer relevant
+8. **Delete nodes** that are trivial or mistaken
+9. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
+10. **Keep it high-level** — this is a map, not a changelog
+11. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed)
