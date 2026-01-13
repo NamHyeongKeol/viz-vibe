@@ -1,85 +1,85 @@
 import * as vscode from 'vscode';
 
 export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
-  public static readonly viewType = 'vizVibe.vizflowEditor';
-  
-  // Track active webview panel for search command
-  private static activeWebviewPanel: vscode.WebviewPanel | null = null;
+    public static readonly viewType = 'vizVibe.vizflowEditor';
 
-  public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.window.registerCustomEditorProvider(
-      VizFlowEditorProvider.viewType,
-      new VizFlowEditorProvider(context),
-      {
-        webviewOptions: { retainContextWhenHidden: true },
-        supportsMultipleEditorsPerDocument: false
-      }
-    );
-  }
+    // Track active webview panel for search command
+    private static activeWebviewPanel: vscode.WebviewPanel | null = null;
 
-  // Trigger search in the active webview (called from extension.ts via Cmd+F)
-  public static triggerSearch(): void {
-    if (VizFlowEditorProvider.activeWebviewPanel) {
-      VizFlowEditorProvider.activeWebviewPanel.webview.postMessage({ type: 'openSearch' });
+    public static register(context: vscode.ExtensionContext): vscode.Disposable {
+        return vscode.window.registerCustomEditorProvider(
+            VizFlowEditorProvider.viewType,
+            new VizFlowEditorProvider(context),
+            {
+                webviewOptions: { retainContextWhenHidden: true },
+                supportsMultipleEditorsPerDocument: false
+            }
+        );
     }
-  }
 
-  constructor(private readonly context: vscode.ExtensionContext) { }
+    // Trigger search in the active webview (called from extension.ts via Cmd+F)
+    public static triggerSearch(): void {
+        if (VizFlowEditorProvider.activeWebviewPanel) {
+            VizFlowEditorProvider.activeWebviewPanel.webview.postMessage({ type: 'openSearch' });
+        }
+    }
 
-  public async resolveCustomTextEditor(
-    document: vscode.TextDocument,
-    webviewPanel: vscode.WebviewPanel,
-    _token: vscode.CancellationToken
-  ): Promise<void> {
-    webviewPanel.webview.options = { enableScripts: true };
-    webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+    constructor(private readonly context: vscode.ExtensionContext) { }
 
-    // Track this as the active webview panel
-    VizFlowEditorProvider.activeWebviewPanel = webviewPanel;
-    
-    // Update active panel when view state changes
-    webviewPanel.onDidChangeViewState(e => {
-      if (e.webviewPanel.active) {
-        VizFlowEditorProvider.activeWebviewPanel = e.webviewPanel;
-      }
-    });
+    public async resolveCustomTextEditor(
+        document: vscode.TextDocument,
+        webviewPanel: vscode.WebviewPanel,
+        _token: vscode.CancellationToken
+    ): Promise<void> {
+        webviewPanel.webview.options = { enableScripts: true };
+        webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
-    // Handle messages from webview
-    webviewPanel.webview.onDidReceiveMessage(async (message) => {
-      if (message.type === 'update') {
-        const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), message.mermaidCode);
-        await vscode.workspace.applyEdit(edit);
-      } else if (message.type === 'openInDefaultEditor') {
-        // Open file in VS Code's default text editor for native search
-        await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
-      }
-    });
+        // Track this as the active webview panel
+        VizFlowEditorProvider.activeWebviewPanel = webviewPanel;
 
-    // Send current content to webview
-    const updateWebview = () => {
-      const mermaidCode = document.getText();
-      webviewPanel.webview.postMessage({ type: 'load', mermaidCode });
-    };
+        // Update active panel when view state changes
+        webviewPanel.onDidChangeViewState(e => {
+            if (e.webviewPanel.active) {
+                VizFlowEditorProvider.activeWebviewPanel = e.webviewPanel;
+            }
+        });
 
-    // Watch for document changes
-    const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-      if (e.document.uri.toString() === document.uri.toString()) {
+        // Handle messages from webview
+        webviewPanel.webview.onDidReceiveMessage(async (message) => {
+            if (message.type === 'update') {
+                const edit = new vscode.WorkspaceEdit();
+                edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), message.mermaidCode);
+                await vscode.workspace.applyEdit(edit);
+            } else if (message.type === 'openInDefaultEditor') {
+                // Open file in VS Code's default text editor for native search
+                await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
+            }
+        });
+
+        // Send current content to webview
+        const updateWebview = () => {
+            const mermaidCode = document.getText();
+            webviewPanel.webview.postMessage({ type: 'load', mermaidCode });
+        };
+
+        // Watch for document changes
+        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+            if (e.document.uri.toString() === document.uri.toString()) {
+                updateWebview();
+            }
+        });
+
+        webviewPanel.onDidDispose(() => {
+            changeDocumentSubscription.dispose();
+            if (VizFlowEditorProvider.activeWebviewPanel === webviewPanel) {
+                VizFlowEditorProvider.activeWebviewPanel = null;
+            }
+        });
         updateWebview();
-      }
-    });
+    }
 
-    webviewPanel.onDidDispose(() => {
-      changeDocumentSubscription.dispose();
-      if (VizFlowEditorProvider.activeWebviewPanel === webviewPanel) {
-        VizFlowEditorProvider.activeWebviewPanel = null;
-      }
-    });
-    updateWebview();
-  }
-
-  private getHtmlForWebview(webview: vscode.Webview): string {
-    return `<!DOCTYPE html>
+    private getHtmlForWebview(webview: vscode.Webview): string {
+        return `<!DOCTYPE html>
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
@@ -212,6 +212,95 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             font-size: 10px;
         }
         .info-card .copy-btn:hover { background: var(--vscode-button-hoverBackground); }
+
+        .info-card .copy-btn:hover { background: var(--vscode-button-hoverBackground); }
+
+        /* History Timeline */
+        .history-timeline {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--vscode-editorWidget-border);
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .history-entry {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .history-entry::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 14px;
+            bottom: -14px;
+            width: 1px;
+            background: var(--vscode-editorWidget-border);
+            opacity: 0.5;
+        }
+        .history-entry:last-child::before {
+            display: none;
+        }
+        .history-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            border: 2px solid var(--vscode-editorWidget-background);
+            flex-shrink: 0;
+            margin-top: 3px;
+            z-index: 1;
+        }
+        .history-content {
+            flex-grow: 1;
+        }
+        .history-date {
+            font-size: 9px;
+            color: var(--vscode-descriptionForeground);
+            opacity: 0.6;
+        }
+        .history-text {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        .history-collapsed-section {
+            margin-left: 20px;
+            padding: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .history-collapsed-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--vscode-textLink-foreground);
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .history-collapsed-title::before {
+            content: "▶";
+            font-size: 8px;
+        }
+        .history-collapsed-section.open .history-collapsed-title::before {
+            content: "▼";
+        }
+        .history-collapsed-entries {
+            display: none;
+        }
+        .history-collapsed-section.open .history-collapsed-entries {
+            display: block;
+        }
+
+        /* History States */
+        .dot-planned { background: #6b7280; }
+        .dot-in-progress { background: #3b82f6; }
+        .dot-completed { background: #a78bfa; }
+        .dot-tried { background: #f59e0b; }
+        .dot-blocked { background: #ef4444; }
+        .dot-pivoted { background: #10b981; }
 
         /* Context menu */
         .context-menu {
@@ -455,7 +544,12 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 <button class="close-btn" onclick="closeInfoCard()">×</button>
                 <h4 id="info-label"></h4>
                 <p id="info-prompt"></p>
-                <button class="copy-btn" onclick="copyNodeInfo()">📋 Copy</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="copy-btn" onclick="copyNodeInfo()">📋 Copy</button>
+                    <button class="copy-btn" id="expand-btn" onclick="toggleExpand(selectedNodeId)" style="display:none;">📂 Expand Subgraph</button>
+                </div>
+                <!-- History Timeline -->
+                <div id="history-timeline" class="history-timeline" style="display:none;"></div>
             </div>
 
             <!-- Zoom controls -->
@@ -516,6 +610,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         
         let mermaidCode = '';
         let nodeMetadata = {}; // {nodeId: {type, prompt}}
+        let nodeHistory = {}; // {nodeId: {entries: [], collapsed: []}}
+        let expandedNodes = new Set();
         let selectedNodeId = null;
         let selectedNodeLabel = '';
 
@@ -587,6 +683,90 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     prompt: match[6] || null
                 };
             }
+
+            // Parse trajectory history blocks using User's Suggestion 2 (escaped for template string)
+            nodeHistory = {};
+            // Logic: %% @history[nodeId]: [content] (?= next metadata OR next node definition OR end of string)
+            const historyBlockRegex = /%% @history\\[(\\w+)\\]:([\\s\\S]*?)(?=\\n\\s*(?:%%\\s*@|\\w+[\\(\\[\\{])|$)/g;
+            let histMatch;
+            while ((histMatch = historyBlockRegex.exec(code)) !== null) {
+                const nodeId = histMatch[1];
+                const blockContent = histMatch[2];
+                const entries = [];
+                const collapsed = [];
+                let inCollapsed = false;
+                let currentCollapsedName = '';
+                let currentCollapsedEntries = [];
+
+                const lines = blockContent.split('\\n');
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed) continue;
+                    
+                    const collapsedStart = trimmed.match(/---\\s*collapsed:\\s*(.*)\\s*---/);
+                    if (collapsedStart) {
+                        inCollapsed = true;
+                        currentCollapsedName = (collapsedStart[1] || '').trim();
+                        currentCollapsedEntries = [];
+                        continue;
+                    }
+                    
+                    if (trimmed.match(/---\\s*\\/collapsed\\s*---/)) {
+                        if (inCollapsed && currentCollapsedEntries.length > 0) {
+                            collapsed.push({
+                                name: currentCollapsedName,
+                                entries: currentCollapsedEntries
+                            });
+                        }
+                        inCollapsed = false;
+                        continue;
+                    }
+                    
+                    const entryMatch = trimmed.match(/^%*\\s*([\\d-]+)\\s*\\|\\s*(\\w+)\\s*\\|\\s*(.*)$/);
+                    if (entryMatch) {
+                        const date = entryMatch[1];
+                        const secondPart = entryMatch[2];
+                        const content = entryMatch[3];
+                        
+                        const parts = content.split('|').map(s => s.trim());
+                        const validStates = ['planned', 'in-progress', 'pivoted', 'tried', 'blocked', 'completed', 'abandoned'];
+                        if (parts.length >= 1 && validStates.includes(parts[0])) {
+                            const entry = {
+                                date: date,
+                                nodeId: secondPart,
+                                state: parts[0],
+                                content: parts.slice(1).join(' | ')
+                            };
+                            if (inCollapsed) {
+                                currentCollapsedEntries.push(entry);
+                            } else {
+                                entries.push(entry);
+                            }
+                        } else {
+                            const entry = {
+                                date: date,
+                                state: secondPart,
+                                content: content
+                            };
+                            if (inCollapsed) {
+                                currentCollapsedEntries.push(entry);
+                            } else {
+                                entries.push(entry);
+                            }
+                        }
+                    }
+                }
+                nodeHistory[nodeId] = { entries, collapsed };
+            }
+        }
+
+        function toggleExpand(nodeId) {
+            if (expandedNodes.has(nodeId)) {
+                expandedNodes.delete(nodeId);
+            } else {
+                expandedNodes.add(nodeId);
+            }
+            render();
         }
 
         // Extract node list
@@ -630,21 +810,28 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                             // Find the last " in the line
                             const lastQuoteIdx = line.lastIndexOf('"');
                             if (lastQuoteIdx > 0) {
+                                let desc = '';
+                                // Prefer history summary if available, otherwise use prompt
+                                if (nodeHistory[nodeId] && nodeHistory[nodeId].entries.length > 0) {
+                                    const lastEntry = nodeHistory[nodeId].entries[nodeHistory[nodeId].entries.length - 1];
+                                    desc = lastEntry.content;
+                                }
+                                if (!desc) desc = meta.prompt || '';
+
                                 let additions = '';
-                                // Add prompt/description if available
-                                if (meta.prompt) {
-                                    let desc = meta.prompt;
+                                // Add description if available
+                                if (desc) {
                                     if (desc.length > 150) {
                                         desc = desc.substring(0, 147) + '...';
                                     }
-                                    additions += '<br/><span style="font-size:10px;opacity:0.6">' + desc + '</span>';
+                                    additions += "<br/><span style='font-size:10px;opacity:0.6'>" + escapeHTML(desc) + "</span>";
                                 }
                                 // Build date/author label if available
                                 if (meta.date || meta.author) {
                                     const parts = [];
                                     if (meta.date) parts.push(meta.date);
                                     if (meta.author) parts.push(meta.author);
-                                    additions += '<br/><span style="font-size:9px;opacity:0.4;color:#888">' + parts.join(' · ') + '</span>';
+                                    additions += "<br/><span style='font-size:9px;opacity:0.4;color:#888'>" + parts.join(' · ') + "</span>";
                                 }
                                 if (additions) {
                                     newLine = line.slice(0, lastQuoteIdx) + additions + line.slice(lastQuoteIdx);
@@ -656,6 +843,35 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 }
                 result.push(newLine);
             }
+
+            // Second pass: inject expanded branches
+            for (const nodeId of expandedNodes) {
+                const history = nodeHistory[nodeId];
+                if (history && history.collapsed) {
+                    for (const section of history.collapsed) {
+                        for (const entry of section.entries) {
+                            if (!entry.nodeId) continue;
+                            
+                            // Define the collapsed node
+                            const escapedLabel = escapeHTML(entry.content);
+                            result.push('    ' + entry.nodeId + '("' + entry.nodeId + '<br/><sub>' + escapedLabel + '</sub>")');
+                            
+                            // Add connection from parent
+                            result.push('    ' + nodeId + ' -.-> ' + entry.nodeId);
+                            
+                            // Add styling based on state
+                            if (entry.state === 'completed') {
+                                result.push('    style ' + entry.nodeId + ' fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px');
+                            } else if (entry.state === 'tried' || entry.state === 'blocked') {
+                                result.push('    style ' + entry.nodeId + ' fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px');
+                            } else {
+                                result.push('    style ' + entry.nodeId + ' fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px');
+                            }
+                        }
+                    }
+                }
+            }
+
             return result.join('\\n');
         }
 
@@ -689,14 +905,11 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 container.innerHTML = svg;
 
                 // Node click/right-click/double-click events
-                // Mermaid v10 uses .node class for node groups
                 const nodeElements = container.querySelectorAll('.node');
                 nodeElements.forEach(nodeEl => {
-                    // Extract nodeId from element id (format: flowchart-nodeId-number)
                     const elId = nodeEl.id || '';
                     let foundNodeId = null;
 
-                    // Try to match with known node IDs
                     for (const nid of nodes) {
                         if (elId.includes(nid) || elId.includes('flowchart-' + nid)) {
                             foundNodeId = nid;
@@ -705,10 +918,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     }
 
                     if (!foundNodeId) return;
-
                     const nodeId = foundNodeId;
                     
-                    // Save base transform and apply saved offset if exists
                     const baseTransform = nodeEl.getAttribute('transform') || '';
                     nodeEl.setAttribute('data-base-transform', baseTransform);
                     
@@ -717,15 +928,13 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                         nodeEl.setAttribute('transform', baseTransform + ' translate(' + offset.x + ',' + offset.y + ')');
                     }
 
-                    // Node drag handlers
                     nodeEl.addEventListener('mousedown', (e) => {
-                        if (e.button !== 0) return; // Left button only
+                        if (e.button !== 0) return;
                         e.stopPropagation();
                         isDraggingNode = true;
                         draggingNodeId = nodeId;
                         nodeEl.classList.add('dragging');
                         
-                        // Get current offset or initialize
                         const currentOffset = nodeOffsets[nodeId] || { x: 0, y: 0 };
                         dragStartPos = {
                             x: e.clientX / transform.scale - currentOffset.x,
@@ -733,19 +942,17 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                         };
                     });
 
-                    // Single click - show info (only if not dragging)
                     let dragDistance = 0;
                     nodeEl.addEventListener('click', (e) => {
                         if (dragDistance > 5) {
                             dragDistance = 0;
-                            return; // Skip if dragged
+                            return;
                         }
                         e.stopPropagation();
                         e.preventDefault();
                         showNodeInfo(nodeId);
                     });
 
-                    // Double click - copy all
                     nodeEl.addEventListener('dblclick', (e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -754,7 +961,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                         copyNodeAll();
                     });
 
-                    // Right click - context menu
                     nodeEl.addEventListener('contextmenu', (e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -765,8 +971,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 });
 
                 document.getElementById('nodeCount').innerText = 'Nodes: ' + nodes.length;
-            } catch (e) {
-                container.innerHTML = '<p style="color:#ef4444;padding:20px;">Render error: ' + e.message + '</p>';
+            } catch (err) {
+                console.error('Mermaid render error:', err);
+                container.innerHTML = '<div id="mermaid-error" style="color:#ef4444;padding:20px;">' +
+                    '<strong>Render error:</strong> ' + err.message + '</div>';
             }
         }
 
@@ -786,6 +994,13 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             } else {
                 selectedNodeLabel = nodeId;
             }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
         }
 
         function showNodeInfo(nodeId) {
@@ -819,7 +1034,68 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
             document.getElementById('info-card').style.display = 'block';
             document.getElementById('info-label').innerText = selectedNodeLabel;
-            document.getElementById('info-prompt').innerText = statusText + dateAuthorText + '\\n\\n' + (meta.prompt || '');
+            
+            // Determine prompt: use meta.prompt if exists, otherwise try to get from history
+            let promptText = meta.prompt || '';
+            const history = nodeHistory[nodeId];
+            if (!promptText && history && history.entries.length > 0) {
+                const lastEntry = history.entries[history.entries.length - 1];
+                promptText = lastEntry.content;
+            }
+            document.getElementById('info-prompt').innerText = statusText + dateAuthorText + '\\n\\n' + promptText;
+
+            // Render history if available
+            const historyTimeline = document.getElementById('history-timeline');
+            if (history && (history.entries.length > 0 || history.collapsed.length > 0)) {
+                historyTimeline.style.display = 'block';
+                let html = '';
+
+                // Handle regular entries
+                history.entries.forEach(entry => {
+                    const dotClass = 'dot-' + (entry.state || 'planned').toLowerCase().replace('-', '');
+                    html += '<div class="history-entry">';
+                    html += '<div class="history-dot ' + dotClass + '"></div>';
+                    html += '<div class="history-content">';
+                    html += '<div class="history-date">' + entry.date + ' · ' + entry.state + '</div>';
+                    html += '<div class="history-text">' + escapeHTML(entry.content) + '</div>';
+                    html += '</div></div>';
+                });
+
+                // Handle collapsed sections
+                history.collapsed.forEach((section, idx) => {
+                    html += '<div class="history-collapsed-section" id="collapsed-' + nodeId + '-' + idx + '">';
+                    html += '<div class="history-collapsed-title" onclick="this.parentElement.classList.toggle(\\'open\\')">';
+                    html += escapeHTML(section.name) + ' (' + section.entries.length + ')';
+                    html += '</div>';
+                    html += '<div class="history-collapsed-entries">';
+                    
+                    section.entries.forEach(entry => {
+                        const dotClass = 'dot-' + (entry.state || 'planned').toLowerCase().replace('-', '');
+                        html += '<div class="history-entry">';
+                        html += '<div class="history-dot ' + dotClass + '"></div>';
+                        html += '<div class="history-content">';
+                        html += '<div class="history-date">' + entry.date + ' · ' + entry.state + '</div>';
+                        html += '<div class="history-text"><strong>' + (entry.nodeId || '') + '</strong> ' + escapeHTML(entry.content) + '</div>';
+                        html += '</div></div>';
+                    });
+                    
+                    html += '</div></div>';
+                });
+
+                historyTimeline.innerHTML = html;
+            } else {
+                historyTimeline.style.display = 'none';
+                historyTimeline.innerHTML = '';
+            }
+
+            // Update expand button state
+            const expandBtn = document.getElementById('expand-btn');
+            if (history && history.collapsed.length > 0) {
+                expandBtn.style.display = 'block';
+                expandBtn.innerText = expandedNodes.has(nodeId) ? '📂 Collapse Subgraph' : '📂 Expand Subgraph';
+            } else {
+                expandBtn.style.display = 'none';
+            }
         }
 
         function closeInfoCard() {
@@ -1714,5 +1990,5 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
     </script>
 </body>
 </html>`;
-  }
+    }
 }
