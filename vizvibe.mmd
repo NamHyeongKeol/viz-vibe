@@ -2,7 +2,14 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: simplify_topbar
+    %% @lastActive: readme_improvement
+
+    %% === NEW USER ONBOARDING ===
+    %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
+    new_user_onboarding["New User Onboarding<br/><sub>Comprehensive initiative to improve<br/>the onboarding experience for new users,<br/>including documentation, tutorials,<br/>and first-time setup guidance</sub>"]
+    
+    %% @readme_improvement [ai-task, closed, 2026-01-14, nam]
+    readme_improvement["README Improvement<br/><sub>Changed workflow→trajectory wording,<br/>added Why We Built This section about<br/>AI context management challenges, added<br/>note clarifying vizvibe shows work<br/>trajectory not code structure</sub>"]
 
     %% === START ===
     %% @project_start [start, closed, 2026-01-09, nam]
@@ -222,7 +229,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        simplify_topbar
+        readme_improvement
     end
 
     %% @stop_hook_reliability [ai-task, opened, 2026-01-12, nam]
@@ -243,7 +250,14 @@ flowchart TD
     %% @simplify_topbar [ai-task, closed, 2026-01-12, nam]
     simplify_topbar["Simplify Graph Top Bar<br/><sub>Streamline the graph view header bar<br/>by removing unnecessary UI elements<br/>and consolidating controls for a<br/>cleaner, more focused interface</sub>"]
     vscode_extension --> simplify_topbar
-    style simplify_topbar fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style simplify_topbar fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    %% Onboarding connections
+    project_start --> new_user_onboarding
+    new_user_onboarding --> readme_improvement
+    style new_user_onboarding fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:2px
+    new_user_onboarding -.-> ultimate_goal
     simplify_topbar -.-> vscode_ext_ui_ux
     
     %% @init_screen_message [ai-task, opened, 2026-01-11, nam]
