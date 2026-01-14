@@ -2,7 +2,14 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: simplify_topbar
+    %% @lastActive: plugin_marketplace_distribution
+
+    %% === NEW USER ONBOARDING ===
+    %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
+    new_user_onboarding["New User Onboarding<br/><sub>Comprehensive initiative to improve<br/>the onboarding experience for new users,<br/>including documentation, tutorials,<br/>and first-time setup guidance</sub>"]
+    
+    %% @readme_improvement [ai-task, closed, 2026-01-14, nam]
+    readme_improvement["README Improvement<br/><sub>Changed workflow→trajectory wording,<br/>added Why We Built This section about<br/>AI context management challenges, added<br/>note clarifying vizvibe shows work<br/>trajectory not code structure</sub>"]
 
     %% === START ===
     %% @project_start [start, closed, 2026-01-09, nam]
@@ -222,8 +229,20 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        simplify_topbar
+        plugin_marketplace_distribution
     end
+
+    %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
+    claude_plugin_public_release["Claude Plugin Public Release<br/><sub>Fixed plugin.json, hooks, scripts.<br/>Tested read/update hooks - all working.<br/>Ready: claude --plugin-dir ./vizvibe-plugin</sub>"]
+    claude_code_plugin --> claude_plugin_public_release
+    style claude_plugin_public_release fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    claude_plugin_public_release -.-> ultimate_goal
+
+    %% @plugin_marketplace_distribution [ai-task, opened, 2026-01-14, nam]
+    plugin_marketplace_distribution["Plugin Marketplace Distribution<br/><sub>PR rejected - external submissions via<br/>Google Form only. Prepared form data<br/>(name, desc, 3 examples, SHA). Need to<br/>submit form for official review.</sub>"]
+    claude_plugin_public_release --> plugin_marketplace_distribution
+    style plugin_marketplace_distribution fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    plugin_marketplace_distribution -.-> ultimate_goal
 
     %% @stop_hook_reliability [ai-task, opened, 2026-01-12, nam]
     stop_hook_reliability["Stop Hook Reliability<br/><sub>Stop hook doesn't always fire when<br/>Claude pauses mid-conversation to ask<br/>for direction. Investigate using<br/>UserPromptSubmit hook as fallback<br/>to ensure vizvibe updates on next<br/>user input if Stop was missed</sub>"]
@@ -243,7 +262,14 @@ flowchart TD
     %% @simplify_topbar [ai-task, closed, 2026-01-12, nam]
     simplify_topbar["Simplify Graph Top Bar<br/><sub>Streamline the graph view header bar<br/>by removing unnecessary UI elements<br/>and consolidating controls for a<br/>cleaner, more focused interface</sub>"]
     vscode_extension --> simplify_topbar
-    style simplify_topbar fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style simplify_topbar fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    %% Onboarding connections
+    project_start --> new_user_onboarding
+    new_user_onboarding --> readme_improvement
+    style new_user_onboarding fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:2px
+    new_user_onboarding -.-> ultimate_goal
     simplify_topbar -.-> vscode_ext_ui_ux
     
     %% @init_screen_message [ai-task, opened, 2026-01-11, nam]
@@ -295,10 +321,10 @@ flowchart TD
     style oh_my_opencode_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     oh_my_opencode_plugin -.-> ultimate_goal
     
-    %% @claude_code_plugin [ai-task, opened, 2026-01-11, nam]
-    claude_code_plugin["Claude Code Plugin<br/><sub>Package existing Claude Code hook<br/>integration as a standalone plugin<br/>for easy installation and distribution<br/>via official plugin channels</sub>"]
+    %% @claude_code_plugin [ai-task, closed, 2026-01-14, nam]
+    claude_code_plugin["Claude Code Plugin<br/><sub>Created official Claude Code plugin<br/>with hooks (SessionStart/Stop), Skills<br/>(SKILL.md), and slash commands<br/>(init, update, status) for easy<br/>installation via /plugin install</sub>"]
     claude_code_integration --> claude_code_plugin
-    style claude_code_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style claude_code_plugin fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     claude_code_plugin -.-> ultimate_goal
     
     %% @codex_cli_plugin [ai-task, opened, 2026-01-11, nam]

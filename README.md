@@ -1,8 +1,12 @@
 <div align="center">
 
-# Viz-Vibe: Visual Context Map for Vibe Coding
+# Viz-Vibe: Context Map Plugin for Vibe Coding
 
-A graph-based navigator to track your coding trajectory and maintain context across threads. We make human-AI collaboration seamless by keeping coding context clear at a glance.
+A graph-based navigator plugin to track your coding trajectory, issues, and TODO lists — all in one place. We make human-AI collaboration seamless by keeping coding context clear at a glance.
+
+### 🔌 Works with your favorite vibe coding tools
+
+**Cursor** • **Antigravity** • **VS Code** • **Claude Code** • **Open Code** • **oh-my-opencode** • **oh-my-claude** • **Codex CLI** • **Gemini CLI** • **Vibe Kanban** • and more!
 
 <p align="center">
   <a href="#-getting-started">Getting Started</a> •
@@ -16,6 +20,7 @@ A graph-based navigator to track your coding trajectory and maintain context acr
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
   <img src="https://img.shields.io/badge/AI-compatible-purple.svg" alt="AI Compatible">
+  <img src="https://img.shields.io/badge/type-plugin-orange.svg" alt="Plugin">
 </p>
 
 ---
@@ -26,9 +31,23 @@ A graph-based navigator to track your coding trajectory and maintain context acr
 
 ## 🚀 About
 
-**Viz Vibe** is an open-source project that provides a **graph-structured workflow** as an interface for collaboration between humans and AI. By visualizing the coding process as an interactive graph, it enables intuitive and efficient "vibe coding" experiences.
+**Viz Vibe** is an open-source **plugin** that provides a **graph-structured trajectory** as an interface for collaboration between humans and AI.
 
-> 💡 _Vibe Coding_ — A new paradigm where developers and AI work together in harmony, guided by visual workflows and intuitive interactions.
+> ⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management.
+
+Whatever vibe coding tool you use, your AI will generate a `vizvibe.mmd` file in your project root. **You just review the result.**
+
+The `vizvibe.mmd` file contains your project's graph — your trajectory, decisions, blockers, and TODOs. Your AI will manage this file alongside you, updating it as your project evolves.
+
+**Our mission:** Make even the context file itself manageable through vibes. No manual editing, no learning curve — just seamless collaboration.
+
+> ⚠️ **Note:** Viz Vibe does NOT visualize your repository's code structure or how your project works. Instead, it visualizes your **work trajectory** — what you've done, what's planned, your decisions, blockers, and the path of your coding journey as a graph.
+
+---
+
+## 💡 Why We Built This
+
+As AI advances, it's becoming harder for humans to keep up with the context of their AI's work during vibe coding. The challenge is that someone — perhaps always humans — still needs to understand and manage what the AI is doing. That's why we started this project.
 
 ---
 
