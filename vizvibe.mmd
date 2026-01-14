@@ -186,9 +186,15 @@ flowchart TD
     style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
     cursor_ovsx_visibility_issue -.-> ultimate_goal
 
+    %% @cursor_vsix_init_not_triggered [blocker, opened, 2026-01-14, nam]
+    cursor_vsix_init_not_triggered["VSIX Init Prompt Missing<br/><sub>After installing extension via VSIX<br/>in Cursor IDE, initialization prompt<br/>notification does not appear at all.<br/>Investigate activation events and<br/>Cursor-specific startup behavior</sub>"]
+    cursor_ovsx_visibility_issue --> cursor_vsix_init_not_triggered
+    style cursor_vsix_init_not_triggered fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    cursor_vsix_init_not_triggered -.-> ultimate_goal
+
     %% @cursor_hook_malfunction [blocker, opened, 2026-01-14, nam]
     cursor_hook_malfunction["Cursor Hook Malfunction<br/><sub>Hooks not triggering properly in<br/>Cursor IDE environment. Investigate<br/>hook execution timing, path resolution,<br/>and Cursor-specific hook behavior<br/>differences from Claude Code</sub>"]
-    cursor_ovsx_visibility_issue --> cursor_hook_malfunction
+    cursor_vsix_init_not_triggered --> cursor_hook_malfunction
     style cursor_hook_malfunction fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
     cursor_hook_malfunction -.-> ultimate_goal
     
