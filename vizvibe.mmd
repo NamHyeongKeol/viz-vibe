@@ -318,3 +318,16 @@ flowchart TD
     ai_agent_plugins --> vibe_kanban_plugin
     style vibe_kanban_plugin fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     vibe_kanban_plugin -.-> ultimate_goal
+    
+    %% === SCALABLE STORAGE ===
+    %% @scalable_graph_storage [ai-task, opened, 2026-01-13, nam]
+    scalable_graph_storage["Scalable Graph Storage<br/><sub>Design and implement a system to<br/>split large vizvibe.mmd files into<br/>multiple smaller files for better<br/>performance and maintainability,<br/>with unified query interface</sub>"]
+    mermaid_native --> scalable_graph_storage
+    style scalable_graph_storage fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    scalable_graph_storage -.-> ultimate_goal
+    
+    %% @file_system_architecture [ai-task, opened, 2026-01-13, nam]
+    file_system_architecture["File System Architecture<br/><sub>Design a multi-file structure for<br/>trajectory storage (e.g., archives,<br/>partitions by date/project) while<br/>maintaining Mermaid format and<br/>existing tool compatibility</sub>"]
+    scalable_graph_storage --> file_system_architecture
+    style file_system_architecture fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    file_system_architecture -.-> ultimate_goal
