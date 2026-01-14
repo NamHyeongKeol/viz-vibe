@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: plugin_marketplace_distribution
+    %% @lastActive: init_screen_message
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -180,6 +180,18 @@ flowchart TD
     style cursor_hook_via_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_via_extension -.-> ultimate_goal
     
+    %% @cursor_ovsx_visibility_issue [blocker, opened, 2026-01-14, nam]
+    cursor_ovsx_visibility_issue["OVSX Visibility in Cursor<br/><sub>Extension registered on OVSX marketplace<br/>but not appearing in Cursor IDE's<br/>extension search. Investigate OVSX<br/>indexing delay or Cursor-specific<br/>extension discovery requirements</sub>"]
+    cursor_agent_integration --> cursor_ovsx_visibility_issue
+    style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    cursor_ovsx_visibility_issue -.-> ultimate_goal
+
+    %% @cursor_hook_malfunction [blocker, opened, 2026-01-14, nam]
+    cursor_hook_malfunction["Cursor Hook Malfunction<br/><sub>Hooks not triggering properly in<br/>Cursor IDE environment. Investigate<br/>hook execution timing, path resolution,<br/>and Cursor-specific hook behavior<br/>differences from Claude Code</sub>"]
+    cursor_ovsx_visibility_issue --> cursor_hook_malfunction
+    style cursor_hook_malfunction fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    cursor_hook_malfunction -.-> ultimate_goal
+    
     %% @graph_search_feature [ai-task, closed, 2026-01-10, nam]
     graph_search_feature["Graph Search (Cmd+F)<br/><sub>Implement search functionality<br/>in the graph viewer that allows<br/>users to find nodes by title or<br/>description using Cmd+F keyboard<br/>shortcut - TOP PRIORITY feature</sub>"]
     vscode_extension --> graph_search_feature
@@ -230,6 +242,7 @@ flowchart TD
 
     subgraph recent [RECENT]
         plugin_marketplace_distribution
+        init_screen_message
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -272,10 +285,10 @@ flowchart TD
     new_user_onboarding -.-> ultimate_goal
     simplify_topbar -.-> vscode_ext_ui_ux
     
-    %% @init_screen_message [ai-task, opened, 2026-01-11, nam]
+    %% @init_screen_message [ai-task, closed, 2026-01-14, nam]
     init_screen_message["Initialization Prompt Message<br/><sub>Display prominent message on the<br/>initialization screen: 'Ask your AI Agent<br/>to setup vizvibe!' guiding users to<br/>request trajectory setup from their agent</sub>"]
     vscode_extension --> init_screen_message
-    style init_screen_message fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style init_screen_message fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     init_screen_message -.-> vscode_ext_ui_ux
     
     %% @focus_recent_on_change [ai-task, closed, 2026-01-12, nam]

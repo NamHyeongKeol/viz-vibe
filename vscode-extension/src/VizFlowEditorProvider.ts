@@ -365,6 +365,80 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             padding: 4px;
         }
 
+        /* Initialization prompt overlay */
+        .init-prompt-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.95) 100%);
+            z-index: 80;
+            backdrop-filter: blur(4px);
+        }
+        .init-prompt-overlay.active { display: flex; }
+        .init-prompt-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 40px 48px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(59, 130, 246, 0.15);
+            max-width: 500px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(59, 130, 246, 0.15); }
+            50% { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 60px rgba(59, 130, 246, 0.25); }
+        }
+        .init-prompt-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .init-prompt-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+        .init-prompt-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .init-prompt-code {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 15px;
+            color: #38bdf8;
+            margin-bottom: 20px;
+            user-select: all;
+            cursor: text;
+        }
+        .init-prompt-code:hover {
+            border-color: #3b82f6;
+            background: #1e293b;
+        }
+        .init-prompt-hint {
+            font-size: 11px;
+            color: #64748b;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .init-prompt-hint span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         /* Modal */
         .modal-overlay {
             display: none;
@@ -464,6 +538,26 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 <div class="zoom-level" id="zoomLevel">100%</div>
                 <button onclick="zoomOut()" title="Zoom out">−</button>
                 <button onclick="fitToScreen()" title="Fit to screen" style="font-size:12px;">⊞</button>
+            </div>
+
+            <!-- Initialization prompt overlay -->
+            <div id="init-prompt-overlay" class="init-prompt-overlay">
+                <div class="init-prompt-card">
+                    <div class="init-prompt-icon">🚀</div>
+                    <div class="init-prompt-title">Ask your AI Agent<br/>to setup vizvibe!</div>
+                    <div class="init-prompt-subtitle">
+                        Your trajectory is empty. Ask your AI assistant to create
+                        an initial graph based on your project's history.
+                    </div>
+                    <div class="init-prompt-code" onclick="copyInitPrompt()">
+                        "Please setup vizvibe for this project"
+                    </div>
+                    <div class="init-prompt-hint">
+                        <span>💡 Click to copy</span>
+                        <span>📝 Paste in AI chat</span>
+                        <span>✨ Watch the magic</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -659,9 +753,41 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             return result.join('\\n');
         }
 
+        // Check if trajectory is in template state (only has project_start node)
+        function isTemplateState(nodes) {
+            if (nodes.length === 0) return true;
+            if (nodes.length === 1 && (nodes[0] === 'project_start' || nodes[0] === 'Start')) return true;
+            // Also check if there are only style/connection lines but effectively just one node
+            const meaningfulNodes = nodes.filter(n => !['style', 'flowchart', 'subgraph', 'end'].includes(n.toLowerCase()));
+            return meaningfulNodes.length <= 1;
+        }
+
+        // Show or hide initialization prompt
+        function updateInitPrompt(show) {
+            const overlay = document.getElementById('init-prompt-overlay');
+            if (overlay) {
+                if (show) {
+                    overlay.classList.add('active');
+                } else {
+                    overlay.classList.remove('active');
+                }
+            }
+        }
+
+        // Copy initialization prompt to clipboard
+        function copyInitPrompt() {
+            const prompt = 'Please setup vizvibe for this project by reading the README and git history, then creating an initial trajectory graph.';
+            navigator.clipboard.writeText(prompt).then(() => {
+                showToast('📋 Prompt copied! Paste it in your AI chat.');
+            }).catch(() => {
+                showToast('Copy failed - select and copy manually');
+            });
+        }
+
         async function render() {
             if (!mermaidCode.trim()) {
                 document.getElementById('mermaid-output').innerHTML = '<p style="color:#888;padding:20px;">Empty file. Add some nodes.</p>';
+                updateInitPrompt(true);
                 return;
             }
 
@@ -674,6 +800,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
             // 연결 드롭다운 업데이트
             updateConnectDropdown(nodes);
+
+            // Check for template state and show/hide init prompt
+            const showInitPrompt = isTemplateState(nodes);
+            updateInitPrompt(showInitPrompt);
 
             const container = document.getElementById('mermaid-output');
 
