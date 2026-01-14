@@ -15,3 +15,4 @@ webview-ui/dist/
 # Auto-copied during build (source is in root)
 vscode-extension/LICENSE
 vscode-extension/README.md
+.vizvibe-state.json
