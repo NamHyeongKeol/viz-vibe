@@ -124,12 +124,15 @@ async function checkAndPromptInitialization(context: vscode.ExtensionContext) {
 
     const workspaceRoot = workspaceFolders[0].uri;
 
-    // Check if .mmd file already exists
-    const mmdFiles = await vscode.workspace.findFiles('**/*.mmd', '**/node_modules/**', 1);
-    if (mmdFiles.length > 0) {
-        // Already has mmd, just ensure global rules exist
+    // Check if vizvibe.mmd specifically exists (not any .mmd file)
+    const vizvibePath = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
+    try {
+        await vscode.workspace.fs.stat(vizvibePath);
+        // vizvibe.mmd exists, just ensure global rules exist
         await updateGlobalGeminiRules();
         return;
+    } catch {
+        // vizvibe.mmd doesn't exist, continue to prompt
     }
 
     // No .mmd file - always ask (no alreadyAsked check)

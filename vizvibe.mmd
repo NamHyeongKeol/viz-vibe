@@ -180,22 +180,22 @@ flowchart TD
     style cursor_hook_via_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_via_extension -.-> ultimate_goal
     
-    %% @cursor_ovsx_visibility_issue [blocker, opened, 2026-01-14, nam]
-    cursor_ovsx_visibility_issue["OVSX Visibility in Cursor<br/><sub>Extension registered on OVSX marketplace<br/>but not appearing in Cursor IDE's<br/>extension search. Investigate OVSX<br/>indexing delay or Cursor-specific<br/>extension discovery requirements</sub>"]
+    %% @cursor_ovsx_visibility_issue [ai-task, opened, 2026-01-14, nam]
+    cursor_ovsx_visibility_issue["OVSX Visibility in Cursor<br/><sub>Extension registered on OVSX marketplace<br/>but not appearing in Cursor IDE's<br/>extension search. Namespace claim<br/>submitted to Eclipse Foundation</sub>"]
     cursor_agent_integration --> cursor_ovsx_visibility_issue
-    style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     cursor_ovsx_visibility_issue -.-> ultimate_goal
 
-    %% @cursor_vsix_init_not_triggered [blocker, opened, 2026-01-14, nam]
+    %% @cursor_vsix_init_not_triggered [ai-task, opened, 2026-01-14, nam]
     cursor_vsix_init_not_triggered["VSIX Init Prompt Missing<br/><sub>After installing extension via VSIX<br/>in Cursor IDE, initialization prompt<br/>notification does not appear at all.<br/>Investigate activation events and<br/>Cursor-specific startup behavior</sub>"]
     cursor_ovsx_visibility_issue --> cursor_vsix_init_not_triggered
-    style cursor_vsix_init_not_triggered fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    style cursor_vsix_init_not_triggered fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     cursor_vsix_init_not_triggered -.-> ultimate_goal
 
-    %% @cursor_hook_malfunction [blocker, opened, 2026-01-14, nam]
+    %% @cursor_hook_malfunction [ai-task, opened, 2026-01-14, nam]
     cursor_hook_malfunction["Cursor Hook Malfunction<br/><sub>Hooks not triggering properly in<br/>Cursor IDE environment. Investigate<br/>hook execution timing, path resolution,<br/>and Cursor-specific hook behavior<br/>differences from Claude Code</sub>"]
     cursor_vsix_init_not_triggered --> cursor_hook_malfunction
-    style cursor_hook_malfunction fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    style cursor_hook_malfunction fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     cursor_hook_malfunction -.-> ultimate_goal
     
     %% @graph_search_feature [ai-task, closed, 2026-01-10, nam]
