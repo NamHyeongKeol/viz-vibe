@@ -74,7 +74,7 @@ cp "$VIZVIBE_HOME/scripts/update-vizvibe.js" "$CLAUDE_HOME/hooks/"
 cp "$VIZVIBE_HOME/skills/vizvibe/SKILL.md" "$CLAUDE_HOME/hooks/VIZVIBE.md"
 
 # Merge hooks into settings.json using Node.js
-node -e "
+MERGED_SETTINGS=$(node -e "
 const fs = require('fs');
 const settingsPath = '$CLAUDE_HOME/settings.json';
 
@@ -99,23 +99,63 @@ if (!settings.hooks) {
 }
 
 // For each hook type, check if vizvibe hooks already exist
+let alreadyInstalled = false;
 for (const [hookType, vizvibeHookList] of Object.entries(vizvibeHooks)) {
   if (!settings.hooks[hookType]) {
     settings.hooks[hookType] = [];
   }
   
-  // Check if vizvibe hooks already added (by checking command contains 'vizvibe')
   const existingCommands = JSON.stringify(settings.hooks[hookType]);
-  for (const hook of vizvibeHookList) {
-    if (!existingCommands.includes('vizvibe')) {
+  if (existingCommands.includes('vizvibe')) {
+    alreadyInstalled = true;
+  } else {
+    for (const hook of vizvibeHookList) {
       settings.hooks[hookType].push(hook);
     }
   }
 }
 
-fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-console.log('   Merged hooks into ' + settingsPath);
-"
+if (alreadyInstalled) {
+  console.log('ALREADY_INSTALLED');
+} else {
+  console.log(JSON.stringify(settings, null, 2));
+}
+")
+
+if [ "$MERGED_SETTINGS" = "ALREADY_INSTALLED" ]; then
+    echo "   ✅ Vizvibe hooks already configured in settings.json"
+else
+    if [ -f "$CLAUDE_HOME/settings.json" ]; then
+        echo ""
+        echo "📄 Current settings.json will be updated with vizvibe hooks."
+        echo ""
+        echo "━━━ Merged settings.json (preview) ━━━"
+        echo "$MERGED_SETTINGS"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        read -p "Apply this change? (y/N) " -n 1 -r
+        echo ""
+        
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            # Backup original
+            cp "$CLAUDE_HOME/settings.json" "$CLAUDE_HOME/settings.json.backup"
+            echo "   📦 Backed up to settings.json.backup"
+            
+            # Write merged settings
+            echo "$MERGED_SETTINGS" > "$CLAUDE_HOME/settings.json"
+            echo "   ✅ Updated settings.json with vizvibe hooks"
+        else
+            echo "   ⏭️  Skipped. You can manually add hooks later."
+            echo ""
+            echo "   Add these hooks to ~/.claude/settings.json:"
+            echo '   "hooks": { "SessionStart": [...], "Stop": [...] }'
+        fi
+    else
+        # No existing file, just create it
+        echo "$MERGED_SETTINGS" > "$CLAUDE_HOME/settings.json"
+        echo "   ✅ Created settings.json with vizvibe hooks"
+    fi
+fi
 
 # 8. Set up Claude Code global skills
 echo "🔧 Configuring Claude Code skills..."
