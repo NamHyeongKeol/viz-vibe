@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: cleanup_install_scripts
+    %% @lastActive: vizvibe_doc_commit_reminder
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -28,10 +28,10 @@ flowchart TD
     %% @vizvibe_guide [ai-task, closed, 2026-01-09, nam]
     vizvibe_guide("VIZVIBE.md Guide<br/><sub>Created comprehensive documentation<br/>that teaches AI assistants how to<br/>read, update, and maintain vizvibe.mmd<br/>files, including node states, connection<br/>types, and styling conventions</sub>")
 
-    %% @vizvibe_doc_commit_reminder [ai-task, opened, 2026-01-16, nam]
-    vizvibe_doc_commit_reminder["Add Commit Reminder to Docs<br/><sub>Add note to VIZVIBE.md: 'Update<br/>vizvibe.mmd before committing' to<br/>ensure trajectory stays in sync<br/>with code changes</sub>"]
+    %% @vizvibe_doc_commit_reminder [ai-task, closed, 2026-01-16, nam]
+    vizvibe_doc_commit_reminder["Add Commit Reminder to Docs<br/><sub>Added 'CRITICAL RULE: Update<br/>vizvibe.mmd before committing' to<br/>VIZVIBE.md and SKILL.md to ensure<br/>trajectory stays in sync with code</sub>"]
     vizvibe_guide --> vizvibe_doc_commit_reminder
-    style vizvibe_doc_commit_reminder fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style vizvibe_doc_commit_reminder fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     vizvibe_doc_commit_reminder -.-> ultimate_goal
 
     %% @install_scripts [ai-task, closed, 2026-01-09, nam]
@@ -253,7 +253,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        cleanup_install_scripts
+        vizvibe_doc_commit_reminder
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]

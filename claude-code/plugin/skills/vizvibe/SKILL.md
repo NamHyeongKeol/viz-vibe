@@ -21,6 +21,8 @@ The `vizvibe.mmd` file is a **Mermaid flowchart** that serves as:
 
 It's not a changelog or commit log — it's a **living document** that captures the high-level journey of a project.
 
+**CRITICAL RULE**: Always aim to **update `vizvibe.mmd` before committing** code changes to ensure the visual trajectory stays in sync with the actual repository state.
+
 ---
 
 ## User Context
@@ -636,3 +638,4 @@ style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 7. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
 8. **Keep it high-level** — this is a map, not a changelog
 9. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed)
+10. **Pre-commit Update** — Always aim to update `vizvibe.mmd` before committing code changes to ensure the trajectory stays in sync with the project state.
