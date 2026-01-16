@@ -43,9 +43,8 @@ do_init() {
     echo "✅ Created vizvibe.mmd"
     echo ""
     echo "💡 Next steps:"
-    echo "   1. Start a Claude Code session in this directory"
-    echo "   2. Claude will automatically detect the empty trajectory"
-    echo "   3. Ask Claude to set up your initial trajectory!"
+    echo "   1. Start Claude Code: claude"
+    echo "   2. Ask Claude: \"Please setup vizvibe for this project\""
 }
 
 # Main command handler

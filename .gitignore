@@ -16,3 +16,6 @@ webview-ui/dist/
 vscode-extension/LICENSE
 vscode-extension/README.md
 .vizvibe-state.json
+
+# Auto Claude data directory
+.auto-claude/

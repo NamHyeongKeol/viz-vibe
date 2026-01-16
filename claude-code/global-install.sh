@@ -79,14 +79,16 @@ MERGED_SETTINGS=$(node -e "
 const fs = require('fs');
 const settingsPath = '$CLAUDE_HOME/settings.json';
 
-const vizvibeHooks = {
-  SessionStart: [
-    { matcher: 'startup', hooks: [{ type: 'command', command: 'node ~/.claude/hooks/read-vizvibe.js' }] },
-    { matcher: 'resume', hooks: [{ type: 'command', command: 'node ~/.claude/hooks/read-vizvibe.js' }] }
-  ],
-  Stop: [
-    { hooks: [{ type: 'command', command: 'node ~/.claude/hooks/update-vizvibe.js' }] }
-  ]
+try {
+// Vizvibe hooks to add
+const vizvibeHooksToAdd = {
+  SessionStart: {
+    startup: { type: 'command', command: 'node ~/.claude/hooks/read-vizvibe.js' },
+    resume: { type: 'command', command: 'node ~/.claude/hooks/read-vizvibe.js' }
+  },
+  Stop: {
+    _default: { type: 'command', command: 'node ~/.claude/hooks/update-vizvibe.js' }
+  }
 };
 
 let settings = {};
@@ -99,20 +101,43 @@ if (!settings.hooks) {
   settings.hooks = {};
 }
 
-// For each hook type, check if vizvibe hooks already exist
 let alreadyInstalled = false;
-for (const [hookType, vizvibeHookList] of Object.entries(vizvibeHooks)) {
-  if (!settings.hooks[hookType]) {
-    settings.hooks[hookType] = [];
+const existingStr = JSON.stringify(settings.hooks);
+if (existingStr.includes('vizvibe')) {
+  alreadyInstalled = true;
+}
+
+if (!alreadyInstalled) {
+  // SessionStart hooks - merge by matcher
+  if (!settings.hooks.SessionStart) {
+    settings.hooks.SessionStart = [];
   }
   
-  const existingCommands = JSON.stringify(settings.hooks[hookType]);
-  if (existingCommands.includes('vizvibe')) {
-    alreadyInstalled = true;
-  } else {
-    for (const hook of vizvibeHookList) {
-      settings.hooks[hookType].push(hook);
+  for (const [matcher, hookToAdd] of Object.entries(vizvibeHooksToAdd.SessionStart)) {
+    // Find existing entry with same matcher
+    let existingEntry = settings.hooks.SessionStart.find(e => e.matcher === matcher);
+    if (existingEntry) {
+      // Add to existing hooks array
+      if (!existingEntry.hooks) existingEntry.hooks = [];
+      existingEntry.hooks.push(hookToAdd);
+    } else {
+      // Create new entry
+      settings.hooks.SessionStart.push({ matcher, hooks: [hookToAdd] });
     }
+  }
+  
+  // Stop hooks - merge into hooks array (no matcher)
+  if (!settings.hooks.Stop) {
+    settings.hooks.Stop = [];
+  }
+  
+  // Find existing Stop entry without matcher, or first entry
+  let existingStopEntry = settings.hooks.Stop.find(e => !e.matcher) || settings.hooks.Stop[0];
+  if (existingStopEntry) {
+    if (!existingStopEntry.hooks) existingStopEntry.hooks = [];
+    existingStopEntry.hooks.push(vizvibeHooksToAdd.Stop._default);
+  } else {
+    settings.hooks.Stop.push({ hooks: [vizvibeHooksToAdd.Stop._default] });
   }
 }
 
@@ -121,9 +146,19 @@ if (alreadyInstalled) {
 } else {
   console.log(JSON.stringify(settings, null, 2));
 }
+
+} catch (e) {
+  console.log('ERROR_PARSE:' + e.message);
+}
 ")
 
-if [ "$MERGED_SETTINGS" = "ALREADY_INSTALLED" ]; then
+if [[ "$MERGED_SETTINGS" == ERROR_PARSE:* ]]; then
+    echo ""
+    echo "⚠️  Failed to parse settings.json: ${MERGED_SETTINGS#ERROR_PARSE:}"
+    echo "   Please check ~/.claude/settings.json for syntax errors."
+    echo "   You can manually add vizvibe hooks later."
+    echo ""
+elif [ "$MERGED_SETTINGS" = "ALREADY_INSTALLED" ]; then
     echo "   ✅ Vizvibe hooks already configured in settings.json"
 else
     if [ -f "$CLAUDE_HOME/settings.json" ]; then

@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: init_screen_message
+    %% @lastActive: curl_global_install
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -180,10 +180,10 @@ flowchart TD
     style cursor_hook_via_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_via_extension -.-> ultimate_goal
     
-    %% @cursor_ovsx_visibility_issue [ai-task, opened, 2026-01-14, nam]
-    cursor_ovsx_visibility_issue["OVSX Visibility in Cursor<br/><sub>Extension registered on OVSX marketplace<br/>but not appearing in Cursor IDE's<br/>extension search. Namespace claim<br/>submitted to Eclipse Foundation</sub>"]
+    %% @cursor_ovsx_visibility_issue [ai-task, closed, 2026-01-16, nam]
+    cursor_ovsx_visibility_issue["OVSX Visibility in Cursor<br/><sub>Extension registered on OVSX marketplace<br/>but not appearing in Cursor IDE's<br/>extension search. Namespace claim<br/>submitted to Eclipse Foundation - RESOLVED</sub>"]
     cursor_agent_integration --> cursor_ovsx_visibility_issue
-    style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_ovsx_visibility_issue -.-> ultimate_goal
 
     %% @cursor_vsix_init_not_triggered [ai-task, closed, 2026-01-15, nam]
@@ -247,8 +247,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        plugin_marketplace_distribution
-        init_screen_message
+        curl_global_install
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -268,6 +267,31 @@ flowchart TD
     claude_code_integration --> stop_hook_reliability
     style stop_hook_reliability fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     stop_hook_reliability -.-> ultimate_goal
+
+    %% @claude_code_global_install [ai-task, opened, 2026-01-16, nam]
+    %% 📋 구체적인 플랜: claude-code/PLAN-global-install.md 참조
+    claude_code_global_install["Global Install + Per-Project Init<br/><sub>Change Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
+    claude_code_integration --> claude_code_global_install
+    style claude_code_global_install fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    claude_code_global_install -.-> ultimate_goal
+
+    %% @curl_global_install [ai-task, closed, 2026-01-16, nam]
+    curl_global_install["Curl Global Install<br/><sub>Implemented global-install.sh that sets up<br/>~/.vizvibe/ with CLI, hooks, skills.<br/>vizvibe init creates vizvibe.mmd in<br/>any project. Refactored plugin structure.</sub>"]
+    claude_code_global_install --> curl_global_install
+    style curl_global_install fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    curl_global_install -.-> ultimate_goal
+
+    %% @brew_global_install [ai-task, opened, 2026-01-16, nam]
+    brew_global_install["Brew Global Install<br/><sub>Create Homebrew formula for vizvibe<br/>that installs CLI and configures<br/>Claude Code global hooks. Easier<br/>install/update for macOS users</sub>"]
+    curl_global_install --> brew_global_install
+    style brew_global_install fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    brew_global_install -.-> ultimate_goal
+
+    %% @claude_code_browser_view [ai-task, opened, 2026-01-16, nam]
+    claude_code_browser_view["Local Server Browser View<br/><sub>For Claude Code users who don't have<br/>VS Code extension, provide a local<br/>server that renders vizvibe.mmd in<br/>browser for easy trajectory viewing</sub>"]
+    claude_code_integration --> claude_code_browser_view
+    style claude_code_browser_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    claude_code_browser_view -.-> ultimate_goal
 
     vscode_extension --> edit_source_button
     graph_search_feature --> edit_source_button
