@@ -2,7 +2,7 @@
   "name": "viz-vibe",
   "displayName": "Viz Vibe",
   "description": "A graph-based workflow interface for seamless Human-AI collaboration",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "icon": "assets/logo.png",
   "publisher": "viz-vibe",
   "repository": {

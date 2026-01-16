@@ -163,7 +163,7 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
 
         // 2. Set up environment-specific integrations
         await updateGlobalGeminiRules();  // Antigravity
-        await setupCursorHooks(workspaceRoot);  // Cursor
+        await setupCursorRules(workspaceRoot);  // Cursor (rules only, no hooks)
 
         // Mark as initialized
         const workspaceKey = `${VIZVIBE_INITIALIZED_KEY}.${workspaceRoot.fsPath}`;
@@ -209,74 +209,36 @@ async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
 }
 
 /**
- * Check if the current environment is Antigravity.
- * GEMINI.md should only be updated in Antigravity, not in VS Code or Cursor.
+ * Set up Cursor rules for vizvibe integration.
+ * Creates .cursor/rules/vizvibe.mdc only (hooks don't work in Cursor).
  */
-function isAntigravity(): boolean {
-    const appName = vscode.env.appName.toLowerCase();
-    // Antigravity's app name contains 'antigravity' or might be displayed differently
-    // Common patterns: "Antigravity", "antigravity"
-    return appName.includes('antigravity');
-}
-
-/**
- * Check if the current environment is Cursor.
- * Cursor uses its own hook system in .cursor/hooks.json
- */
-function isCursor(): boolean {
+async function setupCursorRules(workspaceRoot: vscode.Uri) {
     const appName = vscode.env.appName.toLowerCase();
     const appHost = (vscode.env as any).appHost?.toLowerCase() || '';
     const uriScheme = vscode.env.uriScheme?.toLowerCase() || '';
     
-    // Check multiple indicators for Cursor
-    return appName.includes('cursor') || 
-           appHost.includes('cursor') || 
-           uriScheme.includes('cursor');
-}
-
-/**
- * Set up Cursor hooks for automatic vizvibe integration.
- * Creates .cursor/hooks.json and hook scripts.
- */
-async function setupCursorHooks(workspaceRoot: vscode.Uri) {
-    console.log(`[Viz Vibe] setupCursorHooks called. appName: "${vscode.env.appName}", isCursor: ${isCursor()}`);
+    // Check if running in Cursor
+    const isCursor = appName.includes('cursor') || 
+                     appHost.includes('cursor') || 
+                     uriScheme.includes('cursor');
     
-    if (!isCursor()) {
-        console.log('[Viz Vibe] Not Cursor environment, skipping hooks setup');
+    if (!isCursor) {
+        console.log('[Viz Vibe] Not Cursor environment, skipping rules setup');
         return;
     }
     
-    console.log('[Viz Vibe] Cursor detected! Setting up hooks...');
+    console.log('[Viz Vibe] Cursor detected! Setting up rules...');
 
     const cursorDir = vscode.Uri.joinPath(workspaceRoot, '.cursor');
-    const hooksDir = vscode.Uri.joinPath(cursorDir, 'hooks');
     const rulesDir = vscode.Uri.joinPath(cursorDir, 'rules');
-    const hooksJsonPath = vscode.Uri.joinPath(cursorDir, 'hooks.json');
 
     try {
-        // Create .cursor/hooks directory
-        await vscode.workspace.fs.createDirectory(hooksDir);
-    } catch {
-        // Directory might already exist
-    }
-
-    try {
-        // Create .cursor/rules directory
         await vscode.workspace.fs.createDirectory(rulesDir);
     } catch {
         // Directory might already exist
     }
 
-    // Check if hooks.json already exists
-    let existingHooksJson: any = null;
-    try {
-        const existingContent = await vscode.workspace.fs.readFile(hooksJsonPath);
-        existingHooksJson = JSON.parse(existingContent.toString());
-    } catch {
-        // File doesn't exist
-    }
-
-    // Read full VIZVIBE.md content (same as Antigravity approach)
+    // Read full VIZVIBE.md content
     let fullVizvibeContent = '';
     const extensionPath = vscode.extensions.getExtension('viz-vibe.viz-vibe')?.extensionPath;
     
@@ -301,19 +263,6 @@ async function setupCursorHooks(workspaceRoot: vscode.Uri) {
         fullVizvibeContent = getMinimalVizVibeRules();
     }
 
-    // Create update hook script (stop hook only - context injection via .cursor/rules/vizvibe.mdc)
-    const updateVizvibeScript = getUpdateVizvibeHookScript();
-
-    await vscode.workspace.fs.writeFile(
-        vscode.Uri.joinPath(hooksDir, 'update-vizvibe.js'),
-        Buffer.from(updateVizvibeScript, 'utf-8')
-    );
-    // Write full VIZVIBE.md to hooks folder
-    await vscode.workspace.fs.writeFile(
-        vscode.Uri.joinPath(hooksDir, 'VIZVIBE.md'),
-        Buffer.from(fullVizvibeContent, 'utf-8')
-    );
-
     // Create Cursor rules file (.mdc format with YAML frontmatter + full VIZVIBE.md)
     const vizvibeRuleContent = `---
 description: Viz Vibe trajectory management - visual context map for AI coding
@@ -328,42 +277,7 @@ ${fullVizvibeContent}
         Buffer.from(vizvibeRuleContent, 'utf-8')
     );
 
-    // Create or merge hooks.json (only stop hook - beforeSubmitPrompt can't inject context in Cursor)
-    const vizvibeHooks = {
-        stop: [{ command: 'node .cursor/hooks/update-vizvibe.js' }]
-    };
-
-    let finalHooks: any = { version: 1, hooks: vizvibeHooks };
-
-    if (existingHooksJson && existingHooksJson.hooks) {
-        // Merge with existing hooks
-        const existingHooks = existingHooksJson.hooks;
-        finalHooks.hooks = {
-            ...existingHooks,
-            stop: [
-                ...(existingHooks.stop || []).filter(
-                    (h: any) => !h.command?.includes('vizvibe')
-                ),
-                ...vizvibeHooks.stop
-            ]
-        };
-        // Remove any vizvibe beforeSubmitPrompt hooks from previous versions
-        if (existingHooks.beforeSubmitPrompt) {
-            finalHooks.hooks.beforeSubmitPrompt = existingHooks.beforeSubmitPrompt.filter(
-                (h: any) => !h.command?.includes('vizvibe')
-            );
-            if (finalHooks.hooks.beforeSubmitPrompt.length === 0) {
-                delete finalHooks.hooks.beforeSubmitPrompt;
-            }
-        }
-    }
-
-    await vscode.workspace.fs.writeFile(
-        hooksJsonPath,
-        Buffer.from(JSON.stringify(finalHooks, null, 2), 'utf-8')
-    );
-
-    console.log('Cursor hooks and rules set up successfully');
+    console.log('[Viz Vibe] Cursor rules set up successfully');
 }
 
 async function updateGlobalGeminiRules() {
@@ -485,62 +399,12 @@ style node_id fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 }
 
 /**
- * Get the update-vizvibe.js hook script content for Cursor (stop hook only)
+ * Check if the current environment is Antigravity.
+ * GEMINI.md should only be updated in Antigravity, not in VS Code or Cursor.
  */
-function getUpdateVizvibeHookScript(): string {
-    return `#!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
-
-let inputData = '';
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('readable', () => {
-    let chunk;
-    while ((chunk = process.stdin.read()) !== null) {
-        inputData += chunk;
-    }
-});
-
-process.stdin.on('end', () => {
-    try {
-        const input = JSON.parse(inputData);
-        const projectDir = input.workspace_roots?.[0] || process.cwd();
-        const trajectoryPath = path.join(projectDir, 'vizvibe.mmd');
-        const stateFile = path.join(projectDir, '.cursor', 'hooks', 'state.json');
-
-        if (!fs.existsSync(trajectoryPath)) {
-            process.exit(0);
-        }
-
-        // State management to prevent infinite loops
-        let state = { mode: 'idle' };
-        try {
-            if (fs.existsSync(stateFile)) {
-                state = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
-            }
-        } catch (e) {}
-
-        if (state.mode === 'updating') {
-            fs.writeFileSync(stateFile, JSON.stringify({ mode: 'idle', updatedAt: new Date().toISOString() }));
-            process.exit(0);
-        }
-
-        if (input.status !== 'completed' || (input.loop_count && input.loop_count < 3)) {
-            process.exit(0);
-        }
-
-        fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-        fs.writeFileSync(stateFile, JSON.stringify({ mode: 'updating', updatedAt: new Date().toISOString() }));
-
-        console.log(JSON.stringify({
-            user_message: 'Please update vizvibe.mmd with significant changes. Update %% @lastActive: node_id line.'
-        }));
-    } catch (error) {
-        process.exit(0);
-    }
-});
-`;
+function isAntigravity(): boolean {
+    const appName = vscode.env.appName.toLowerCase();
+    return appName.includes('antigravity');
 }
 
 async function setDefaultEditorForMmd() {
