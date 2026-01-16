@@ -41,6 +41,21 @@ do_init() {
 
     cp "$TEMPLATE_PATH" ./vizvibe.mmd
     echo "✅ Created vizvibe.mmd"
+    
+    # Add .vizvibe-state.json to .gitignore if not already present
+    if [ -f ".gitignore" ]; then
+        if ! grep -q "\.vizvibe-state\.json" .gitignore 2>/dev/null; then
+            echo "" >> .gitignore
+            echo "# Viz Vibe runtime state (Claude Code hooks)" >> .gitignore
+            echo ".vizvibe-state.json" >> .gitignore
+            echo "✅ Added .vizvibe-state.json to .gitignore"
+        fi
+    else
+        echo "# Viz Vibe runtime state (Claude Code hooks)" > .gitignore
+        echo ".vizvibe-state.json" >> .gitignore
+        echo "✅ Created .gitignore with .vizvibe-state.json"
+    fi
+    
     echo ""
     echo "💡 Next steps:"
     echo "   1. Start Claude Code: claude"

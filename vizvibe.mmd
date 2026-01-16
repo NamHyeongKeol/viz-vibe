@@ -281,6 +281,18 @@ flowchart TD
     style curl_global_install fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     curl_global_install -.-> ultimate_goal
 
+    %% @cleanup_install_scripts [ai-task, opened, 2026-01-16, nam]
+    cleanup_install_scripts["Cleanup Install Scripts<br/><sub>Delete local-test-install.sh, PLAN-*.md,<br/>remove legacy per-project install.sh,<br/>rename global-install.sh to install.sh<br/>for simpler user experience</sub>"]
+    curl_global_install --> cleanup_install_scripts
+    style cleanup_install_scripts fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    cleanup_install_scripts -.-> ultimate_goal
+
+    %% @vizvibe_doc_commit_reminder [ai-task, opened, 2026-01-16, nam]
+    vizvibe_doc_commit_reminder["Add Commit Reminder to Docs<br/><sub>Add note to VIZVIBE.md: 'Update<br/>vizvibe.mmd before committing' to<br/>ensure trajectory stays in sync<br/>with code changes</sub>"]
+    vizvibe_guide --> vizvibe_doc_commit_reminder
+    style vizvibe_doc_commit_reminder fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    vizvibe_doc_commit_reminder -.-> ultimate_goal
+
     %% @brew_global_install [ai-task, opened, 2026-01-16, nam]
     brew_global_install["Brew Global Install<br/><sub>Create Homebrew formula for vizvibe<br/>that installs CLI and configures<br/>Claude Code global hooks. Easier<br/>install/update for macOS users</sub>"]
     curl_global_install --> brew_global_install
@@ -400,3 +412,9 @@ flowchart TD
     scalable_graph_storage --> file_system_architecture
     style file_system_architecture fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     file_system_architecture -.-> ultimate_goal
+
+    %% @vizvibe_folder_structure [ai-task, opened, 2026-01-16, nam]
+    vizvibe_folder_structure["Project .vizvibe Folder<br/><sub>Refactor to use .vizvibe/ folder per<br/>project containing vizvibe.mmd, plans,<br/>state.json, etc. Consider interaction<br/>with .cursor/ and .claude/ folders</sub>"]
+    file_system_architecture --> vizvibe_folder_structure
+    style vizvibe_folder_structure fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    vizvibe_folder_structure -.-> ultimate_goal
