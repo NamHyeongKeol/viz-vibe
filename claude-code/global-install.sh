@@ -74,47 +74,50 @@ cp "$VIZVIBE_HOME/scripts/read-vizvibe.js" "$CLAUDE_HOME/hooks/"
 cp "$VIZVIBE_HOME/scripts/update-vizvibe.js" "$CLAUDE_HOME/hooks/"
 cp "$VIZVIBE_HOME/skills/vizvibe/SKILL.md" "$CLAUDE_HOME/hooks/VIZVIBE.md"
 
-# Check if settings.json exists
-if [ -f "$CLAUDE_HOME/settings.json" ]; then
-    echo ""
-    echo "⚠️  $CLAUDE_HOME/settings.json already exists!"
-    echo "   Please add the following hooks manually:"
-    echo ""
-    echo '   "hooks": {'
-    echo '     "SessionStart": ['
-    echo '       { "matcher": "startup", "hooks": [{ "type": "command", "command": "node ~/.claude/hooks/read-vizvibe.js" }] },'
-    echo '       { "matcher": "resume", "hooks": [{ "type": "command", "command": "node ~/.claude/hooks/read-vizvibe.js" }] }'
-    echo '     ],'
-    echo '     "Stop": ['
-    echo '       { "hooks": [{ "type": "command", "command": "node ~/.claude/hooks/update-vizvibe.js" }] }'
-    echo '     ]'
-    echo '   }'
-    echo ""
-else
-    # Create settings.json with hooks
-    cat > "$CLAUDE_HOME/settings.json" << 'EOF'
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/hooks/read-vizvibe.js" }]
-      },
-      {
-        "matcher": "resume",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/hooks/read-vizvibe.js" }]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [{ "type": "command", "command": "node ~/.claude/hooks/update-vizvibe.js" }]
-      }
-    ]
+# Merge hooks into settings.json using Node.js
+node -e "
+const fs = require('fs');
+const settingsPath = '$CLAUDE_HOME/settings.json';
+
+const vizvibeHooks = {
+  SessionStart: [
+    { matcher: 'startup', hooks: [{ type: 'command', command: 'node ~/.claude/hooks/read-vizvibe.js' }] },
+    { matcher: 'resume', hooks: [{ type: 'command', command: 'node ~/.claude/hooks/read-vizvibe.js' }] }
+  ],
+  Stop: [
+    { hooks: [{ type: 'command', command: 'node ~/.claude/hooks/update-vizvibe.js' }] }
+  ]
+};
+
+let settings = {};
+if (fs.existsSync(settingsPath)) {
+  settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+}
+
+// Merge hooks
+if (!settings.hooks) {
+  settings.hooks = {};
+}
+
+// For each hook type, check if vizvibe hooks already exist
+for (const [hookType, vizvibeHookList] of Object.entries(vizvibeHooks)) {
+  if (!settings.hooks[hookType]) {
+    settings.hooks[hookType] = [];
+  }
+  
+  // Check if vizvibe hooks already added (by checking command contains 'vizvibe')
+  const existingCommands = JSON.stringify(settings.hooks[hookType]);
+  for (const hook of vizvibeHookList) {
+    const hookStr = JSON.stringify(hook);
+    if (!existingCommands.includes('vizvibe')) {
+      settings.hooks[hookType].push(hook);
+    }
   }
 }
-EOF
-    echo "   Created $CLAUDE_HOME/settings.json"
-fi
+
+fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+console.log('   Merged hooks into ' + settingsPath);
+"
 
 # 8. Set up Claude Code global skills
 echo "🔧 Configuring Claude Code skills..."
