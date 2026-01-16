@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: curl_global_install
+    %% @lastActive: cleanup_install_scripts
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -27,6 +27,12 @@ flowchart TD
 
     %% @vizvibe_guide [ai-task, closed, 2026-01-09, nam]
     vizvibe_guide("VIZVIBE.md Guide<br/><sub>Created comprehensive documentation<br/>that teaches AI assistants how to<br/>read, update, and maintain vizvibe.mmd<br/>files, including node states, connection<br/>types, and styling conventions</sub>")
+
+    %% @vizvibe_doc_commit_reminder [ai-task, opened, 2026-01-16, nam]
+    vizvibe_doc_commit_reminder["Add Commit Reminder to Docs<br/><sub>Add note to VIZVIBE.md: 'Update<br/>vizvibe.mmd before committing' to<br/>ensure trajectory stays in sync<br/>with code changes</sub>"]
+    vizvibe_guide --> vizvibe_doc_commit_reminder
+    style vizvibe_doc_commit_reminder fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    vizvibe_doc_commit_reminder -.-> ultimate_goal
 
     %% @install_scripts [ai-task, closed, 2026-01-09, nam]
     install_scripts("CLI Install Scripts<br/><sub>Developed curl-based one-liner<br/>installation scripts that set up<br/>Claude Code hooks and copy templates,<br/>with corresponding uninstall scripts<br/>for clean removal when needed</sub>")
@@ -247,7 +253,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        curl_global_install
+        cleanup_install_scripts
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -268,11 +274,10 @@ flowchart TD
     style stop_hook_reliability fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     stop_hook_reliability -.-> ultimate_goal
 
-    %% @claude_code_global_install [ai-task, opened, 2026-01-16, nam]
-    %% 📋 구체적인 플랜: claude-code/PLAN-global-install.md 참조
-    claude_code_global_install["Global Install + Per-Project Init<br/><sub>Change Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
+    %% @claude_code_global_install [ai-task, closed, 2026-01-16, nam]
+    claude_code_global_install["Claude Code Install v2<br/><sub>Changed Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
     claude_code_integration --> claude_code_global_install
-    style claude_code_global_install fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style claude_code_global_install fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     claude_code_global_install -.-> ultimate_goal
 
     %% @curl_global_install [ai-task, closed, 2026-01-16, nam]
@@ -281,17 +286,11 @@ flowchart TD
     style curl_global_install fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     curl_global_install -.-> ultimate_goal
 
-    %% @cleanup_install_scripts [ai-task, opened, 2026-01-16, nam]
-    cleanup_install_scripts["Cleanup Install Scripts<br/><sub>Delete local-test-install.sh, PLAN-*.md,<br/>remove legacy per-project install.sh,<br/>rename global-install.sh to install.sh<br/>for simpler user experience</sub>"]
+    %% @cleanup_install_scripts [ai-task, closed, 2026-01-16, nam]
+    cleanup_install_scripts["Cleanup Install Scripts<br/><sub>Deleted local-test-install.sh, PLAN-*.md,<br/>removed legacy per-project scripts,<br/>renamed global-install.sh to install.sh<br/>for simpler user experience</sub>"]
     curl_global_install --> cleanup_install_scripts
-    style cleanup_install_scripts fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style cleanup_install_scripts fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     cleanup_install_scripts -.-> ultimate_goal
-
-    %% @vizvibe_doc_commit_reminder [ai-task, opened, 2026-01-16, nam]
-    vizvibe_doc_commit_reminder["Add Commit Reminder to Docs<br/><sub>Add note to VIZVIBE.md: 'Update<br/>vizvibe.mmd before committing' to<br/>ensure trajectory stays in sync<br/>with code changes</sub>"]
-    vizvibe_guide --> vizvibe_doc_commit_reminder
-    style vizvibe_doc_commit_reminder fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
-    vizvibe_doc_commit_reminder -.-> ultimate_goal
 
     %% @brew_global_install [ai-task, opened, 2026-01-16, nam]
     brew_global_install["Brew Global Install<br/><sub>Create Homebrew formula for vizvibe<br/>that installs CLI and configures<br/>Claude Code global hooks. Easier<br/>install/update for macOS users</sub>"]

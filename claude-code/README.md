@@ -2,12 +2,12 @@
 
 Visual Context Map for AI Coding - Claude Code 사용자를 위한 설치 가이드입니다.
 
-## 🚀 Quick Install (Global)
+## 🚀 Quick Install
 
-**글로벌 설치** - 한 번 설치하면 모든 프로젝트에서 사용 가능합니다:
+**Viz Vibe 설치** - 한 번 설치하면 모든 프로젝트에서 사용 가능합니다:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/global-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
 ```
 
 ### 설치 후 사용법
@@ -17,31 +17,14 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 # 2. 프로젝트 디렉토리로 이동
 cd your-project
 
-# 3. vizvibe 초기화
+# 3. vizvibe 초기화 (vizvibe.mmd 생성 및 .gitignore 설정)
 vizvibe init
 
 # 4. Claude Code 시작 - 자동으로 trajectory를 감지합니다!
 claude
 ```
 
-### 글로벌 제거
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/global-uninstall.sh | bash
-```
-
----
-
-## 📦 Legacy Install (Per-Project)
-
-기존 프로젝트별 설치 방식도 여전히 지원됩니다:
-
-```bash
-# 프로젝트 디렉토리에서 실행
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
-```
-
-### 프로젝트별 제거
+### 제거 방법
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
@@ -50,8 +33,6 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 ---
 
 ## 📂 설치 구조
-
-### 글로벌 설치 시
 
 ```
 ~/.vizvibe/
