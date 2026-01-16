@@ -55,28 +55,40 @@ As AI advances, it's becoming harder for humans to keep up with the context of t
 
 ### For Claude Code Users
 
-Run this one-liner in your project directory:
+1. **Install Globably**: Run this one-liner to set up Viz Vibe globally on your machine:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
 ```
 
-This creates:
-
-- `.claude/settings.json` — Claude Code settings with hooks
-- `.claude/hooks/update-vizvibe.js` — Auto-update script
-- `vizvibe.mmd` — Your work history graph (Mermaid format)
-- `VIZVIBE.md` — AI instructions for trajectory management
-
-**That's it!** Claude Code will automatically update `vizvibe.mmd` after each response.
-
-#### Other Commands
+2. **Initialize Project**: Navigate to your project directory and run:
 
 ```bash
-# Update hook script to latest version
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/update.sh | bash
+vizvibe init
+```
 
-# Uninstall (keeps vizvibe.mmd and VIZVIBE.md)
+This creates a `vizvibe.mmd` file and configures your `.gitignore`.
+
+3. **Start Vibe Coding**: Open Claude Code:
+
+```bash
+claude
+```
+
+Claude will automatically detect your trajectory and help you manage it!
+
+#### CLI Commands
+
+| Command           | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `vizvibe init`    | Initialize `vizvibe.mmd` in the current directory |
+| `vizvibe help`    | Show help message                                 |
+| `vizvibe version` | Show version information                          |
+
+#### Management
+
+```bash
+# Uninstall (removes global hooks and CLI)
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
 ```
 
@@ -193,11 +205,11 @@ viz-vibe/
 │   ├── package.json
 │   └── ...
 │
-├── claude-code/          # Claude Code
-│   ├── templates/
+├── claude-code/          # Claude Code Integration
+│   ├── bin/              # CLI scripts
+│   ├── plugin/           # Plugin core (hooks, skills)
 │   ├── install.sh
-│   ├── uninstall.sh
-│   └── update.sh
+│   └── uninstall.sh
 │
 ├── mcp-server/           # MCP Server (optional)
 │

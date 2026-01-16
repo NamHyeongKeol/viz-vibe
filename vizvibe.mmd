@@ -287,7 +287,7 @@ flowchart TD
     curl_global_install -.-> ultimate_goal
 
     %% @cleanup_install_scripts [ai-task, closed, 2026-01-16, nam]
-    cleanup_install_scripts["Cleanup Install Scripts<br/><sub>Deleted local-test-install.sh, PLAN-*.md,<br/>removed legacy per-project scripts,<br/>renamed global-install.sh to install.sh<br/>for simpler user experience</sub>"]
+    cleanup_install_scripts["Cleanup Install Scripts<br/><sub>Deleted local-test-install.sh, PLAN-*.md,<br/>redundant templates, and claude-code/README.md.<br/>Renamed global install scripts to simple<br/>install.sh/uninstall.sh</sub>"]
     curl_global_install --> cleanup_install_scripts
     style cleanup_install_scripts fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     cleanup_install_scripts -.-> ultimate_goal
