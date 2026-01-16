@@ -186,16 +186,16 @@ flowchart TD
     style cursor_ovsx_visibility_issue fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     cursor_ovsx_visibility_issue -.-> ultimate_goal
 
-    %% @cursor_vsix_init_not_triggered [ai-task, opened, 2026-01-14, nam]
-    cursor_vsix_init_not_triggered["VSIX Init Prompt Missing<br/><sub>After installing extension via VSIX<br/>in Cursor IDE, initialization prompt<br/>notification does not appear at all.<br/>Investigate activation events and<br/>Cursor-specific startup behavior</sub>"]
+    %% @cursor_vsix_init_not_triggered [ai-task, closed, 2026-01-15, nam]
+    cursor_vsix_init_not_triggered["VSIX Init Prompt Missing<br/><sub>Fixed: changed check from any .mmd<br/>to vizvibe.mmd specifically. Added<br/>'*' activation event for Cursor<br/>compatibility. v0.1.28</sub>"]
     cursor_ovsx_visibility_issue --> cursor_vsix_init_not_triggered
-    style cursor_vsix_init_not_triggered fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style cursor_vsix_init_not_triggered fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_vsix_init_not_triggered -.-> ultimate_goal
 
-    %% @cursor_hook_malfunction [ai-task, opened, 2026-01-14, nam]
-    cursor_hook_malfunction["Cursor Hook Malfunction<br/><sub>Hooks not triggering properly in<br/>Cursor IDE environment. Investigate<br/>hook execution timing, path resolution,<br/>and Cursor-specific hook behavior<br/>differences from Claude Code</sub>"]
+    %% @cursor_hook_malfunction [ai-task, closed, 2026-01-15, nam]
+    cursor_hook_malfunction["Cursor Hook Investigation<br/><sub>Cursor's beforeSubmitPrompt hook<br/>can't inject context (design limit).<br/>Removed it, kept stop hook only for<br/>auto-update requests. Using Rules<br/>for context. v0.1.29</sub>"]
     cursor_vsix_init_not_triggered --> cursor_hook_malfunction
-    style cursor_hook_malfunction fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style cursor_hook_malfunction fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_malfunction -.-> ultimate_goal
     
     %% @graph_search_feature [ai-task, closed, 2026-01-10, nam]

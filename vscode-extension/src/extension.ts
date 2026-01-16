@@ -208,95 +208,6 @@ async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
     await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
 }
 
-async function createVizVibeMd(workspaceRoot: vscode.Uri, extensionUri: vscode.Uri) {
-    const filePath = vscode.Uri.joinPath(workspaceRoot, 'VIZVIBE.md');
-
-    try {
-        await vscode.workspace.fs.stat(filePath);
-        return; // Already exists
-    } catch {
-        // File doesn't exist, create it
-    }
-
-    // Copy template from extension
-    const templatePath = vscode.Uri.joinPath(extensionUri, 'VIZVIBE.md');
-    try {
-        const templateContent = await vscode.workspace.fs.readFile(templatePath);
-        await vscode.workspace.fs.writeFile(filePath, templateContent);
-    } catch {
-        // Fallback to basic content if template not found
-        const content = `# Viz Vibe: AI Workflow Instructions
-
-## Workflow File
-- **Location**: \`./vizvibe.mmd\`
-
-## AI Instructions
-1. Before starting a task: Check \`vizvibe.mmd\` to understand the current context
-2. After completing a task: Add a new node describing what was done
-3. Connect nodes: Create edges to show the flow of work
-`;
-        await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
-    }
-}
-
-async function ensureAgentRules(workspaceRoot: vscode.Uri) {
-    const agentRulesDir = vscode.Uri.joinPath(workspaceRoot, '.agent', 'rules');
-    const rulesFilePath = vscode.Uri.joinPath(agentRulesDir, 'vizvibe.md');
-
-    // Always overwrite with latest rules
-
-    // Create .agent/rules directory
-    try {
-        await vscode.workspace.fs.createDirectory(agentRulesDir);
-    } catch {
-        // Directory might already exist
-    }
-
-    const content = `---
-description: Viz Vibe MCP trajectory management
-alwaysApply: true
----
-
-# ⚠️ MANDATORY: Viz Vibe Trajectory Updates
-
-## 🔴 CRITICAL RULE - NO EXCEPTIONS
-
-After completing ANY task, you MUST call the \`mcp_vizvibe_update_trajectory\` tool.
-
-This is NOT optional. Every response where you made meaningful changes MUST end with a trajectory update.
-
-## Tool Usage
-
-### After EVERY task completion:
-\`\`\`
-mcp_vizvibe_update_trajectory({
-  workspacePath: "[WORKSPACE_ROOT_PATH]",
-  label: "Brief one-line summary",
-  prompt: "Detailed description of what was done"
-})
-\`\`\`
-
-### At conversation start:
-\`\`\`
-mcp_vizvibe_get_trajectory({
-  workspacePath: "[WORKSPACE_ROOT_PATH]"
-})
-\`\`\`
-
-## What counts as a "task"?
-- File creation or modification
-- Bug fixes
-- Feature implementation
-- Refactoring
-- Configuration changes
-- Any meaningful code change
-
-## DO NOT skip this step. The trajectory is critical for project history tracking.
-`;
-
-    await vscode.workspace.fs.writeFile(rulesFilePath, Buffer.from(content, 'utf-8'));
-}
-
 /**
  * Check if the current environment is Antigravity.
  * GEMINI.md should only be updated in Antigravity, not in VS Code or Cursor.
@@ -390,14 +301,9 @@ async function setupCursorHooks(workspaceRoot: vscode.Uri) {
         fullVizvibeContent = getMinimalVizVibeRules();
     }
 
-    // Create hook scripts
-    const readVizvibeScript = getReadVizvibeHookScript();
+    // Create update hook script (stop hook only - context injection via .cursor/rules/vizvibe.mdc)
     const updateVizvibeScript = getUpdateVizvibeHookScript();
 
-    await vscode.workspace.fs.writeFile(
-        vscode.Uri.joinPath(hooksDir, 'read-vizvibe.js'),
-        Buffer.from(readVizvibeScript, 'utf-8')
-    );
     await vscode.workspace.fs.writeFile(
         vscode.Uri.joinPath(hooksDir, 'update-vizvibe.js'),
         Buffer.from(updateVizvibeScript, 'utf-8')
@@ -422,9 +328,8 @@ ${fullVizvibeContent}
         Buffer.from(vizvibeRuleContent, 'utf-8')
     );
 
-    // Create or merge hooks.json
+    // Create or merge hooks.json (only stop hook - beforeSubmitPrompt can't inject context in Cursor)
     const vizvibeHooks = {
-        beforeSubmitPrompt: [{ command: 'node .cursor/hooks/read-vizvibe.js' }],
         stop: [{ command: 'node .cursor/hooks/update-vizvibe.js' }]
     };
 
@@ -435,12 +340,6 @@ ${fullVizvibeContent}
         const existingHooks = existingHooksJson.hooks;
         finalHooks.hooks = {
             ...existingHooks,
-            beforeSubmitPrompt: [
-                ...(existingHooks.beforeSubmitPrompt || []).filter(
-                    (h: any) => !h.command?.includes('vizvibe')
-                ),
-                ...vizvibeHooks.beforeSubmitPrompt
-            ],
             stop: [
                 ...(existingHooks.stop || []).filter(
                     (h: any) => !h.command?.includes('vizvibe')
@@ -448,6 +347,15 @@ ${fullVizvibeContent}
                 ...vizvibeHooks.stop
             ]
         };
+        // Remove any vizvibe beforeSubmitPrompt hooks from previous versions
+        if (existingHooks.beforeSubmitPrompt) {
+            finalHooks.hooks.beforeSubmitPrompt = existingHooks.beforeSubmitPrompt.filter(
+                (h: any) => !h.command?.includes('vizvibe')
+            );
+            if (finalHooks.hooks.beforeSubmitPrompt.length === 0) {
+                delete finalHooks.hooks.beforeSubmitPrompt;
+            }
+        }
     }
 
     await vscode.workspace.fs.writeFile(
@@ -577,115 +485,7 @@ style node_id fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 }
 
 /**
- * Get the read-vizvibe.js hook script content for Cursor
- */
-function getReadVizvibeHookScript(): string {
-    return `#!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
-
-let inputData = '';
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('readable', () => {
-    let chunk;
-    while ((chunk = process.stdin.read()) !== null) {
-        inputData += chunk;
-    }
-});
-
-process.stdin.on('end', () => {
-    try {
-        const input = JSON.parse(inputData);
-        const projectDir = input.workspace_roots?.[0] || process.cwd();
-        const trajectoryPath = path.join(projectDir, 'vizvibe.mmd');
-        const vizvibePath = path.join(projectDir, '.cursor', 'hooks', 'VIZVIBE.md');
-
-        if (!fs.existsSync(trajectoryPath)) {
-            console.log(JSON.stringify({ continue: true }));
-            process.exit(0);
-        }
-
-        const trajectory = fs.readFileSync(trajectoryPath, 'utf-8');
-        const nodeDescriptions = [];
-        const nodeIds = [];
-        const lines = trajectory.split('\\n');
-        let lastActiveNode = null;
-
-        const lastActiveMatch = trajectory.match(/%% @lastActive:\\s*(\\w+)/);
-        if (lastActiveMatch) lastActiveNode = lastActiveMatch[1];
-
-        for (const line of lines) {
-            const match = line.match(/%% @([\\w-]+) \\[([\\w-]+)(?:,\\s*\\w+)?\\]: (.+)/);
-            if (match) {
-                const [, nodeId, nodeType, description] = match;
-                nodeIds.push(nodeId);
-                const isActive = nodeId === lastActiveNode ? ' <- RECENT' : '';
-                nodeDescriptions.push(\`- [\${nodeType}] \${description}\${isActive}\`);
-            }
-        }
-
-        // Check if trajectory is in template state (only has project_start node)
-        const isTemplateState = nodeIds.length === 1 && nodeIds[0] === 'project_start';
-
-        let vizvibeMdContent = '';
-        if (fs.existsSync(vizvibePath)) {
-            vizvibeMdContent = fs.readFileSync(vizvibePath, 'utf-8');
-        }
-
-        let context;
-
-        if (isTemplateState) {
-            // Template state - request initial trajectory creation with STRONG message
-            context = \`🚨🚨🚨 STOP! READ THIS FIRST! 🚨🚨🚨
-
-=== Viz Vibe: MANDATORY Initial Setup ===
-
-⚠️ **YOU MUST DO THIS BEFORE RESPONDING TO THE USER** ⚠️
-
-The trajectory file (vizvibe.mmd) is EMPTY. You CANNOT proceed with normal conversation until you complete this setup.
-
-**IMMEDIATE ACTION REQUIRED:**
-1. Read README.md to understand the project
-2. Run: git log --oneline -20 to see recent history
-3. Create a proper vizvibe.mmd with:
-   - Ultimate Goal and Current Goal in comments
-   - Completed work as [closed] nodes  
-   - Planned work as [opened] nodes
-   - Proper connections between nodes
-   - Update %% @lastActive: node_id
-
-**DO NOT just greet the user. DO NOT ignore this. Complete the trajectory setup FIRST, then respond.**
-
-Format guide: .cursor/hooks/VIZVIBE.md
-
----
-\${vizvibeMdContent}\`;
-        } else {
-            // Normal state - show current trajectory
-            context = \`=== Viz Vibe: Project Trajectory ===
-
-This project uses Viz Vibe to track work history. Update vizvibe.mmd after completing tasks.
-\${lastActiveNode ? 'Last active node: ' + lastActiveNode : ''}
-
-Current trajectory (\${nodeDescriptions.length} nodes):
-\${nodeDescriptions.slice(-5).join('\\n')}
-\${nodeDescriptions.length > 5 ? '... and ' + (nodeDescriptions.length - 5) + ' more nodes' : ''}
-
----
-\${vizvibeMdContent}\`;
-        }
-
-        console.log(JSON.stringify({ continue: true, user_message: context }));
-    } catch (error) {
-        console.log(JSON.stringify({ continue: true }));
-    }
-});
-`;
-}
-
-/**
- * Get the update-vizvibe.js hook script content for Cursor
+ * Get the update-vizvibe.js hook script content for Cursor (stop hook only)
  */
 function getUpdateVizvibeHookScript(): string {
     return `#!/usr/bin/env node
@@ -740,90 +540,6 @@ process.stdin.on('end', () => {
         process.exit(0);
     }
 });
-`;
-}
-
-/**
- * Get VIZVIBE.md guide content for hooks directory
- */
-function getVizvibeGuideForHooks(): string {
-    return `# Viz Vibe: AI Trajectory Guide
-
-## File Location
-- **Trajectory**: \`./vizvibe.mmd\` (project root)
-
-## After completing significant work:
-Update \`vizvibe.mmd\` with the work done.
-
-## Node Format
-\`\`\`mermaid
-%% @node_id [type, state]: Description
-node_id["Label<br/><sub>Details</sub>"]
-previous_node --> node_id
-style node_id fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
-\`\`\`
-
-**Types:** \`start\`, \`ai-task\`, \`human-task\`, \`condition\`, \`blocker\`, \`end\`
-**States:** \`opened\` (TODO), \`closed\` (DONE)
-
-**Important:** Always update \`%% @lastActive: node_id\` line with the node you worked on.
-
-**Styles:**
-- Open (green): \`fill:#1a1a2e,stroke:#4ade80,color:#86efac\`
-- Closed (purple): \`fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd\`
-- Last active (bright): \`fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff\`
-`;
-}
-
-/**
- * Get Cursor rules file content (.mdc format with YAML frontmatter)
- */
-function getVizvibeRuleForCursor(): string {
-    return `---
-description: Viz Vibe trajectory management - visual context map for AI coding
-globs:
-alwaysApply: true
----
-
-# Viz Vibe: AI Context Management
-
-> **SCOPE**: Only apply these rules in repositories where \`vizvibe.mmd\` exists in the project root.
-> If \`vizvibe.mmd\` does not exist, ignore this rule.
-
-## File Location
-- **Trajectory file**: \`./vizvibe.mmd\` (project root)
-
-## At Conversation Start
-Read \`vizvibe.mmd\` to understand project context and history.
-
-## After Completing Significant Work
-Update \`vizvibe.mmd\` with the work done.
-
-## Node Format
-\`\`\`mermaid
-%% @node_id [type, state]: Description
-node_id("Label<br/><sub>Details</sub>")
-previous_node --> node_id
-style node_id fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
-\`\`\`
-
-**Types:** \`start\`, \`ai-task\`, \`human-task\`, \`condition\`, \`blocker\`, \`end\`
-**States:** \`opened\` (TODO), \`closed\` (DONE)
-
-**Always update:** \`%% @lastActive: node_id\` line with the node you worked on.
-
-**Styles (GitHub-inspired):**
-- Open tasks (green): \`fill:#1a1a2e,stroke:#4ade80,color:#86efac\`
-- Closed tasks (purple): \`fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd\`
-- Last active (bright purple): \`fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff\`
-
-## What counts as "significant work"?
-- Feature implementation
-- Bug fixes
-- Architectural decisions
-- Major milestones
-
-Do NOT update for trivial fixes or routine refactoring.
 `;
 }
 
