@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Viz Vibe CLI
+# Visual Context Map for AI Coding
+
+VIZVIBE_HOME="${VIZVIBE_HOME:-$HOME/.vizvibe}"
+TEMPLATE_PATH="$VIZVIBE_HOME/templates/vizvibe.mmd"
+
+print_help() {
+    echo "Viz Vibe - Visual Context Map for AI Coding"
+    echo ""
+    echo "Usage: vizvibe <command>"
+    echo ""
+    echo "Commands:"
+    echo "  init      Create vizvibe.mmd in current directory"
+    echo "  help      Show this help message"
+    echo "  version   Show version information"
+    echo ""
+    echo "For more information, visit: https://github.com/NamHyeongKeol/viz-vibe"
+}
+
+print_version() {
+    echo "Viz Vibe CLI v1.0.0"
+}
+
+do_init() {
+    if [ -f "vizvibe.mmd" ]; then
+        echo "❌ vizvibe.mmd already exists in this directory!"
+        echo ""
+        echo "If you want to reinitialize, delete or rename the existing file first."
+        exit 1
+    fi
+
+    if [ ! -f "$TEMPLATE_PATH" ]; then
+        echo "❌ Template not found at: $TEMPLATE_PATH"
+        echo ""
+        echo "Please reinstall Viz Vibe:"
+        echo "  curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash"
+        exit 1
+    fi
+
+    cp "$TEMPLATE_PATH" ./vizvibe.mmd
+    echo "✅ Created vizvibe.mmd"
+    echo ""
+    echo "💡 Next steps:"
+    echo "   1. Start Claude Code: claude"
+    echo "   2. Ask Claude: \"Please setup vizvibe for this project\""
+}
+
+# Main command handler
+case "${1:-help}" in
+    init)
+        do_init
+        ;;
+    help|--help|-h)
+        print_help
+        ;;
+    version|--version|-v)
+        print_version
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo ""
+        print_help
+        exit 1
+        ;;
+esac
