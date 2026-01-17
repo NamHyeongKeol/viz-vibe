@@ -439,6 +439,52 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             gap: 4px;
         }
 
+        /* Language selector */
+        .language-selector {
+            margin-bottom: 20px;
+        }
+        .language-selector label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .language-dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+            min-width: 200px;
+        }
+        .language-dropdown {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .language-dropdown:hover {
+            border-color: #3b82f6;
+        }
+        .language-dropdown:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .language-dropdown option {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 8px;
+        }
+
         /* Modal */
         .modal-overlay {
             display: none;
@@ -543,9 +589,36 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             <!-- Initialization prompt overlay -->
             <div id="init-prompt-overlay" class="init-prompt-overlay">
                 <div class="init-prompt-card">
-                    <div class="init-prompt-title" style="font-size:28px;margin-bottom:24px;">👇 Copy this and<br/>Ask your AI agent to setup vizvibe!</div>
-                    <div class="init-prompt-code" onclick="copyInitPrompt()" style="font-size:14px;padding:20px 24px;">
+                    <div class="init-prompt-title" style="font-size:28px;margin-bottom:24px;">Copy this and<br/>Ask your AI agent to setup vizvibe! 👇</div>
+                    <div id="init-prompt-code" class="init-prompt-code" onclick="copyInitPrompt()" style="font-size:14px;padding:20px 24px;">
                         "Please setup vizvibe for this project.<br/>Write the trajectory in my language."
+                    </div>
+                    <div class="language-selector">
+                        <div class="language-dropdown-wrapper">
+                            <select id="langSelect" class="language-dropdown" onchange="updatePromptLanguage()">
+                                <option value="">🌍 Select language (optional)</option>
+                                <option value="English">🇺🇸 English</option>
+                                <option value="Korean">🇰🇷 한국어 (Korean)</option>
+                                <option value="Japanese">🇯🇵 日本語 (Japanese)</option>
+                                <option value="Chinese (Simplified)">🇨🇳 简体中文 (Chinese Simplified)</option>
+                                <option value="Chinese (Traditional)">🇹🇼 繁體中文 (Chinese Traditional)</option>
+                                <option value="Spanish">🇪🇸 Español (Spanish)</option>
+                                <option value="French">🇫🇷 Français (French)</option>
+                                <option value="German">🇩🇪 Deutsch (German)</option>
+                                <option value="Portuguese">🇧🇷 Português (Portuguese)</option>
+                                <option value="Italian">🇮🇹 Italiano (Italian)</option>
+                                <option value="Russian">🇷🇺 Русский (Russian)</option>
+                                <option value="Arabic">🇸🇦 العربية (Arabic)</option>
+                                <option value="Hindi">🇮🇳 हिन्दी (Hindi)</option>
+                                <option value="Thai">🇹🇭 ไทย (Thai)</option>
+                                <option value="Vietnamese">🇻🇳 Tiếng Việt (Vietnamese)</option>
+                                <option value="Indonesian">🇮🇩 Bahasa Indonesia (Indonesian)</option>
+                                <option value="Dutch">🇳🇱 Nederlands (Dutch)</option>
+                                <option value="Polish">🇵🇱 Polski (Polish)</option>
+                                <option value="Turkish">🇹🇷 Türkçe (Turkish)</option>
+                                <option value="Ukrainian">🇺🇦 Українська (Ukrainian)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -766,12 +839,36 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         // Copy initialization prompt to clipboard
         function copyInitPrompt() {
-            const prompt = 'Please setup vizvibe for this project by reading the README and git history, then creating an initial trajectory graph. Write the trajectory in my language.';
+            const prompt = getPromptText();
             navigator.clipboard.writeText(prompt).then(() => {
                 showToast('📋 Prompt copied! Paste it in your AI chat.');
             }).catch(() => {
                 showToast('Copy failed - select and copy manually');
             });
+        }
+
+        // Get prompt text based on selected language
+        function getPromptText() {
+            const langSelect = document.getElementById('langSelect');
+            const selectedLang = langSelect ? langSelect.value : '';
+            if (selectedLang) {
+                return 'Please setup vizvibe for this project. Write the trajectory in ' + selectedLang + '.';
+            }
+            return 'Please setup vizvibe for this project. Write the trajectory in my language.';
+        }
+
+        // Update prompt display when language changes
+        function updatePromptLanguage() {
+            const codeEl = document.getElementById('init-prompt-code');
+            if (codeEl) {
+                const langSelect = document.getElementById('langSelect');
+                const selectedLang = langSelect ? langSelect.value : '';
+                if (selectedLang) {
+                    codeEl.innerHTML = '"Please setup vizvibe for this project.<br/>Write the trajectory in ' + selectedLang + '."';
+                } else {
+                    codeEl.innerHTML = '"Please setup vizvibe for this project.<br/>Write the trajectory in my language."';
+                }
+            }
         }
 
         async function render() {

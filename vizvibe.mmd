@@ -252,7 +252,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        vizvibe_i18n
+        lang_dropdown_ui
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -364,8 +364,13 @@ flowchart TD
     %% @vizvibe_i18n [ai-task, closed, 2026-01-17, nam]
     vizvibe_i18n["Multi-Language Support<br/><sub>Added language preference section to<br/>VIZVIBE.md: English by default, detect<br/>user language and match. Updated template<br/>with language comment. Node IDs stay ASCII.</sub>"]
     vizvibe_guide --> vizvibe_i18n
-    style vizvibe_i18n fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style vizvibe_i18n fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     vizvibe_i18n -.-> new_user_onboarding
+
+    %% @lang_dropdown_ui [ai-task, closed, 2026-01-17, nam]
+    lang_dropdown_ui["Language Dropdown UI<br/><sub>Implemented a searchable language<br/>dropdown in the VS Code setup overlay.<br/>Supports 20+ languages and dynamically<br/>updates the AI setup prompt.</sub>"]
+    vizvibe_i18n --> lang_dropdown_ui
+    style lang_dropdown_ui fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
     %% @browser_view [ai-task, opened, 2026-01-11, nam]
     browser_view["Browser View<br/><sub>Create a web-based viewer for<br/>vizvibe.mmd files that can be accessed<br/>from any browser, enabling trajectory<br/>visualization without VS Code</sub>"]
