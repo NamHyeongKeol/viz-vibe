@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: readme_getting_started
+    %% @lastActive: readme_highlights
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -13,6 +13,12 @@ flowchart TD
 
     %% @readme_getting_started [ai-task, closed, 2026-01-17, Antigravity]
     readme_getting_started["README Getting Started<br/><sub>Restructured installation docs for<br/>clarity: separated VS Code/Cursor/<br/>Antigravity sections, added details<br/>tags for optional info, simplified<br/>step descriptions for quick scanning</sub>"]
+
+    %% @readme_color_update [ai-task, closed, 2026-01-17, Antigravity]
+    readme_color_update["README Color Clarification<br/><sub>Used HTML span tags to apply<br/>Viz Vibe brand colors (#4ade80/<br/>#a78bfa) directly to [opened]/[closed]<br/>text in README Node States section</sub>"]
+
+    %% @readme_highlights [ai-task, closed, 2026-01-17, Antigravity]
+    readme_highlights["README Highlights<br/><sub>Added colors to section headers<br/>and key actions (Install, Yes, Done)<br/>using HTML spans. Added explicit AI<br/>setup instruction to the intro quote.</sub>"]
 
     %% === START ===
     %% @project_start [start, closed, 2026-01-09, nam]
@@ -260,7 +266,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        readme_getting_started
+        readme_highlights
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -335,10 +341,16 @@ flowchart TD
     project_start --> new_user_onboarding
     new_user_onboarding --> readme_improvement
     readme_improvement --> readme_getting_started
-    style new_user_onboarding fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
-    style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
-    style readme_getting_started fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    readme_improvement --> readme_why_expansion
+    style readme_why_expansion fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style readme_getting_started fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style readme_color_update fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style readme_highlights fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    readme_getting_started --> readme_color_update
+    readme_color_update --> readme_highlights
     readme_getting_started -.-> new_user_onboarding
+    readme_why_expansion -.-> new_user_onboarding
+    readme_highlights -.-> new_user_onboarding
     new_user_onboarding -.-> ultimate_goal
     simplify_topbar -.-> vscode_ext_ui_ux
     

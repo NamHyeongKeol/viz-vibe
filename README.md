@@ -1,5 +1,7 @@
 <div align="center">
 
+<br>
+
 # Viz-Vibe: Context Map Plugin for Vibe Coding
 
 A graph-based navigator plugin to track your coding trajectory, issues, and TODO lists — all in one place. We make human-AI collaboration seamless by keeping coding context clear at a glance.
@@ -10,8 +12,6 @@ A graph-based navigator plugin to track your coding trajectory, issues, and TODO
 
 <p align="center">
   <a href="#-getting-started">Getting Started</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-installation">Installation</a> •
   <a href="#-ai-integration">AI Integration</a> •
   <a href="#contributing">Contributing</a>
 </p>
@@ -33,7 +33,7 @@ A graph-based navigator plugin to track your coding trajectory, issues, and TODO
 
 **Viz Vibe** is an open-source **plugin** that provides a **graph-structured trajectory** as an interface for collaboration between humans and AI.
 
-> ⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management.
+> ⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management. Just give your AI the link `https://github.com/NamHyeongKeol/viz-vibe` and say **"plz setup vizvibe"**.
 
 Whatever vibe coding tool you use, your AI will generate a `vizvibe.mmd` file in your project root. **You just review the result.**
 
@@ -45,17 +45,23 @@ The `vizvibe.mmd` file contains your project's graph — your trajectory, decisi
 
 ---
 
+<br>
+
 ## 💡 Why We Built This
 
-As AI advances, it's becoming harder for humans to keep up with the context of their AI's work during vibe coding. The challenge is that someone — perhaps always humans — still needs to understand and manage what the AI is doing. That's why we started this project.
+As AI advances, it's becoming harder for humans to keep up with the context of their AI's work during vibe coding. The challenge is that someone — both humans and AIs — still needs to understand and manage what the AI is doing. That's why we started this project.
+
+Additionally, summarizing your project's state as a graph perfectly solves the **context overload problem** that occurs when AI conversations grow too long. What's the best way to maintain context when starting a new conversation without copy-pasting all previous history? Just use **Viz Vibe**.
 
 ---
 
+<br>
+
 ## 🚀 Getting Started
 
-### For Claude Code Users
+### <span style="color: #a78bfa">For Claude Code Users</span>
 
-**1. Install Globally**
+**1. Install VizVibe Globally**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
@@ -71,9 +77,9 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 
 </details>
 
----
+<br>
 
-**2. Initialize Project**
+**2. Initialize in your Project**
 
 ```bash
 cd your-project
@@ -88,7 +94,7 @@ vizvibe init
 
 </details>
 
----
+<br>
 
 **3. View in Browser**
 
@@ -97,8 +103,6 @@ vizvibe view
 ```
 
 Opens at `http://localhost:5125`. Copy the setup prompt from the overlay.
-
----
 
 **4. Start Claude Code**
 
@@ -125,75 +129,37 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 
 </details>
 
----
+<br>
 
-### For VS Code Users
+### <span style="color: #a78bfa">For Cursor / Antigravity / VS Code Users</span>
 
-**Install the Extension:**
+**1. Install Extension**
 
-1. Open **VS Code Marketplace**: [Viz Vibe Extension](https://marketplace.visualstudio.com/items?itemName=viz-vibe.viz-vibe)
-2. Click **Install**, or search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`)
+Search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`) and click <span style="color: #4ade80">**Install**</span>.
 
-**Setup:**
-
-1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
-2. Open `vizvibe.mmd` to see the graph visualization
-
----
-
-### For Cursor Users
-
-**Install the Extension:**
-
-1. Open **Open VSX Registry**: [Viz Vibe on Open VSX](https://open-vsx.org/extension/viz-vibe/viz-vibe)
-2. Click **Install**, or search "Viz Vibe" in Cursor's Extensions panel
-
-**Alternative: Install from VSIX**
+<details>
+<summary>Alternative: Install from VSIX</summary>
 
 1. Download the latest `.vsix` from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
 2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
 3. Select the downloaded file and reload
+</details>
 
-**Setup:**
+<br>
 
-1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
-2. Open `vizvibe.mmd` to see the graph visualization
+**2. Initialize Project**
 
----
+When the "Initialize Viz Vibe?" prompt appears, click <span style="color: #4ade80">**Yes**</span>.
 
-### For Antigravity Users
+**3. Setup with AI**
 
-**Install the Extension:**
+Open `vizvibe.mmd` — copy the setup prompt and <span style="color: #4ade80">**ask**</span> your AI.
 
-1. Open **VS Code Marketplace**: [Viz Vibe Extension](https://marketplace.visualstudio.com/items?itemName=viz-vibe.viz-vibe)
-2. Click **Install**, or search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`)
-
-**Setup:**
-
-1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
-2. Open `vizvibe.mmd` to see the graph visualization
-
-> ⚠️ **Note:** Antigravity doesn't support hooks yet, so automatic `.mmd` updates are not available.
-
-**Manual Updates:**
-
-- Press **`Ctrl+Shift+Cmd+E`** to copy an update request to clipboard, then paste it into the chat
-- Or simply ask: _"Please update vizvibe.mmd with what we've done"_
-
-The extension automatically updates `~/.gemini/GEMINI.md` during initialization, so the AI already knows how to manage the trajectory!
+> ⚠️ **Note:** IDE-based AI assistants don't support automatic trajectory updates. When you want to update the graph, simply ask your AI: _"Please update vizvibe.mmd with what we've done."_
 
 ---
 
-## ✨ Features
-
-- 🔗 **Graph-based Context** — Visualize your coding journey as interconnected nodes
-- 🤝 **Human-AI Collaboration** — Track decisions, blockers, and progress together
-- 📊 **Mermaid Native** — Uses standard Mermaid syntax, viewable anywhere (GitHub, Notion, etc.)
-- 🔄 **Auto-Update** — Trajectory updates automatically after AI responses (Claude Code)
-- 📁 **`.mmd` File Format** — Human-readable, AI-editable Mermaid flowcharts
-- 🤖 **AI-Native Design** — Built for AI assistants to read and modify
-
----
+<br>
 
 ## 📁 File Format
 
@@ -217,21 +183,10 @@ flowchart TD
 
 Every node has a state:
 
-- `[opened]` — TODO: Planned but not yet started
-- `[closed]` — DONE: Completed, blocked, or no longer needed
+- <span style="color: #4ade80">[opened] — TODO: Planned but not yet started</span>
+- <span style="color: #a78bfa">[closed] — DONE: Completed, blocked, or no longer needed</span>
 
-### Node Types
-
-| Type         | Shape       | Use Case                |
-| ------------ | ----------- | ----------------------- |
-| `start`      | `(["..."])` | Project/phase beginning |
-| `ai-task`    | `["..."]`   | AI work, implementation |
-| `human-task` | `["..."]`   | Human action/decision   |
-| `condition`  | `{"..."}`   | Branch point            |
-| `blocker`    | `{{"..."}}` | Dead end                |
-| `end`        | `(["..."])` | Completion              |
-
----
+<br>
 
 ## 🤖 AI Integration
 
@@ -244,7 +199,7 @@ The `VIZVIBE.md` file provides instructions for AI assistants on how to maintain
 - When to add, close, or delete nodes
 - Relationship modeling (dependencies vs parallel work)
 
-See the full guide: [VIZVIBE.md](./VIZVIBE.md)
+See the full guide: [VIZVIBE.md](./shared/templates/VIZVIBE.md)
 
 ### How It Works
 
@@ -255,58 +210,7 @@ See the full guide: [VIZVIBE.md](./VIZVIBE.md)
 
 ---
 
-## � Installation
-
-### Project Structure
-
-```
-viz-vibe/
-├── vscode-extension/     # VS Code, Cursor, Antigravity
-│   ├── src/
-│   ├── package.json
-│   └── ...
-│
-├── claude-code/          # Claude Code Integration
-│   ├── bin/              # CLI scripts
-│   ├── plugin/           # Plugin core (hooks, skills)
-│   ├── install.sh
-│   └── uninstall.sh
-│
-├── mcp-server/           # MCP Server (optional)
-│
-├── VIZVIBE.md            # AI instructions (shared)
-└── README.md
-```
-
-### Build VS Code Extension from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/NamHyeongKeol/viz-vibe.git
-cd viz-vibe/vscode-extension
-
-# Install dependencies
-npm install
-
-# Compile
-npm run compile
-
-# Package as .vsix
-npx @vscode/vsce package
-```
-
-### Development
-
-```bash
-cd vscode-extension
-
-# Watch mode
-npm run watch
-
-# Debug: Press F5 in VS Code
-```
-
----
+<br>
 
 ## 🤝 Contributing
 
@@ -321,6 +225,8 @@ Please open an issue or submit a pull request.
 
 ---
 
+<br>
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
@@ -328,6 +234,8 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 <div align="center">
+
+<br>
 
 **Made with ❤️ for the vibe coding community**
 
