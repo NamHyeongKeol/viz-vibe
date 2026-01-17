@@ -115,13 +115,22 @@ Paste: _"Please setup vizvibe for this project. Write the trajectory in my langu
 <details>
 <summary>CLI Commands</summary>
 
-| Command        | Description                 |
-| -------------- | --------------------------- |
-| `vizvibe init` | Initialize `vizvibe.mmd`    |
-| `vizvibe view` | Open in browser (port 5125) |
-| `vizvibe help` | Show help                   |
+| Command             | Description                            |
+| ------------------- | -------------------------------------- |
+| `vizvibe init`      | Initialize `vizvibe.mmd`               |
+| `vizvibe view`      | Open in browser (port 5125)            |
+| `vizvibe uninstall` | Uninstall Viz Vibe and clean up config |
+| `vizvibe help`      | Show help                              |
 
 **Uninstall:**
+
+You can uninstall anytime via CLI:
+
+```bash
+vizvibe uninstall
+```
+
+Alternatively, use the one-liner:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
