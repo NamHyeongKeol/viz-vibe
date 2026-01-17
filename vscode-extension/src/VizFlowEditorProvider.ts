@@ -317,22 +317,25 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             padding: 2px 4px !important;
         }
 
-        /* Node highlight for search */
+        /* Node & Cluster highlight for search */
         .node.search-match rect,
         .node.search-match polygon,
         .node.search-match circle,
-        .node.search-match ellipse {
+        .node.search-match ellipse,
+        .cluster.search-match rect {
             filter: brightness(1.2) drop-shadow(0 0 8px rgba(74, 222, 128, 0.6));
         }
         .node.search-current rect,
         .node.search-current polygon,
         .node.search-current circle,
-        .node.search-current ellipse {
+        .node.search-current ellipse,
+        .cluster.search-current rect {
             filter: brightness(1.4) drop-shadow(0 0 12px rgba(250, 204, 21, 0.8));
             stroke: #facc15 !important;
             stroke-width: 3px !important;
         }
-        .node.search-dimmed {
+        .node.search-dimmed,
+        .cluster.search-dimmed {
             opacity: 0.3;
         }
 
@@ -758,6 +761,20 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 }
             }
             return nodes;
+        }
+
+        function extractSubgraphs(code) {
+            const subgraphs = [];
+            // Subgraph pattern: subgraph id [label] or subgraph id
+            const subgraphRegex = /^\\s*subgraph\\s+(\\w+)(?:\\s*\\[(.*)\\])?/gm;
+            let match;
+            while ((match = subgraphRegex.exec(code)) !== null) {
+                subgraphs.push({
+                    id: match[1],
+                    label: match[2] || match[1]
+                });
+            }
+            return subgraphs;
         }
 
         // Extract direction
@@ -1715,6 +1732,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             const lowerQuery = query.toLowerCase();
             const container = document.getElementById('mermaid-output');
             const nodes = extractNodes(mermaidCode);
+            const subgraphs = extractSubgraphs(mermaidCode);
 
             // Search in node labels and metadata descriptions
             nodes.forEach(nodeId => {
@@ -1729,6 +1747,16 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 }
             });
 
+            // Search in subgraphs
+            subgraphs.forEach(sg => {
+                if (sg.label.toLowerCase().includes(lowerQuery) || 
+                    sg.id.toLowerCase().includes(lowerQuery)) {
+                    if (!searchResults.includes(sg.id)) {
+                        searchResults.push(sg.id);
+                    }
+                }
+            });
+
             // Update UI
             if (searchResults.length > 0) {
                 document.getElementById('search-info').textContent = '1/' + searchResults.length;
@@ -1740,66 +1768,81 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }
 
-        function getNodeLabelText(nodeId) {
+        function findElementById(id) {
             const container = document.getElementById('mermaid-output');
-            let nodeEl = null;
-            container.querySelectorAll('.node').forEach(el => {
-                if (el.id && (el.id.includes(nodeId) || el.id.includes('flowchart-' + nodeId))) {
-                    nodeEl = el;
-                }
-            });
-            if (!nodeEl) return nodeId;
+            // Try exact ID match first (for nodes)
+            let el = document.getElementById(id) || document.getElementById('flowchart-' + id);
             
-            const textEl = nodeEl.querySelector('.nodeLabel, text, foreignObject');
+            // If not found, search through all nodes and clusters
+            if (!el) {
+                // Nodes
+                const nodes = container.querySelectorAll('.node');
+                for (const node of nodes) {
+                    if (node.id === id || node.id === 'flowchart-' + id || node.id.startsWith('flowchart-' + id + '-')) {
+                        el = node;
+                        break;
+                    }
+                }
+            }
+            
+            if (!el) {
+                // Clusters (subgraphs) - Mermaid often adds prefixes and suffixes
+                const clusters = container.querySelectorAll('.cluster');
+                for (const cluster of clusters) {
+                    const cid = cluster.id || '';
+                    if (cid === id || cid === 'flowchart-' + id || cid === 'cluster-' + id || 
+                        cid.includes('-' + id + '-') || cid.endsWith('-' + id)) {
+                        el = cluster;
+                        break;
+                    }
+                }
+            }
+            return el;
+        }
+
+        function getNodeLabelText(id) {
+            const el = findElementById(id);
+            if (!el) return id;
+            
+            const textEl = el.querySelector('.nodeLabel, .cluster-label, text, foreignObject');
             if (textEl) {
                 let text = textEl.textContent || textEl.innerText || '';
                 return text.trim();
             }
-            return nodeId;
+            return id;
         }
 
         function highlightSearchResults() {
             const container = document.getElementById('mermaid-output');
-            const allNodes = container.querySelectorAll('.node');
             const nodes = extractNodes(mermaidCode);
+            const subgraphs = extractSubgraphs(mermaidCode).map(sg => sg.id);
 
-            // Dim all nodes if search is active
+            // Clear and Dim everything if search is active
+            clearSearchHighlights();
             if (searchResults.length > 0) {
-                allNodes.forEach(nodeEl => {
-                    let foundNodeId = null;
-                    for (const nid of nodes) {
-                        if (nodeEl.id && (nodeEl.id.includes(nid) || nodeEl.id.includes('flowchart-' + nid))) {
-                            foundNodeId = nid;
-                            break;
-                        }
-                    }
-                    if (foundNodeId && !searchResults.includes(foundNodeId)) {
-                        nodeEl.classList.add('search-dimmed');
-                    }
+                container.querySelectorAll('.node, .cluster').forEach(el => {
+                    el.classList.add('search-dimmed');
                 });
             }
 
             // Highlight matches
-            searchResults.forEach((nodeId, index) => {
-                allNodes.forEach(nodeEl => {
-                    if (nodeEl.id && (nodeEl.id.includes(nodeId) || nodeEl.id.includes('flowchart-' + nodeId))) {
-                        nodeEl.classList.remove('search-dimmed');
-                        if (index === currentSearchIndex) {
-                            nodeEl.classList.add('search-current');
-                            nodeEl.classList.remove('search-match');
-                        } else {
-                            nodeEl.classList.add('search-match');
-                            nodeEl.classList.remove('search-current');
-                        }
+            searchResults.forEach((id, index) => {
+                const el = findElementById(id);
+                if (el) {
+                    el.classList.remove('search-dimmed');
+                    if (index === currentSearchIndex) {
+                        el.classList.add('search-current');
+                    } else {
+                        el.classList.add('search-match');
                     }
-                });
+                }
             });
         }
 
         function clearSearchHighlights() {
             const container = document.getElementById('mermaid-output');
-            container.querySelectorAll('.node').forEach(nodeEl => {
-                nodeEl.classList.remove('search-match', 'search-current', 'search-dimmed');
+            container.querySelectorAll('.node, .cluster').forEach(el => {
+                el.classList.remove('search-match', 'search-current', 'search-dimmed');
             });
         }
 
@@ -1812,36 +1855,29 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             focusOnNode(searchResults[currentSearchIndex]);
         }
 
-        function focusOnNode(nodeId) {
+        function focusOnNode(id) {
             const graphView = document.getElementById('graph-view');
-            const container = document.getElementById('mermaid-output');
-            const canvasWrapper = document.getElementById('canvas-wrapper');
-            let nodeEl = null;
+            const targetEl = findElementById(id);
             
-            container.querySelectorAll('.node').forEach(el => {
-                if (el.id && (el.id.includes(nodeId) || el.id.includes('flowchart-' + nodeId))) {
-                    nodeEl = el;
-                }
-            });
-            
-            if (!nodeEl) return;
+            if (!targetEl) return;
             
             // Get current positions using getBoundingClientRect (screen coordinates)
-            const nodeRect = nodeEl.getBoundingClientRect();
+            // For clusters, we might need to find the child rect for more accurate positioning
+            const rectEl = targetEl.querySelector('rect') || targetEl;
+            const targetRect = rectEl.getBoundingClientRect();
             const graphRect = graphView.getBoundingClientRect();
-            const wrapperRect = canvasWrapper.getBoundingClientRect();
             
-            // Calculate where the node center currently is in screen coordinates
-            const nodeCenterScreenX = nodeRect.left + nodeRect.width / 2;
-            const nodeCenterScreenY = nodeRect.top + nodeRect.height / 2;
+            // Calculate where the target center currently is in screen coordinates
+            const targetCenterScreenX = targetRect.left + targetRect.width / 2;
+            const targetCenterScreenY = targetRect.top + targetRect.height / 2;
             
             // Calculate where we want it (center of graph view)
             const targetScreenX = graphRect.left + graphRect.width / 2;
             const targetScreenY = graphRect.top + graphRect.height / 2;
             
             // Calculate the difference we need to move
-            const deltaX = targetScreenX - nodeCenterScreenX;
-            const deltaY = targetScreenY - nodeCenterScreenY;
+            const deltaX = targetScreenX - targetCenterScreenX;
+            const deltaY = targetScreenY - targetCenterScreenY;
             
             // Apply delta to current transform
             transform.x += deltaX;
