@@ -12,9 +12,11 @@ webview-ui/dist/
 .claude/hooks/VIZVIBE.md
 .claude/hooks/state.json
 
-# Auto-copied during build (source is in root)
+# Auto-copied during build (source is in root or shared/)
 vscode-extension/LICENSE
 vscode-extension/README.md
+vscode-extension/VIZVIBE.md
+vscode-extension/deploy/
 .vizvibe-state.json
 
 # Auto Claude data directory

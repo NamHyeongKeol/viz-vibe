@@ -34,13 +34,13 @@ echo "📥 Downloading hook scripts..."
 curl -fsSL "$REPO_BASE/claude-code/plugin/scripts/read-vizvibe.js" -o "$VIZVIBE_HOME/scripts/read-vizvibe.js"
 curl -fsSL "$REPO_BASE/claude-code/plugin/scripts/update-vizvibe.js" -o "$VIZVIBE_HOME/scripts/update-vizvibe.js"
 
-# 4. Download SKILL.md
-echo "📥 Downloading skill..."
-curl -fsSL "$REPO_BASE/claude-code/plugin/skills/vizvibe/SKILL.md" -o "$VIZVIBE_HOME/skills/vizvibe/SKILL.md"
+# 4. Download VIZVIBE.md (AI guide)
+echo "📥 Downloading AI guide..."
+curl -fsSL "$REPO_BASE/shared/templates/VIZVIBE.md" -o "$VIZVIBE_HOME/skills/vizvibe/SKILL.md"
 
 # 5. Download template
 echo "📥 Downloading template..."
-curl -fsSL "$REPO_BASE/claude-code/plugin/templates/vizvibe.mmd" -o "$VIZVIBE_HOME/templates/vizvibe.mmd"
+curl -fsSL "$REPO_BASE/shared/templates/vizvibe.mmd" -o "$VIZVIBE_HOME/templates/vizvibe.mmd"
 
 # 6. Set up PATH
 echo "🔧 Configuring PATH..."

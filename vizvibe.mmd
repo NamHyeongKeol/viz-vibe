@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: vizvibe_doc_commit_reminder
+    %% @lastActive: consolidate_templates
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -31,7 +31,7 @@ flowchart TD
     %% @vizvibe_doc_commit_reminder [ai-task, closed, 2026-01-16, nam]
     vizvibe_doc_commit_reminder["Add Commit Reminder to Docs<br/><sub>Added 'CRITICAL RULE: Update<br/>vizvibe.mmd before committing' to<br/>VIZVIBE.md and SKILL.md to ensure<br/>trajectory stays in sync with code</sub>"]
     vizvibe_guide --> vizvibe_doc_commit_reminder
-    style vizvibe_doc_commit_reminder fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style vizvibe_doc_commit_reminder fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     vizvibe_doc_commit_reminder -.-> ultimate_goal
 
     %% @install_scripts [ai-task, closed, 2026-01-09, nam]
@@ -253,7 +253,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        vizvibe_doc_commit_reminder
+        consolidate_templates
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -265,7 +265,7 @@ flowchart TD
     %% @plugin_marketplace_distribution [ai-task, opened, 2026-01-14, nam]
     plugin_marketplace_distribution["Plugin Marketplace Distribution<br/><sub>Committed plugin to refactor/onboarding.<br/>External submission via Google Form only.<br/>Form data prepared. Awaiting submission.</sub>"]
     claude_plugin_public_release --> plugin_marketplace_distribution
-    style plugin_marketplace_distribution fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style plugin_marketplace_distribution fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     plugin_marketplace_distribution -.-> ultimate_goal
 
     %% @stop_hook_reliability [ai-task, opened, 2026-01-12, nam]
@@ -283,14 +283,20 @@ flowchart TD
     %% @curl_global_install [ai-task, closed, 2026-01-16, nam]
     curl_global_install["Curl Global Install<br/><sub>Implemented global-install.sh that sets up<br/>~/.vizvibe/ with CLI, hooks, skills.<br/>vizvibe init creates vizvibe.mmd in<br/>any project. Refactored plugin structure.</sub>"]
     claude_code_global_install --> curl_global_install
-    style curl_global_install fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style curl_global_install fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     curl_global_install -.-> ultimate_goal
 
     %% @cleanup_install_scripts [ai-task, closed, 2026-01-16, nam]
     cleanup_install_scripts["Cleanup Install Scripts<br/><sub>Deleted local-test-install.sh, PLAN-*.md,<br/>redundant templates, and claude-code/README.md.<br/>Renamed global install scripts to simple<br/>install.sh/uninstall.sh</sub>"]
     curl_global_install --> cleanup_install_scripts
-    style cleanup_install_scripts fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style cleanup_install_scripts fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cleanup_install_scripts -.-> ultimate_goal
+
+    %% @consolidate_templates [ai-task, closed, 2026-01-17, nam]
+    consolidate_templates["Consolidate Templates<br/><sub>Deleted vizvibe-plugin/, vscode-extension/<br/>deploy/. Removed duplicate scripts and<br/>VIZVIBE.md. All templates in shared/.<br/>Build copies from shared/ automatically.</sub>"]
+    cleanup_install_scripts --> consolidate_templates
+    style consolidate_templates fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    consolidate_templates -.-> ultimate_goal
 
     %% @brew_global_install [ai-task, opened, 2026-01-16, nam]
     brew_global_install["Brew Global Install<br/><sub>Create Homebrew formula for vizvibe<br/>that installs CLI and configures<br/>Claude Code global hooks. Easier<br/>install/update for macOS users</sub>"]
@@ -322,14 +328,14 @@ flowchart TD
     project_start --> new_user_onboarding
     new_user_onboarding --> readme_improvement
     style new_user_onboarding fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
-    style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:2px
+    style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     new_user_onboarding -.-> ultimate_goal
     simplify_topbar -.-> vscode_ext_ui_ux
     
     %% @init_screen_message [ai-task, closed, 2026-01-14, nam]
     init_screen_message["Initialization Prompt Message<br/><sub>Display prominent message on the<br/>initialization screen: 'Ask your AI Agent<br/>to setup vizvibe!' guiding users to<br/>request trajectory setup from their agent</sub>"]
     vscode_extension --> init_screen_message
-    style init_screen_message fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style init_screen_message fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     init_screen_message -.-> vscode_ext_ui_ux
     
     %% @focus_recent_on_change [ai-task, closed, 2026-01-12, nam]
@@ -347,8 +353,20 @@ flowchart TD
 
     %% @vscode_ext_ui_ux [milestone, opened, 2026-01-11, nam]
     vscode_ext_ui_ux["VS Code Extension UI/UX<br/><sub>Comprehensive improvements to the<br/>Viz Vibe VS Code extension's user<br/>interface and experience, making<br/>trajectory visualization more intuitive</sub>"]
-    style vscode_ext_ui_ux fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:2px
+    style vscode_ext_ui_ux fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     vscode_ext_ui_ux -.-> ultimate_goal
+
+    %% @zoom_sensitivity_fix [ai-task, opened, 2026-01-17, nam]
+    zoom_sensitivity_fix["Zoom Sensitivity Fix<br/><sub>On smaller screens (MacBook), zoom<br/>sensitivity is too high. Need to adjust<br/>scroll/pinch zoom factor for better<br/>control on various display sizes</sub>"]
+    vscode_extension --> zoom_sensitivity_fix
+    style zoom_sensitivity_fix fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    zoom_sensitivity_fix -.-> vscode_ext_ui_ux
+
+    %% @vizvibe_i18n [ai-task, opened, 2026-01-17, nam]
+    vizvibe_i18n["Multi-Language Support<br/><sub>AI generates trajectory in English by<br/>default. Add language detection or user<br/>preference setting so trajectory matches<br/>user's preferred language automatically</sub>"]
+    vizvibe_guide --> vizvibe_i18n
+    style vizvibe_i18n fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    vizvibe_i18n -.-> new_user_onboarding
 
     %% @browser_view [ai-task, opened, 2026-01-11, nam]
     browser_view["Browser View<br/><sub>Create a web-based viewer for<br/>vizvibe.mmd files that can be accessed<br/>from any browser, enabling trajectory<br/>visualization without VS Code</sub>"]
