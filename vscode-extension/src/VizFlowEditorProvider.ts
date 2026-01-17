@@ -543,22 +543,9 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             <!-- Initialization prompt overlay -->
             <div id="init-prompt-overlay" class="init-prompt-overlay">
                 <div class="init-prompt-card">
-                    <div class="init-prompt-icon">🚀</div>
-                    <div class="init-prompt-title">Ask your AI Agent<br/>to setup vizvibe!</div>
-                    <div class="init-prompt-subtitle">
-                        Your trajectory is empty. Ask your AI assistant to create
-                        an initial graph based on your project's history.
-                    </div>
-                    <div class="init-prompt-code" onclick="copyInitPrompt()">
-                        "Please setup vizvibe for this project"
-                    </div>
-                    <div class="init-prompt-lang-hint" style="font-size:11px;color:#94a3b8;margin-bottom:12px;">
-                        💬 Tip: Ask in your language for localized trajectory
-                    </div>
-                    <div class="init-prompt-hint">
-                        <span>💡 Click to copy</span>
-                        <span>📝 Paste in AI chat</span>
-                        <span>✨ Watch the magic</span>
+                    <div class="init-prompt-title" style="font-size:28px;margin-bottom:24px;">👇 Copy this and<br/>Ask your AI agent to setup vizvibe!</div>
+                    <div class="init-prompt-code" onclick="copyInitPrompt()" style="font-size:14px;padding:20px 24px;">
+                        "Please setup vizvibe for this project.<br/>Write the trajectory in my language."
                     </div>
                 </div>
             </div>
