@@ -5,22 +5,22 @@
  * Renders vizvibe.mmd in a local browser with real-time updates
  */
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+const { exec } = require("child_process");
 
 // Configuration
 // Port 5125 = VIZV (V=5, I=1, Z=2, V=5)
 const PORT = process.env.VIZVIBE_PORT || 5125;
-const MMD_FILE = process.argv[2] || path.join(process.cwd(), 'vizvibe.mmd');
+const MMD_FILE = process.argv[2] || path.join(process.cwd(), "vizvibe.mmd");
 
 // Check if file exists
 if (!fs.existsSync(MMD_FILE)) {
   console.error(`❌ File not found: ${MMD_FILE}`);
-  console.error('');
-  console.error('Run this command from a directory with vizvibe.mmd,');
-  console.error('or provide the path: vizvibe view /path/to/vizvibe.mmd');
+  console.error("");
+  console.error("Run this command from a directory with vizvibe.mmd,");
+  console.error("or provide the path: vizvibe view /path/to/vizvibe.mmd");
   process.exit(1);
 }
 
@@ -30,7 +30,7 @@ const clients = [];
 // Read mermaid content
 function getMermaidContent() {
   try {
-    return fs.readFileSync(MMD_FILE, 'utf-8');
+    return fs.readFileSync(MMD_FILE, "utf-8");
   } catch (err) {
     return 'flowchart TD\n    error["Error reading file"]';
   }
@@ -351,6 +351,77 @@ function getHtml() {
             stroke-width: 3px !important;
         }
         .node.search-dimmed, .cluster.search-dimmed { opacity: 0.3; }
+        /* Initialization prompt overlay */
+        .init-prompt-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.95) 100%);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .init-prompt-overlay.active { display: flex; }
+        .init-prompt-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid var(--accent-blue);
+            border-radius: 16px;
+            padding: 40px 48px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(59, 130, 246, 0.15);
+            max-width: 500px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(59, 130, 246, 0.15); }
+            50% { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 60px rgba(59, 130, 246, 0.25); }
+        }
+        .init-prompt-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 24px;
+            line-height: 1.3;
+        }
+        .init-prompt-code {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px 24px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            color: #38bdf8;
+            margin-bottom: 20px;
+            user-select: all;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .init-prompt-code:hover {
+            border-color: var(--accent-blue);
+            background: #1e293b;
+        }
+        .language-selector {
+            margin-bottom: 20px;
+        }
+        .language-dropdown {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+        .language-dropdown:hover { border-color: var(--accent-blue); }
+        .language-dropdown:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     </style>
 </head>
 <body>
@@ -405,6 +476,41 @@ function getHtml() {
             <div class="zoom-level" id="zoomLevel">100%</div>
             <button onclick="zoomOut()">−</button>
             <button onclick="fitToScreen()" style="font-size:12px;">⊞</button>
+        </div>
+
+        <!-- Initialization prompt overlay -->
+        <div id="init-prompt-overlay" class="init-prompt-overlay">
+            <div class="init-prompt-card">
+                <div class="init-prompt-title">Copy this and<br/>Ask your AI agent to setup vizvibe! 👇</div>
+                <div id="init-prompt-code" class="init-prompt-code" onclick="copyInitPrompt()">
+                    "Please setup vizvibe for this project.<br/>Write the trajectory in my language."
+                </div>
+                <div class="language-selector">
+                    <select id="langSelect" class="language-dropdown" onchange="updatePromptLanguage()">
+                        <option value="">🌍 Select language (optional)</option>
+                        <option value="English">🇺🇸 English</option>
+                        <option value="Korean">🇰🇷 한국어 (Korean)</option>
+                        <option value="Japanese">🇯🇵 日本語 (Japanese)</option>
+                        <option value="Chinese (Simplified)">🇨🇳 简体中文 (Chinese Simplified)</option>
+                        <option value="Chinese (Traditional)">🇹🇼 繁體中文 (Chinese Traditional)</option>
+                        <option value="Spanish">🇪🇸 Español (Spanish)</option>
+                        <option value="French">🇫🇷 Français (French)</option>
+                        <option value="German">🇩🇪 Deutsch (German)</option>
+                        <option value="Portuguese">🇧🇷 Português (Portuguese)</option>
+                        <option value="Italian">🇮🇹 Italiano (Italian)</option>
+                        <option value="Russian">🇷🇺 Русский (Russian)</option>
+                        <option value="Arabic">🇸🇦 العربية (Arabic)</option>
+                        <option value="Hindi">🇮🇳 हिन्दी (Hindi)</option>
+                        <option value="Thai">🇹🇭 ไทย (Thai)</option>
+                        <option value="Vietnamese">🇻🇳 Tiếng Việt (Vietnamese)</option>
+                        <option value="Indonesian">🇮🇩 Bahasa Indonesia (Indonesian)</option>
+                        <option value="Dutch">🇳🇱 Nederlands (Dutch)</option>
+                        <option value="Polish">🇵🇱 Polski (Polish)</option>
+                        <option value="Turkish">🇹🇷 Türkçe (Turkish)</option>
+                        <option value="Ukrainian">🇺🇦 Українська (Ukrainian)</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -497,6 +603,61 @@ function getHtml() {
             document.getElementById('zoomLevel').textContent = Math.round(transform.scale * 100) + '%';
         }
 
+        // Extract nodes from mermaid code
+        function extractNodes(code) {
+            const nodes = [];
+            const nodeRegex = /^\\s+(\\w+)(?:\\[|\\(|\\{)/gm;
+            let match;
+            while ((match = nodeRegex.exec(code)) !== null) {
+                if (!nodes.includes(match[1]) && match[1] !== 'style' && match[1] !== 'flowchart' && match[1] !== 'subgraph') {
+                    nodes.push(match[1]);
+                }
+            }
+            return nodes;
+        }
+
+        // Check if trajectory is in template state
+        function isTemplateState(nodes) {
+            if (nodes.length === 0) return true;
+            if (nodes.length === 1 && (nodes[0] === 'project_start' || nodes[0] === 'Start')) return true;
+            return false;
+        }
+
+        // Show/hide init prompt overlay
+        function updateInitPrompt(show) {
+            const overlay = document.getElementById('init-prompt-overlay');
+            if (overlay) {
+                overlay.classList.toggle('active', show);
+            }
+        }
+
+        // Copy init prompt
+        function copyInitPrompt() {
+            const text = getPromptText();
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Prompt copied! Paste it in your AI chat.');
+            });
+        }
+
+        // Get prompt text based on language
+        function getPromptText() {
+            const langSelect = document.getElementById('langSelect');
+            const selectedLang = langSelect ? langSelect.value : '';
+            if (selectedLang) {
+                return 'Please setup vizvibe for this project. Write the trajectory in ' + selectedLang + '.';
+            }
+            return 'Please setup vizvibe for this project. Write the trajectory in my language.';
+        }
+
+        // Update prompt UI
+        function updatePromptLanguage() {
+            const codeEl = document.getElementById('init-prompt-code');
+            if (codeEl) {
+                const text = getPromptText().replace('Please setup vizvibe for this project.', 'Please setup vizvibe for this project.<br/>');
+                codeEl.innerHTML = '"' + text + '"';
+            }
+        }
+
         // Add descriptions to node definitions
         function addDescriptionsToCode(code) {
             const lines = code.split('\\n');
@@ -537,9 +698,18 @@ function getHtml() {
         // Render mermaid
         async function render() {
             const output = document.getElementById('mermaid-output');
-            if (!mermaidCode.trim()) return;
+            if (!mermaidCode.trim()) {
+                output.innerHTML = '<p style="color:var(--text-muted);padding:20px;">Empty file. Add some nodes.</p>';
+                updateInitPrompt(true);
+                return;
+            }
 
             parseMetadata(mermaidCode);
+            const nodes = extractNodes(mermaidCode);
+            
+            // Show/hide init overlay
+            updateInitPrompt(isTemplateState(nodes));
+
             const processedCode = addDescriptionsToCode(mermaidCode);
 
             try {
@@ -896,41 +1066,41 @@ function getHtml() {
 
 // Create HTTP server
 const server = http.createServer((req, res) => {
-  if (req.url === '/') {
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  if (req.url === "/") {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
     res.end(getHtml());
-  } else if (req.url === '/content') {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+  } else if (req.url === "/content") {
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
     res.end(getMermaidContent());
-  } else if (req.url === '/events') {
+  } else if (req.url === "/events") {
     // Server-Sent Events for live updates
     res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      "Access-Control-Allow-Origin": "*",
     });
-    
+
     clients.push(res);
-    
-    req.on('close', () => {
+
+    req.on("close", () => {
       const index = clients.indexOf(res);
       if (index !== -1) clients.splice(index, 1);
     });
   } else {
     res.writeHead(404);
-    res.end('Not found');
+    res.end("Not found");
   }
 });
 
 // Watch file for changes
 let debounceTimeout;
 fs.watch(MMD_FILE, (eventType) => {
-  if (eventType === 'change') {
+  if (eventType === "change") {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
       const content = getMermaidContent();
-      clients.forEach(client => {
+      clients.forEach((client) => {
         client.write(`data: UPDATE:${content}\n\n`);
       });
     }, 100);
@@ -940,21 +1110,25 @@ fs.watch(MMD_FILE, (eventType) => {
 // Start server
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
-  console.log('');
-  console.log('╔════════════════════════════════════════════════════════════╗');
-  console.log('║          Viz Vibe - Browser Viewer                         ║');
-  console.log('╚════════════════════════════════════════════════════════════╝');
-  console.log('');
+  console.log("");
+  console.log("╔════════════════════════════════════════════════════════════╗");
+  console.log("║          Viz Vibe - Browser Viewer                         ║");
+  console.log("╚════════════════════════════════════════════════════════════╝");
+  console.log("");
   console.log(`📊 Watching: ${MMD_FILE}`);
   console.log(`🌐 Server:   ${url}`);
-  console.log('');
-  console.log('🔄 Live reload enabled - edit vizvibe.mmd and see changes!');
-  console.log('');
-  console.log('Press Ctrl+C to stop the server.');
-  console.log('');
-  
+  console.log("");
+  console.log("🔄 Live reload enabled - edit vizvibe.mmd and see changes!");
+  console.log("");
+  console.log("Press Ctrl+C to stop the server.");
+  console.log("");
+
   // Open browser
-  const openCommand = process.platform === 'darwin' ? 'open' :
-                      process.platform === 'win32' ? 'start' : 'xdg-open';
+  const openCommand =
+    process.platform === "darwin"
+      ? "open"
+      : process.platform === "win32"
+        ? "start"
+        : "xdg-open";
   exec(`${openCommand} ${url}`);
 });

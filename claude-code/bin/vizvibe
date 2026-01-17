@@ -27,7 +27,7 @@ print_help() {
 }
 
 print_version() {
-    echo "Viz Vibe CLI v1.1.0"
+    echo "Viz Vibe CLI v1.2.0"
 }
 
 do_init() {
