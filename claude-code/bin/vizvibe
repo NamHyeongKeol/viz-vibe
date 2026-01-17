@@ -5,22 +5,29 @@
 
 VIZVIBE_HOME="${VIZVIBE_HOME:-$HOME/.vizvibe}"
 TEMPLATE_PATH="$VIZVIBE_HOME/templates/vizvibe.mmd"
+SERVER_SCRIPT="$VIZVIBE_HOME/bin/vizvibe-server.js"
 
 print_help() {
     echo "Viz Vibe - Visual Context Map for AI Coding"
     echo ""
-    echo "Usage: vizvibe <command>"
+    echo "Usage: vizvibe <command> [options]"
     echo ""
     echo "Commands:"
-    echo "  init      Create vizvibe.mmd in current directory"
-    echo "  help      Show this help message"
-    echo "  version   Show version information"
+    echo "  init              Create vizvibe.mmd in current directory"
+    echo "  view [file]       Open vizvibe.mmd in browser (live reload)"
+    echo "  help              Show this help message"
+    echo "  version           Show version information"
+    echo ""
+    echo "Examples:"
+    echo "  vizvibe init              # Initialize vizvibe.mmd"
+    echo "  vizvibe view              # View ./vizvibe.mmd in browser"
+    echo "  vizvibe view path/to.mmd  # View specific file"
     echo ""
     echo "For more information, visit: https://github.com/NamHyeongKeol/viz-vibe"
 }
 
 print_version() {
-    echo "Viz Vibe CLI v1.0.0"
+    echo "Viz Vibe CLI v1.1.0"
 }
 
 do_init() {
@@ -58,15 +65,56 @@ do_init() {
     
     echo ""
     echo "💡 Next steps:"
-    echo "   1. Start Claude Code: claude"
-    echo "   2. Ask Claude: \"Please setup vizvibe for this project\""
-    echo "   💬 Tip: Ask in your language for localized trajectory"
+    echo "   1. View the graph: vizvibe view"
+    echo "   2. Copy the setup prompt from the browser overlay"
+    echo "   3. Start Claude Code: claude"
+    echo "   4. Paste the prompt: \"Please setup vizvibe for this project. Write the trajectory in my language.\""
+    echo ""
+    echo "📊 Browser viewer runs at http://localhost:5125 with live reload"
+}
+
+do_view() {
+    local target_file="${1:-vizvibe.mmd}"
+    
+    # If relative path, make it absolute
+    if [[ ! "$target_file" = /* ]]; then
+        target_file="$(pwd)/$target_file"
+    fi
+    
+    if [ ! -f "$target_file" ]; then
+        echo "❌ File not found: $target_file"
+        echo ""
+        echo "Run 'vizvibe init' to create vizvibe.mmd first."
+        exit 1
+    fi
+    
+    if [ ! -f "$SERVER_SCRIPT" ]; then
+        echo "❌ Browser viewer not installed."
+        echo ""
+        echo "Please reinstall Viz Vibe:"
+        echo "  curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash"
+        exit 1
+    fi
+    
+    # Check if Node.js is available
+    if ! command -v node &> /dev/null; then
+        echo "❌ Node.js is required but not installed."
+        echo ""
+        echo "Install Node.js: https://nodejs.org/"
+        exit 1
+    fi
+    
+    # Run the server
+    node "$SERVER_SCRIPT" "$target_file"
 }
 
 # Main command handler
 case "${1:-help}" in
     init)
         do_init
+        ;;
+    view)
+        do_view "$2"
         ;;
     help|--help|-h)
         print_help

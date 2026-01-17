@@ -29,6 +29,11 @@ echo "📥 Downloading CLI..."
 curl -fsSL "$REPO_BASE/claude-code/bin/vizvibe" -o "$VIZVIBE_HOME/bin/vizvibe"
 chmod +x "$VIZVIBE_HOME/bin/vizvibe"
 
+# 2.1 Download browser viewer server
+echo "📥 Downloading browser viewer..."
+curl -fsSL "$REPO_BASE/claude-code/bin/vizvibe-server.js" -o "$VIZVIBE_HOME/bin/vizvibe-server.js"
+
+
 # 3. Download hook scripts
 echo "📥 Downloading hook scripts..."
 curl -fsSL "$REPO_BASE/claude-code/plugin/scripts/read-vizvibe.js" -o "$VIZVIBE_HOME/scripts/read-vizvibe.js"

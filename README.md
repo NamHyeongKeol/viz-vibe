@@ -55,51 +55,100 @@ As AI advances, it's becoming harder for humans to keep up with the context of t
 
 ### For Claude Code Users
 
-1. **Install Globably**: Run this one-liner to set up Viz Vibe globally on your machine:
+**1. Install Globally**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
 ```
 
-2. **Initialize Project**: Navigate to your project directory and run:
+<details>
+<summary>What gets installed?</summary>
+
+| Location      | Files                                                                                                                       |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `~/.vizvibe/` | CLI (`bin/vizvibe`), browser viewer (`bin/vizvibe-server.js`), hook scripts, templates                                      |
+| `~/.claude/`  | `hooks/read-vizvibe.js`, `hooks/update-vizvibe.js`, `hooks/VIZVIBE.md`, `skills/vizvibe/SKILL.md`, `settings.json` (merged) |
+
+</details>
+
+---
+
+**2. Initialize Project**
 
 ```bash
+cd your-project
 vizvibe init
 ```
 
-This creates a `vizvibe.mmd` file and configures your `.gitignore`.
+<details>
+<summary>What gets created?</summary>
 
-3. **Start Vibe Coding**: Open Claude Code:
+- `vizvibe.mmd` — Your trajectory graph file
+- `.vizvibe-state.json` added to `.gitignore` — Runtime state (auto-generated)
+
+</details>
+
+---
+
+**3. View in Browser**
+
+```bash
+vizvibe view
+```
+
+Opens at `http://localhost:5125`. Copy the setup prompt from the overlay.
+
+---
+
+**4. Start Claude Code**
 
 ```bash
 claude
 ```
 
-Claude will automatically detect your trajectory and help you manage it!
+Paste: _"Please setup vizvibe for this project. Write the trajectory in my language."_
 
-#### CLI Commands
+<details>
+<summary>CLI Commands</summary>
 
-| Command           | Description                                       |
-| ----------------- | ------------------------------------------------- |
-| `vizvibe init`    | Initialize `vizvibe.mmd` in the current directory |
-| `vizvibe help`    | Show help message                                 |
-| `vizvibe version` | Show version information                          |
+| Command        | Description                 |
+| -------------- | --------------------------- |
+| `vizvibe init` | Initialize `vizvibe.mmd`    |
+| `vizvibe view` | Open in browser (port 5125) |
+| `vizvibe help` | Show help                   |
 
-#### Management
+**Uninstall:**
 
 ```bash
-# Uninstall (removes global hooks and CLI)
 curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
 ```
 
-### For VS Code / Cursor / Antigravity Users
+</details>
 
-**Option 1: Install from Open VSX** (Recommended)
+---
 
-- Install directly from [Open VSX Registry](https://open-vsx.org/extension/viz-vibe/viz-vibe)
-- Or search "Viz Vibe" in the Extensions panel
+### For VS Code Users
 
-**Option 2: Install from VSIX**
+**Install the Extension:**
+
+1. Open **VS Code Marketplace**: [Viz Vibe Extension](https://marketplace.visualstudio.com/items?itemName=viz-vibe.viz-vibe)
+2. Click **Install**, or search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`)
+
+**Setup:**
+
+1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
+2. Open `vizvibe.mmd` to see the graph visualization
+
+---
+
+### For Cursor Users
+
+**Install the Extension:**
+
+1. Open **Open VSX Registry**: [Viz Vibe on Open VSX](https://open-vsx.org/extension/viz-vibe/viz-vibe)
+2. Click **Install**, or search "Viz Vibe" in Cursor's Extensions panel
+
+**Alternative: Install from VSIX**
 
 1. Download the latest `.vsix` from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
 2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
@@ -110,16 +159,28 @@ curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-
 1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
 2. Open `vizvibe.mmd` to see the graph visualization
 
-#### Antigravity Users: Manual Updates Required
+---
+
+### For Antigravity Users
+
+**Install the Extension:**
+
+1. Open **VS Code Marketplace**: [Viz Vibe Extension](https://marketplace.visualstudio.com/items?itemName=viz-vibe.viz-vibe)
+2. Click **Install**, or search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`)
+
+**Setup:**
+
+1. Run `Cmd+Shift+P` → **"Viz Vibe: Initialize Project"**
+2. Open `vizvibe.mmd` to see the graph visualization
 
 > ⚠️ **Note:** Antigravity doesn't support hooks yet, so automatic `.mmd` updates are not available.
 
-When you want the AI to update your trajectory:
+**Manual Updates:**
 
 - Press **`Ctrl+Shift+Cmd+E`** to copy an update request to clipboard, then paste it into the chat
 - Or simply ask: _"Please update vizvibe.mmd with what we've done"_
 
-The extension automatically updates `~/.gemini/GEMINI.md` during initialization, so the AI already knows how to manage the trajectory — no detailed explanation needed!
+The extension automatically updates `~/.gemini/GEMINI.md` during initialization, so the AI already knows how to manage the trajectory!
 
 ---
 

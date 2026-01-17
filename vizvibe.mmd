@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: zoom_sensitivity_fix
+    %% @lastActive: readme_getting_started
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -10,6 +10,9 @@ flowchart TD
     
     %% @readme_improvement [ai-task, closed, 2026-01-14, nam]
     readme_improvement["README Improvement<br/><sub>Changed workflow→trajectory wording,<br/>added Why We Built This section about<br/>AI context management challenges, added<br/>note clarifying vizvibe shows work<br/>trajectory not code structure</sub>"]
+
+    %% @readme_getting_started [ai-task, closed, 2026-01-17, Antigravity]
+    readme_getting_started["README Getting Started<br/><sub>Restructured installation docs for<br/>clarity: separated VS Code/Cursor/<br/>Antigravity sections, added details<br/>tags for optional info, simplified<br/>step descriptions for quick scanning</sub>"]
 
     %% === START ===
     %% @project_start [start, closed, 2026-01-09, nam]
@@ -208,7 +211,11 @@ flowchart TD
     graph_search_feature["Graph Search (Cmd+F)<br/><sub>Implement search functionality<br/>in the graph viewer that allows<br/>users to find nodes by title or<br/>description using Cmd+F keyboard<br/>shortcut - TOP PRIORITY feature</sub>"]
     vscode_extension --> graph_search_feature
     style graph_search_feature fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
-    graph_search_feature -.-> vscode_ext_ui_ux
+    graph_search_feature -.-> subgraph_search_improvement
+    
+    %% @subgraph_search_improvement [ai-task, closed, 2026-01-17, Antigravity]
+    subgraph_search_improvement["Search Subgraphs<br/><sub>Enabled searching for subgraphs<br/>(clusters) via Cmd+F, with<br/>automatic centering, highlighting,<br/>and inner node visibility.</sub>"]
+    subgraph_search_improvement -.-> vscode_ext_ui_ux
     
     %% @initial_view_focus [ai-task, closed, 2026-01-12, nam]
     initial_view_focus["Focus RECENT on Open<br/><sub>When vizvibe.mmd first opens,<br/>center the view on RECENT subgraph<br/>instead of top-left corner, with<br/>zoomed-out scale to show context<br/>around active work area</sub>"]
@@ -253,7 +260,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        zoom_sensitivity_fix
+        readme_getting_started
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -304,10 +311,10 @@ flowchart TD
     style brew_global_install fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     brew_global_install -.-> ultimate_goal
 
-    %% @claude_code_browser_view [ai-task, opened, 2026-01-16, nam]
-    claude_code_browser_view["Local Server Browser View<br/><sub>For Claude Code users who don't have<br/>VS Code extension, provide a local<br/>server that renders vizvibe.mmd in<br/>browser for easy trajectory viewing</sub>"]
+    %% @claude_code_browser_view [ai-task, closed, 2026-01-17, Antigravity]
+    claude_code_browser_view["Local Server Browser View<br/><sub>Implemented vizvibe view command for<br/>Claude Code CLI users. Node.js server<br/>renders vizvibe.mmd in browser with<br/>live reload via SSE. Port 5125.</sub>"]
     claude_code_integration --> claude_code_browser_view
-    style claude_code_browser_view fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style claude_code_browser_view fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     claude_code_browser_view -.-> ultimate_goal
 
     vscode_extension --> edit_source_button
@@ -327,8 +334,11 @@ flowchart TD
     %% Onboarding connections
     project_start --> new_user_onboarding
     new_user_onboarding --> readme_improvement
+    readme_improvement --> readme_getting_started
     style new_user_onboarding fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style readme_getting_started fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    readme_getting_started -.-> new_user_onboarding
     new_user_onboarding -.-> ultimate_goal
     simplify_topbar -.-> vscode_ext_ui_ux
     
@@ -359,8 +369,11 @@ flowchart TD
     %% @zoom_sensitivity_fix [ai-task, closed, 2026-01-17, Antigravity]
     zoom_sensitivity_fix["Zoom Sensitivity Fix<br/><sub>Fixed high zoom sensitivity on<br/>Mac trackpads with continuous<br/>scaling (intensity: 0.0075).<br/>Verified on MacBook. (v0.1.34)</sub>"]
     vscode_extension --> zoom_sensitivity_fix
-    style zoom_sensitivity_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style zoom_sensitivity_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     zoom_sensitivity_fix -.-> vscode_ext_ui_ux
+
+    %% Previous active node
+    style subgraph_search_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% @vizvibe_i18n [ai-task, closed, 2026-01-17, nam]
     vizvibe_i18n["Multi-Language Support<br/><sub>Added language preference section to<br/>VIZVIBE.md: English by default, detect<br/>user language and match. Updated template<br/>with language comment. Node IDs stay ASCII.</sub>"]
