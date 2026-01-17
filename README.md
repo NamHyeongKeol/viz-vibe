@@ -176,16 +176,56 @@ Viz Vibe uses **Mermaid flowchart** syntax for trajectories:
 
 ```mermaid
 flowchart TD
-    %% @task_auth [ai-task, closed]: Implemented JWT authentication
-    task_auth["JWT Authentication"]
+    %% === PROJECT GOALS ===
+    %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
 
-    %% @task_tests [ai-task, opened]: Write integration tests
-    task_tests["Integration Tests"]
+    %% === START ===
+    %% @project_start [start, closed]
+    project_start("Viz Vibe Project Start<br/><sub>Graph-based context management tool<br/>that visualizes coding trajectory<br/>as a Mermaid flowchart, enabling<br/>persistent memory across AI sessions</sub>")
 
-    task_auth --> task_tests
+    %% @ultimate_goal [end, opened]
+    ultimate_goal("Solve the Context Problem<br/><sub>Enable developers to visualize their<br/>coding journey, persist memory across<br/>sessions, and seamlessly share context<br/>with any AI assistant regardless of platform</sub>")
 
-    style task_auth fill:#334155,stroke:#475569,color:#f8fafc
-    style task_tests fill:#334155,stroke:#475569,color:#f8fafc
+    %% === COMPLETED WORK ===
+    %% @claude_code_integration [ai-task, closed]
+    claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages</sub>")
+
+    %% @install_scripts [ai-task, closed]
+    install_scripts("CLI Install Scripts<br/><sub>Developed curl-based one-liner<br/>installation scripts that set up<br/>Claude Code hooks and copy templates,<br/>with uninstall scripts for clean removal</sub>")
+
+    %% === FUTURE WORK ===
+    %% @lib_packaging [ai-task, opened]
+    lib_packaging("Multi-Language SDK<br/><sub>Package vizvibe functionality as<br/>installable SDKs for Python (PyPI),<br/>JavaScript (npm), and Java (Maven)<br/>to enable programmatic management</sub>")
+
+    %% === CONNECTIONS ===
+    project_start --> claude_code_integration
+    claude_code_integration --> install_scripts
+    claude_code_integration --> lib_packaging
+    lib_packaging -.-> ultimate_goal
+
+    %% === RECENT WORK HIGHLIGHT ===
+    subgraph recent [RECENT]
+        install_scripts
+    end
+
+    %% === STYLES ===
+    %% Start node (teal)
+    style project_start fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
+
+    %% Ultimate Goal (muted gray)
+    style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+
+    %% Closed tasks (soft purple)
+    style claude_code_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    %% Recent node (highlighted purple)
+    style install_scripts fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+
+    %% Recent subgraph (dashed border)
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+
+    %% Open tasks (soft green)
+    style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 ```
 
 ### Node States

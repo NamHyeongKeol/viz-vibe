@@ -986,13 +986,22 @@ function getHtml() {
             
             current.el.classList.add('search-current');
             
-            // Center on result
+            // Center on result - calculate delta like VS Code version
             const rect = current.el.getBoundingClientRect();
             const container = document.getElementById('graph-view');
             const contRect = container.getBoundingClientRect();
             
-            transform.x = (contRect.width / 2) - (rect.left + rect.width / 2 - contRect.left);
-            transform.y = (contRect.height / 2) - (rect.top + rect.height / 2 - contRect.top);
+            // Calculate where the target center currently is in screen coordinates
+            const targetCenterScreenX = rect.left + rect.width / 2;
+            const targetCenterScreenY = rect.top + rect.height / 2;
+            
+            // Calculate where we want it (center of graph view)
+            const targetScreenX = contRect.left + contRect.width / 2;
+            const targetScreenY = contRect.top + contRect.height / 2;
+            
+            // Calculate the difference we need to move and apply delta
+            transform.x += targetScreenX - targetCenterScreenX;
+            transform.y += targetScreenY - targetCenterScreenY;
             updateTransform();
             
             document.getElementById('search-info').textContent = \`\${currentSearchIndex + 1}/\${searchResults.length}\`;
