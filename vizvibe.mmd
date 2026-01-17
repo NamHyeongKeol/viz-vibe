@@ -2,6 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
+    %% @lastActive: zoom_sensitivity_fix
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -252,7 +253,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        lang_dropdown_ui
+        zoom_sensitivity_fix
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -355,10 +356,10 @@ flowchart TD
     style vscode_ext_ui_ux fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     vscode_ext_ui_ux -.-> ultimate_goal
 
-    %% @zoom_sensitivity_fix [ai-task, opened, 2026-01-17, nam]
-    zoom_sensitivity_fix["Zoom Sensitivity Fix<br/><sub>On smaller screens (MacBook), zoom<br/>sensitivity is too high. Need to adjust<br/>scroll/pinch zoom factor for better<br/>control on various display sizes</sub>"]
+    %% @zoom_sensitivity_fix [ai-task, closed, 2026-01-17, Antigravity]
+    zoom_sensitivity_fix["Zoom Sensitivity Fix<br/><sub>Fixed high zoom sensitivity on<br/>Mac trackpads with continuous<br/>scaling (intensity: 0.0075).<br/>Verified on MacBook. (v0.1.34)</sub>"]
     vscode_extension --> zoom_sensitivity_fix
-    style zoom_sensitivity_fix fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style zoom_sensitivity_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     zoom_sensitivity_fix -.-> vscode_ext_ui_ux
 
     %% @vizvibe_i18n [ai-task, closed, 2026-01-17, nam]
@@ -370,7 +371,7 @@ flowchart TD
     %% @lang_dropdown_ui [ai-task, closed, 2026-01-17, nam]
     lang_dropdown_ui["Language Dropdown UI<br/><sub>Implemented a searchable language<br/>dropdown in the VS Code setup overlay.<br/>Supports 20+ languages and dynamically<br/>updates the AI setup prompt.</sub>"]
     vizvibe_i18n --> lang_dropdown_ui
-    style lang_dropdown_ui fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style lang_dropdown_ui fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% @browser_view [ai-task, opened, 2026-01-11, nam]
     browser_view["Browser View<br/><sub>Create a web-based viewer for<br/>vizvibe.mmd files that can be accessed<br/>from any browser, enabling trajectory<br/>visualization without VS Code</sub>"]

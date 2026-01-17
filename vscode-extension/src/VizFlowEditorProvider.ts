@@ -1509,7 +1509,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             // Also support Ctrl+scroll (Windows) and Cmd+scroll (Mac)
             if (e.ctrlKey || e.metaKey) {
                 // Zoom mode
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                // Use a continuous zoom factor based on deltaY magnitude for smoother control.
+                // This prevents high sensitivity on trackpads where deltaY is small but frequent.
+                const zoomIntensity = 0.0075;
+                const delta = Math.exp(-e.deltaY * zoomIntensity);
                 const newScale = Math.max(0.2, Math.min(3, transform.scale * delta));
                 
                 const rect = graphView.getBoundingClientRect();
