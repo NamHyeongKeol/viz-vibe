@@ -144,7 +144,7 @@ Additionally, summarizing your project's state as a graph perfectly solves the *
 
 > **1. Install Extension**
 >
-> Search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`) and click <span style="color: #4ade80">**Install**</span>.
+> Search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`) and **Install Extension**.
 >
 > <details>
 > <summary>Alternative: Install from VSIX</summary>
@@ -158,11 +158,11 @@ Additionally, summarizing your project's state as a graph perfectly solves the *
 >
 > **2. Initialize Project**
 >
-> When the "Initialize Viz Vibe?" prompt appears, click <span style="color: #4ade80">**Yes**</span>.
+> When the "Initialize Viz Vibe?" prompt appears, **click Yes**.
 >
 > **3. Setup with AI**
 >
-> Open `vizvibe.mmd` — copy the setup prompt and <span style="color: #4ade80">**ask**</span> your AI.
+> Open `vizvibe.mmd` — copy the setup prompt and **ask your AI**.
 >
 > ⚠️ **Note:** IDE-based AI assistants don't support automatic trajectory updates. When you want to update the graph, simply ask your AI: _"Please update vizvibe.mmd with what we've done."_
 
