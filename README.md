@@ -61,109 +61,109 @@ Additionally, summarizing your project's state as a graph perfectly solves the *
 
 ### <span style="color: #a78bfa">For Claude Code Users</span>
 
-**1. Install VizVibe Globally**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
-```
-
-<details>
-<summary>What gets installed?</summary>
-
-| Location      | Files                                                                                                                       |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `~/.vizvibe/` | CLI (`bin/vizvibe`), browser viewer (`bin/vizvibe-server.js`), hook scripts, templates                                      |
-| `~/.claude/`  | `hooks/read-vizvibe.js`, `hooks/update-vizvibe.js`, `hooks/VIZVIBE.md`, `skills/vizvibe/SKILL.md`, `settings.json` (merged) |
-
-</details>
-
-<br>
-
-**2. Initialize in your Project**
-
-```bash
-cd your-project
-vizvibe init
-```
-
-<details>
-<summary>What gets created?</summary>
-
-- `vizvibe.mmd` — Your trajectory graph file
-- `.vizvibe-state.json` added to `.gitignore` — Runtime state (auto-generated)
-
-</details>
-
-<br>
-
-**3. View in Browser**
-
-```bash
-vizvibe view
-```
-
-Opens at `http://localhost:5125`. Copy the setup prompt from the overlay.
-
-**4. Start Claude Code**
-
-```bash
-claude
-```
-
-Paste: _"Please setup vizvibe for this project. Write the trajectory in my language."_
-
-<details>
-<summary>CLI Commands</summary>
-
-| Command             | Description                            |
-| ------------------- | -------------------------------------- |
-| `vizvibe init`      | Initialize `vizvibe.mmd`               |
-| `vizvibe view`      | Open in browser (port 5125)            |
-| `vizvibe uninstall` | Uninstall Viz Vibe and clean up config |
-| `vizvibe help`      | Show help                              |
-
-**Uninstall:**
-
-You can uninstall anytime via CLI:
-
-```bash
-vizvibe uninstall
-```
-
-Alternatively, use the one-liner:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
-```
-
-</details>
+> **1. Install VizVibe Globally**
+>
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/install.sh | bash
+> ```
+>
+> <details>
+> <summary>What gets installed?</summary>
+>
+> | Location      | Files                                                                                                                       |
+> | ------------- | --------------------------------------------------------------------------------------------------------------------------- |
+> | `~/.vizvibe/` | CLI (`bin/vizvibe`), browser viewer (`bin/vizvibe-server.js`), hook scripts, templates                                      |
+> | `~/.claude/`  | `hooks/read-vizvibe.js`, `hooks/update-vizvibe.js`, `hooks/VIZVIBE.md`, `skills/vizvibe/SKILL.md`, `settings.json` (merged) |
+>
+> </details>
+>
+> <br>
+>
+> **2. Initialize in your Project**
+>
+> ```bash
+> cd your-project
+> vizvibe init
+> ```
+>
+> <details>
+> <summary>What gets created?</summary>
+>
+> - `vizvibe.mmd` — Your trajectory graph file
+> - `.vizvibe-state.json` added to `.gitignore` — Runtime state (auto-generated)
+>
+> </details>
+>
+> <br>
+>
+> **3. View in Browser**
+>
+> ```bash
+> vizvibe view
+> ```
+>
+> Opens at `http://localhost:5125`. Copy the setup prompt from the overlay.
+>
+> **4. Start Claude Code**
+>
+> ```bash
+> claude
+> ```
+>
+> Paste: _"Please setup vizvibe for this project. Write the trajectory in my language."_
+>
+> <details>
+> <summary>CLI Commands</summary>
+>
+> | Command             | Description                            |
+> | ------------------- | -------------------------------------- |
+> | `vizvibe init`      | Initialize `vizvibe.mmd`               |
+> | `vizvibe view`      | Open in browser (port 5125)            |
+> | `vizvibe uninstall` | Uninstall Viz Vibe and clean up config |
+> | `vizvibe help`      | Show help                              |
+>
+> **Uninstall:**
+>
+> You can uninstall anytime via CLI:
+>
+> ```bash
+> vizvibe uninstall
+> ```
+>
+> Alternatively, use the one-liner:
+>
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/NamHyeongKeol/viz-vibe/main/claude-code/uninstall.sh | bash
+> ```
+>
+> </details>
 
 <br>
 
 ### <span style="color: #a78bfa">For Cursor / Antigravity / VS Code Users</span>
 
-**1. Install Extension**
-
-Search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`) and click <span style="color: #4ade80">**Install**</span>.
-
-<details>
-<summary>Alternative: Install from VSIX</summary>
-
-1. Download the latest `.vsix` from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
-2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
-3. Select the downloaded file and reload
-</details>
-
-<br>
-
-**2. Initialize Project**
-
-When the "Initialize Viz Vibe?" prompt appears, click <span style="color: #4ade80">**Yes**</span>.
-
-**3. Setup with AI**
-
-Open `vizvibe.mmd` — copy the setup prompt and <span style="color: #4ade80">**ask**</span> your AI.
-
+> **1. Install Extension**
+>
+> Search "Viz Vibe" in the Extensions panel (`Cmd+Shift+X`) and click <span style="color: #4ade80">**Install**</span>.
+>
+> <details>
+> <summary>Alternative: Install from VSIX</summary>
+>
+> 1. Download the latest `.vsix` from [Releases](https://github.com/NamHyeongKeol/viz-vibe/releases)
+> 2. `Cmd+Shift+P` → **"Extensions: Install from VSIX..."**
+> 3. Select the downloaded file and reload
+> </details>
+>
+> <br>
+>
+> **2. Initialize Project**
+>
+> When the "Initialize Viz Vibe?" prompt appears, click <span style="color: #4ade80">**Yes**</span>.
+>
+> **3. Setup with AI**
+>
+> Open `vizvibe.mmd` — copy the setup prompt and <span style="color: #4ade80">**ask**</span> your AI.
+>
 > ⚠️ **Note:** IDE-based AI assistants don't support automatic trajectory updates. When you want to update the graph, simply ask your AI: _"Please update vizvibe.mmd with what we've done."_
 
 ---
