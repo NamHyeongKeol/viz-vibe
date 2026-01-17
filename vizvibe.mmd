@@ -2,7 +2,6 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: consolidate_templates
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -253,7 +252,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        consolidate_templates
+        vizvibe_i18n
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -295,7 +294,7 @@ flowchart TD
     %% @consolidate_templates [ai-task, closed, 2026-01-17, nam]
     consolidate_templates["Consolidate Templates<br/><sub>Deleted vizvibe-plugin/, vscode-extension/<br/>deploy/. Removed duplicate scripts and<br/>VIZVIBE.md. All templates in shared/.<br/>Build copies from shared/ automatically.</sub>"]
     cleanup_install_scripts --> consolidate_templates
-    style consolidate_templates fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style consolidate_templates fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     consolidate_templates -.-> ultimate_goal
 
     %% @brew_global_install [ai-task, opened, 2026-01-16, nam]
@@ -362,10 +361,10 @@ flowchart TD
     style zoom_sensitivity_fix fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     zoom_sensitivity_fix -.-> vscode_ext_ui_ux
 
-    %% @vizvibe_i18n [ai-task, opened, 2026-01-17, nam]
-    vizvibe_i18n["Multi-Language Support<br/><sub>AI generates trajectory in English by<br/>default. Add language detection or user<br/>preference setting so trajectory matches<br/>user's preferred language automatically</sub>"]
+    %% @vizvibe_i18n [ai-task, closed, 2026-01-17, nam]
+    vizvibe_i18n["Multi-Language Support<br/><sub>Added language preference section to<br/>VIZVIBE.md: English by default, detect<br/>user language and match. Updated template<br/>with language comment. Node IDs stay ASCII.</sub>"]
     vizvibe_guide --> vizvibe_i18n
-    style vizvibe_i18n fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style vizvibe_i18n fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     vizvibe_i18n -.-> new_user_onboarding
 
     %% @browser_view [ai-task, opened, 2026-01-11, nam]

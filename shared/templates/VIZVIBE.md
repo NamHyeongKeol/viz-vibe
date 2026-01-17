@@ -21,8 +21,6 @@ The `vizvibe.mmd` file is a **Mermaid flowchart** that serves as:
 
 It's not a changelog or commit log — it's a **living document** that captures the high-level journey of a project.
 
-**CRITICAL RULE**: Always aim to **update `vizvibe.mmd` before committing** code changes to ensure the visual trajectory stays in sync with the actual repository state.
-
 ---
 
 ## User Context
@@ -166,6 +164,37 @@ The `.mmd` file is not just a changelog — it's a **living map of the project's
 Think of the trajectory as a **graph of TODOs and hypotheses**, not a log of every action. It operates at a higher level than individual code changes.
 
 **Rule of thumb**: If it's something you'd want to remember when resuming work tomorrow, or when explaining the project to a new collaborator — it belongs in the trajectory.
+
+---
+
+## Language Preference
+
+**Default language is English. Match the user's language when detected.**
+
+When creating or updating `vizvibe.mmd`:
+
+1. **English by default**: If no language preference is detected, always use English
+2. **Detect user language**: Check the user's conversation language, system locale, or explicit preference
+3. **Match user language**: If the user communicates in a specific language (e.g., Korean, Japanese, Spanish), write node titles and descriptions in that language
+4. **Consistent language**: Keep all nodes in the same language for readability
+
+**Examples:**
+
+English (default):
+
+```mermaid
+%% @feature_login [ai-task, closed]
+feature_login("Login Feature<br/><sub>Implemented OAuth2.0 social login<br/>and email/password authentication<br/>with JWT token-based sessions</sub>")
+```
+
+Korean (when user communicates in Korean):
+
+```mermaid
+%% @feature_login [ai-task, closed]
+feature_login("로그인 기능 구현<br/><sub>OAuth2.0 기반 소셜 로그인과<br/>이메일/비밀번호 인증 구현,<br/>JWT 토큰 기반 세션 관리</sub>")
+```
+
+**Note**: Node IDs (`feature_login`) should remain in English/ASCII for technical compatibility, only the display content (title and description) should be localized.
 
 ---
 
@@ -368,7 +397,6 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: design_renewal
 
     %% === START ===
     %% @project_start [start, closed]
@@ -490,13 +518,12 @@ flowchart TD
 3. **Narrow and tall nodes**: Each line is ~30-35 characters, creating compact vertical nodes rather than wide horizontal ones
 4. **Metadata without description**: The `%% @node_id [type, state]` comment does NOT include a description — all descriptions go in the node content using `<sub>` tags
 5. **Clear separation**: Completed work (closed) vs Future work (opened)
-6. **@lastActive marker**: `design_renewal` is marked as last active with highlighted purple style
-7. **RECENT subgraph**: Wrap the last active node in `subgraph recent [RECENT]` to create a dashed purple border box labeled "RECENT", making it easy to spot the most recent work at a glance
-8. **Parallel branches from same parent**:
+6. **RECENT subgraph**: Wrap the most recently worked-on node in `subgraph recent [RECENT]` to create a dashed purple border box labeled "RECENT", making it easy to spot the most recent work at a glance. Style the node inside with bright purple for extra emphasis.
+7. **Parallel branches from same parent**:
    - `claude_code_integration` → `lib_packaging`, `codex_cli_integration` (independent CLI integrations)
    - `vscode_extension` → `vscode_agent_integration`, `cursor_agent_integration` (IDE-related work)
-9. **Dashed lines to ultimate goal (-.->)**: Shows what needs to be done but not yet achieved
-10. **GitHub-inspired colors**: Green border = open, Purple border = closed, Bright purple = last active
+8. **Dashed lines to ultimate goal (-.->)**: Shows what needs to be done but not yet achieved
+9. **GitHub-inspired colors**: Green border = open, Purple border = closed, Bright purple = recent
 
 ---
 
@@ -509,28 +536,26 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: [describe the final objective]
     %% Current Goal: [describe immediate focus]
-    %% @lastActive: node_id
 
     %% === NODES ===
     %% @node_id [type, state]
     node_id("Short Title<br/><sub>Multi-line description with<br/>line breaks for readability</sub>")
+
+    %% === RECENT ===
+    subgraph recent [RECENT]
+        recent_node_id
+    end
 
     %% === EDGES ===
     node_a --> node_b
 
     %% === STYLES ===
     style node_id fill:#1a1a2e,stroke:#color,color:#text
+    %% Recent node (bright purple)
+    style recent_node_id fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    %% Recent subgraph (dashed border)
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 ```
-
-### Last Active Node Tracking
-
-**Important**: Always update the `%% @lastActive: node_id` line when you work on a node.
-
-This marker:
-
-- Shows which node was most recently worked on
-- Gets highlighted with a brighter style in the graph
-- Helps users see at a glance what was last touched
 
 ### Node Shape
 
@@ -631,11 +656,11 @@ style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 
 1. **Read** `vizvibe.mmd` at the start of each session to understand context
 2. **Update** after completing significant work
-3. **Update `@lastActive`** — always set `%% @lastActive: node_id` to the node you just worked on
+3. **Update RECENT subgraph** — move `subgraph recent [RECENT]` to wrap the node you just worked on
 4. **Add future work** identified during the session as `[opened]` nodes
 5. **Close nodes** when work is done or no longer relevant
 6. **Delete nodes** that are trivial or mistaken
 7. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
 8. **Keep it high-level** — this is a map, not a changelog
-9. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed)
+9. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed, bright purple=recent)
 10. **Pre-commit Update** — Always aim to update `vizvibe.mmd` before committing code changes to ensure the trajectory stays in sync with the project state.

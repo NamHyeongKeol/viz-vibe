@@ -552,6 +552,9 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     <div class="init-prompt-code" onclick="copyInitPrompt()">
                         "Please setup vizvibe for this project"
                     </div>
+                    <div class="init-prompt-lang-hint" style="font-size:11px;color:#94a3b8;margin-bottom:12px;">
+                        💬 Tip: Ask in your language for localized trajectory
+                    </div>
                     <div class="init-prompt-hint">
                         <span>💡 Click to copy</span>
                         <span>📝 Paste in AI chat</span>
@@ -776,7 +779,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         // Copy initialization prompt to clipboard
         function copyInitPrompt() {
-            const prompt = 'Please setup vizvibe for this project by reading the README and git history, then creating an initial trajectory graph.';
+            const prompt = 'Please setup vizvibe for this project by reading the README and git history, then creating an initial trajectory graph. Write the trajectory in my language.';
             navigator.clipboard.writeText(prompt).then(() => {
                 showToast('📋 Prompt copied! Paste it in your AI chat.');
             }).catch(() => {

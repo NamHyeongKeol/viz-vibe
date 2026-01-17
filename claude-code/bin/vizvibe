@@ -60,6 +60,7 @@ do_init() {
     echo "💡 Next steps:"
     echo "   1. Start Claude Code: claude"
     echo "   2. Ask Claude: \"Please setup vizvibe for this project\""
+    echo "   💬 Tip: Ask in your language for localized trajectory"
 }
 
 # Main command handler

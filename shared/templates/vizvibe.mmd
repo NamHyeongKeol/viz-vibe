@@ -1,13 +1,23 @@
 flowchart TD
+    %% === LANGUAGE ===
+    %% Default: English. If user communicates in another language, use that language.
+    %% Node IDs stay in English/ASCII. Only titles and descriptions are localized.
+
     %% === PROJECT GOALS ===
     %% Ultimate Goal: [Describe the final objective]
     %% Current Goal: [Describe immediate focus]
-    %% @lastActive: project_start
 
     %% === START ===
-    %% @project_start [start, closed]: Project initialized with Viz Vibe
+    %% @project_start [start, closed]
     project_start("Project Start")
 
+    %% === RECENT ===
+    subgraph recent [RECENT]
+        project_start
+    end
+
     %% === STYLES ===
-    %% Start node (teal) - also last active
+    %% Recent node (bright purple)
     style project_start fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    %% Recent subgraph (dashed border)
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
