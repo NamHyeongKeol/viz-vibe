@@ -1,23 +1,8 @@
+%%
+%% 👇 Copy this and Ask your AI agent to setup vizvibe!
+%%
+%% "Please setup vizvibe for this project. Write the trajectory in my language."
+%%
+
 flowchart TD
-    %% === LANGUAGE ===
-    %% Default: English. If user communicates in another language, use that language.
-    %% Node IDs stay in English/ASCII. Only titles and descriptions are localized.
-
-    %% === PROJECT GOALS ===
-    %% Ultimate Goal: [Describe the final objective]
-    %% Current Goal: [Describe immediate focus]
-
-    %% === START ===
-    %% @project_start [start, closed]
     project_start("Project Start")
-
-    %% === RECENT ===
-    subgraph recent [RECENT]
-        project_start
-    end
-
-    %% === STYLES ===
-    %% Recent node (bright purple)
-    style project_start fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
-    %% Recent subgraph (dashed border)
-    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5

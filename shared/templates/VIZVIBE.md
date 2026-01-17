@@ -495,7 +495,7 @@ flowchart TD
     style vscode_extension fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style lastactive_tracking fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
-    %% Last active node (highlighted - brighter purple)
+    %% Recent node (highlighted - brighter purple)
     style design_renewal fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
     %% Recent subgraph style (dashed purple border)
@@ -631,7 +631,7 @@ style node fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 %% Open tasks (soft green - like GitHub open)
 style node fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 
-%% Last active node (highlighted purple)
+%% Recent node (highlighted purple)
 style node fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
 %% Blocker (soft red)
@@ -645,7 +645,7 @@ style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 
 - **Green border**: Open/TODO tasks
 - **Purple border**: Closed/Done tasks
-- **Bright purple (highlighted)**: Last active node
+- **Bright purple (highlighted)**: Recent node (inside RECENT subgraph)
 - **Teal border**: Start node
 - **Gray border**: End/Goal node
 - **Red border**: Blocker
