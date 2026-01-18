@@ -500,11 +500,11 @@ flowchart TD
     style node_docs_template fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     node_docs_template -.-> map_and_docs_architecture
 
-    %% @tiered_context_injection [ai-task, opened, 2026-01-18, Antigravity]
-    tiered_context_injection["Tiered Context Injection<br/><sub>Implement hook logic to read<br/>Tier 0 (MMD) + Tier 1 (active node MD)<br/>while keeping historical docs<br/>searchable but not auto-loaded</sub>"]
+    %% @tiered_context_injection [ai-task, closed, 2026-01-18, Antigravity]
+    tiered_context_injection["Tiered Context Injection<br/><sub>Hook now reads Tier 0 (trajectory)<br/>+ Tier 1 (active node MD) with<br/>50-line limit. Supports v2.0 folder<br/>structure with legacy fallback</sub>"]
     map_and_docs_architecture --> tiered_context_injection
     node_docs_template --> tiered_context_injection
-    style tiered_context_injection fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style tiered_context_injection fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     tiered_context_injection -.-> map_and_docs_architecture
 
     %% @vizvibe_guide_v2 [ai-task, closed, 2026-01-18, Antigravity]
