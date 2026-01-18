@@ -521,8 +521,8 @@ flowchart TD
     style extension_node_md_viewer fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     extension_node_md_viewer -.-> vscode_ext_ui_ux
 
-    %% @migration_script [ai-task, opened, 2026-01-18, Antigravity]
-    migration_script["Migration Script<br/><sub>Create vizvibe-migrate script to<br/>move existing vizvibe.mmd to<br/>.vizvibe/trajectory.mmd and<br/>update CLI init command</sub>"]
+    %% @migration_script [ai-task, closed, 2026-01-18, Antigravity]
+    migration_script["Migration Script<br/><sub>CLI vizvibe migrate command<br/>moves vizvibe.mmd to .vizvibe/<br/>trajectory.mmd, creates state.json<br/>and updates .gitignore</sub>"]
     vizvibe_folder_structure --> migration_script
-    style migration_script fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style migration_script fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     migration_script -.-> map_and_docs_architecture
