@@ -692,18 +692,15 @@ When closing a node to `[closed]`, update `.vizvibe/nodes/@node_id.md`:
 When starting a new session in a project with Viz Vibe:
 
 1. **Locate trajectory file**:
-
    - Check `.vizvibe/trajectory.mmd` first
    - Fall back to `vizvibe.mmd` in project root
 
 2. **Read trajectory** to understand:
-
    - Project goals (ultimate and current)
    - Recent work (`@lastActive` marker or RECENT subgraph)
    - Open tasks awaiting work
 
 3. **Read active node documentation**:
-
    - Find the `@lastActive` node ID
    - Read `.vizvibe/nodes/@{lastActive}.md` if it exists
    - This provides detailed context for the current focus
@@ -728,3 +725,46 @@ When starting a new session in a project with Viz Vibe:
 10. **Keep it high-level** — this is a map, not a changelog
 11. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed, bright purple=recent)
 12. **Pre-commit Update** — Always aim to update trajectory before committing code changes
+
+---
+
+## Migration Guide
+
+### Migrating from v1.x to v2.0
+
+If you have an existing `vizvibe.mmd` file in your project root, you can migrate to the new `.vizvibe/` folder structure:
+
+```bash
+vizvibe migrate
+```
+
+This will:
+
+- Move `vizvibe.mmd` → `.vizvibe/trajectory.mmd`
+- Create `.vizvibe/nodes/` folder
+- Create `.vizvibe/state.json`
+- Update `.gitignore`
+
+### Generating Node Docs for Existing Nodes
+
+After migration, the `.vizvibe/nodes/` folder will be empty. You can ask your AI assistant to generate detailed documentation for existing nodes:
+
+**For all [opened] nodes:**
+
+```
+Please create execution plan documents (.vizvibe/nodes/@node_id.md) for all [opened] nodes in the trajectory that don't already have documentation.
+```
+
+**For specific important nodes:**
+
+```
+Please create a detailed document for @feature_login node in .vizvibe/nodes/@feature_login.md based on its context in the trajectory.
+```
+
+**For generating post-mortem reports for [closed] nodes:**
+
+```
+Please create post-mortem report documents for the recent [closed] nodes: @node_a, @node_b, @node_c
+```
+
+> **Note**: The AI will read the trajectory context and project files to generate meaningful documentation. You don't need to provide all details — the AI will infer from context.
