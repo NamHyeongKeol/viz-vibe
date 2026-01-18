@@ -1,8 +1,8 @@
 flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
-    %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: browser_search_focus_fix
+    %% Current Goal: Implement Map & Docs architecture for rich node context management
+    %% @lastActive: map_and_docs_architecture
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -266,7 +266,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        browser_search_focus_fix
+        map_and_docs_architecture
     end
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -341,7 +341,7 @@ flowchart TD
     %% @browser_search_focus_fix [ai-task, closed, 2026-01-17, Antigravity]
     browser_search_focus_fix["Browser Search Focus Fix<br/><sub>Fixed browser view search focusing<br/>to wrong location. Changed absolute<br/>transform assignment to delta-based<br/>calculation like VS Code extension.</sub>"]
     claude_code_browser_view --> browser_search_focus_fix
-    style browser_search_focus_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style browser_search_focus_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     browser_search_focus_fix -.-> ultimate_goal
 
     claude_code_uninstall_feature -.-> ultimate_goal
@@ -485,3 +485,44 @@ flowchart TD
     file_system_architecture --> vizvibe_folder_structure
     style vizvibe_folder_structure fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     vizvibe_folder_structure -.-> ultimate_goal
+
+    %% === MAP & DOCS ARCHITECTURE ===
+    %% @map_and_docs_architecture [milestone, opened, 2026-01-18, Antigravity]
+    map_and_docs_architecture["Map & Docs Architecture<br/><sub>Evolved context system separating<br/>trajectory graph (Map) from detailed<br/>node documentation (Docs), enabling<br/>AI agents to access rich context<br/>without information overload</sub>"]
+    scalable_graph_storage --> map_and_docs_architecture
+    vizvibe_folder_structure --> map_and_docs_architecture
+    style map_and_docs_architecture fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    map_and_docs_architecture -.-> ultimate_goal
+
+    %% @node_docs_template [ai-task, opened, 2026-01-18, Antigravity]
+    node_docs_template["Node Docs Template<br/><sub>Define standard structure for<br/>@node_id.md files: execution plan<br/>format for [opened] nodes and<br/>post-mortem report format for<br/>[closed] nodes</sub>"]
+    map_and_docs_architecture --> node_docs_template
+    style node_docs_template fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    node_docs_template -.-> map_and_docs_architecture
+
+    %% @tiered_context_injection [ai-task, opened, 2026-01-18, Antigravity]
+    tiered_context_injection["Tiered Context Injection<br/><sub>Implement hook logic to read<br/>Tier 0 (MMD) + Tier 1 (active node MD)<br/>while keeping historical docs<br/>searchable but not auto-loaded</sub>"]
+    map_and_docs_architecture --> tiered_context_injection
+    node_docs_template --> tiered_context_injection
+    style tiered_context_injection fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    tiered_context_injection -.-> map_and_docs_architecture
+
+    %% @vizvibe_guide_v2 [ai-task, closed, 2026-01-18, Antigravity]
+    vizvibe_guide_v2["VIZVIBE.md Guide v2<br/><sub>Added File Structure v2.0 section,<br/>Node Documentation rules with<br/>templates, Session Start Protocol,<br/>and updated AI Instructions Summary</sub>"]
+    vizvibe_guide --> vizvibe_guide_v2
+    node_docs_template --> vizvibe_guide_v2
+    style vizvibe_guide_v2 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    vizvibe_guide_v2 -.-> map_and_docs_architecture
+
+    %% @extension_node_md_viewer [ai-task, opened, 2026-01-18, Antigravity]
+    extension_node_md_viewer["Extension Node MD Viewer<br/><sub>Enable clicking a node in graph<br/>to open its @node_id.md file in<br/>a side panel, showing full plan<br/>or report without switching editors</sub>"]
+    node_click_detail_view --> extension_node_md_viewer
+    node_docs_template --> extension_node_md_viewer
+    style extension_node_md_viewer fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    extension_node_md_viewer -.-> vscode_ext_ui_ux
+
+    %% @migration_script [ai-task, opened, 2026-01-18, Antigravity]
+    migration_script["Migration Script<br/><sub>Create vizvibe-migrate script to<br/>move existing vizvibe.mmd to<br/>.vizvibe/trajectory.mmd and<br/>update CLI init command</sub>"]
+    vizvibe_folder_structure --> migration_script
+    style migration_script fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    migration_script -.-> map_and_docs_architecture

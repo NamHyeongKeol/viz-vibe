@@ -587,15 +587,144 @@ style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 
 ---
 
+## File Structure (v2.0)
+
+Viz Vibe supports two folder structures:
+
+### Modern Structure (Recommended)
+
+```
+.vizvibe/
+├── trajectory.mmd    # Main graph (the "Map")
+├── nodes/            # Detailed node documentation (the "Docs")
+│   ├── @node_id.md
+│   └── ...
+└── state.json        # Runtime metadata
+```
+
+### Legacy Structure (Still Supported)
+
+```
+vizvibe.mmd           # In project root
+```
+
+**Note**: If `.vizvibe/trajectory.mmd` exists, use it. Otherwise, fall back to `vizvibe.mmd` in project root.
+
+---
+
+## Node Documentation
+
+Each significant node should have a corresponding Markdown file in `.vizvibe/nodes/`.
+
+### When to Create Node Docs
+
+| Scenario                        | Create @node_id.md? |
+| ------------------------------- | ------------------- |
+| Major feature or milestone      | ✅ Yes              |
+| Complex task requiring planning | ✅ Yes              |
+| Simple bug fix                  | ❌ No               |
+| Routine refactoring             | ❌ No               |
+
+### [opened] Node → Execution Plan
+
+When creating a new `[opened]` node, create `.vizvibe/nodes/@node_id.md`:
+
+```markdown
+# @node_id: [Node Title]
+
+## Objective
+
+[What does success look like?]
+
+## Hypotheses
+
+- [ ] [Assumption to validate]
+- [ ] [Another assumption]
+
+## Plan
+
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+## Context
+
+- Parent: [@parent_node](./@parent_node.md)
+- Related files: `src/example.ts`
+```
+
+### [closed] Node → Post-Mortem Report
+
+When closing a node to `[closed]`, update `.vizvibe/nodes/@node_id.md`:
+
+```markdown
+# @node_id: [Node Title] ✅
+
+## Summary
+
+[What was actually implemented?]
+
+## Key Decisions
+
+| Choice | Selected | Reason             |
+| ------ | -------- | ------------------ |
+| A vs B | A        | [Why A was chosen] |
+
+## Changes
+
+- `path/to/file.ts`: [What changed]
+
+## Mementos
+
+- [Important things to remember]
+- [Technical debt created]
+
+## Verification
+
+- [x] Tests passing
+- [x] Manual verification done
+```
+
+---
+
+## Session Start Protocol
+
+When starting a new session in a project with Viz Vibe:
+
+1. **Locate trajectory file**:
+
+   - Check `.vizvibe/trajectory.mmd` first
+   - Fall back to `vizvibe.mmd` in project root
+
+2. **Read trajectory** to understand:
+
+   - Project goals (ultimate and current)
+   - Recent work (`@lastActive` marker or RECENT subgraph)
+   - Open tasks awaiting work
+
+3. **Read active node documentation**:
+
+   - Find the `@lastActive` node ID
+   - Read `.vizvibe/nodes/@{lastActive}.md` if it exists
+   - This provides detailed context for the current focus
+
+4. **Do NOT read all node docs** — only the active one. Historical docs should be read on-demand when needed.
+
+> **IMPORTANT**: This protocol ensures you have both the "big picture" (trajectory) and "deep context" (active node doc) without information overload.
+
+---
+
 ## AI Instructions Summary
 
-1. **Read** `vizvibe.mmd` at the start of each session to understand context
-2. **Update** after completing significant work
-3. **Update RECENT subgraph** — move `subgraph recent [RECENT]` to wrap the node you just worked on
-4. **Add future work** identified during the session as `[opened]` nodes
-5. **Close nodes** when work is done or no longer relevant
-6. **Delete nodes** that are trivial or mistaken
-7. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
-8. **Keep it high-level** — this is a map, not a changelog
-9. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed, bright purple=recent)
-10. **Pre-commit Update** — Always aim to update `vizvibe.mmd` before committing code changes to ensure the trajectory stays in sync with the project state.
+1. **Read** trajectory at the start of each session to understand context
+2. **Read active node doc** (`.vizvibe/nodes/@{lastActive}.md`) for detailed context
+3. **Update** after completing significant work
+4. **Create node docs** for complex tasks — execution plan for [opened], report for [closed]
+5. **Update RECENT subgraph** — move `subgraph recent [RECENT]` to wrap the node you just worked on
+6. **Add future work** identified during the session as `[opened]` nodes
+7. **Close nodes** when work is done or no longer relevant
+8. **Delete nodes** that are trivial or mistaken
+9. **Maintain relationships** — connect dependent tasks, keep independent tasks parallel
+10. **Keep it high-level** — this is a map, not a changelog
+11. **Use consistent styling** — GitHub-inspired colors (green=open, purple=closed, bright purple=recent)
+12. **Pre-commit Update** — Always aim to update trajectory before committing code changes
