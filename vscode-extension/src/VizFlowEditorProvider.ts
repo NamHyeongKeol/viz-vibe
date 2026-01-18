@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
   public static readonly viewType = 'vizVibe.vizflowEditor';
@@ -53,6 +54,93 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
       } else if (message.type === 'openInDefaultEditor') {
         // Open file in VS Code's default text editor for native search
         await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
+      } else if (message.type === 'openNodeDoc') {
+        // Open node documentation file in side panel
+        const nodeId = message.nodeId;
+        if (!nodeId) return;
+        
+        // Determine the workspace root from the document path
+        const docDir = path.dirname(document.uri.fsPath);
+        // Check if document is in .vizvibe folder
+        const isV2 = docDir.endsWith('.vizvibe');
+        const workspaceRoot = isV2 ? path.dirname(docDir) : docDir;
+        
+        // Build paths to node doc (try both formats)
+        const nodeDocPathWithAt = path.join(workspaceRoot, '.vizvibe', 'nodes', `@${nodeId}.md`);
+        const nodeDocPathNoAt = path.join(workspaceRoot, '.vizvibe', 'nodes', `${nodeId}.md`);
+        
+        // Try to find existing file (with @ first, then without)
+        let nodeDocPath = nodeDocPathWithAt;
+        try {
+          await vscode.workspace.fs.stat(vscode.Uri.file(nodeDocPathWithAt));
+        } catch {
+          try {
+            await vscode.workspace.fs.stat(vscode.Uri.file(nodeDocPathNoAt));
+            nodeDocPath = nodeDocPathNoAt;
+          } catch {
+            nodeDocPath = nodeDocPathWithAt; // Default to @format if neither exists
+          }
+        }
+        
+        try {
+          const nodeDocUri = vscode.Uri.file(nodeDocPath);
+          // Check if file exists
+          await vscode.workspace.fs.stat(nodeDocUri);
+          // Open in side column
+          const doc = await vscode.workspace.openTextDocument(nodeDocUri);
+          await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside, true);
+        } catch {
+          // File doesn't exist - offer to create it
+          const create = await vscode.window.showInformationMessage(
+            `No documentation for @${nodeId}. Create one?`,
+            'Create',
+            'Cancel'
+          );
+          if (create === 'Create') {
+            // Create template content
+            const isOpened = message.state === 'opened' || message.state !== 'closed';
+            const template = isOpened ? 
+`# @${nodeId}: ${message.label || nodeId}
+
+## Objective
+[What does success look like?]
+
+## Plan
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+## Context
+- Related files: \`src/...\`
+` :
+`# @${nodeId}: ${message.label || nodeId} ✅
+
+## Summary
+[What was implemented?]
+
+## Key Decisions
+| Choice | Selected | Reason |
+|--------|----------|--------|
+| ... | ... | ... |
+
+## Changes
+- \`path/to/file\`: [What changed]
+`;
+            // Create directory if needed
+            const nodesDir = path.join(workspaceRoot, '.vizvibe', 'nodes');
+            try {
+              await vscode.workspace.fs.createDirectory(vscode.Uri.file(nodesDir));
+            } catch { /* directory might exist */ }
+            
+            // Write file
+            const nodeDocUri = vscode.Uri.file(nodeDocPath);
+            await vscode.workspace.fs.writeFile(nodeDocUri, Buffer.from(template, 'utf-8'));
+            
+            // Open it
+            const doc = await vscode.workspace.openTextDocument(nodeDocUri);
+            await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside, true);
+          }
+        }
       }
     });
 
@@ -979,13 +1067,20 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                         showNodeInfo(nodeId);
                     });
 
-                    // Double click - copy all
+                    // Double click - open node documentation
                     nodeEl.addEventListener('dblclick', (e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         selectedNodeId = nodeId;
                         extractNodeLabel(nodeEl, nodeId);
-                        copyNodeAll();
+                        const meta = nodeMetadata[nodeId] || {};
+                        // Send message to VS Code to open node doc
+                        vscode.postMessage({
+                            type: 'openNodeDoc',
+                            nodeId: nodeId,
+                            label: selectedNodeLabel,
+                            state: meta.state || 'opened'
+                        });
                     });
 
                     // Right click - context menu
