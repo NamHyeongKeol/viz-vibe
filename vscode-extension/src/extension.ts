@@ -124,15 +124,28 @@ async function checkAndPromptInitialization(context: vscode.ExtensionContext) {
 
     const workspaceRoot = workspaceFolders[0].uri;
 
-    // Check if vizvibe.mmd specifically exists (not any .mmd file)
-    const vizvibePath = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
+    // Check if Viz Vibe is already set up (v2.0 or legacy)
+    const v2TrajectoryPath = vscode.Uri.joinPath(workspaceRoot, '.vizvibe', 'trajectory.mmd');
+    const legacyPath = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
+    
+    // Check v2.0 structure first
     try {
-        await vscode.workspace.fs.stat(vizvibePath);
-        // vizvibe.mmd exists, just ensure global rules exist
+        await vscode.workspace.fs.stat(v2TrajectoryPath);
+        // v2.0 structure exists
         await updateGlobalGeminiRules();
         return;
     } catch {
-        // vizvibe.mmd doesn't exist, continue to prompt
+        // v2.0 doesn't exist, check legacy
+    }
+    
+    // Check legacy structure
+    try {
+        await vscode.workspace.fs.stat(legacyPath);
+        // legacy exists, ensure global rules exist
+        await updateGlobalGeminiRules();
+        return;
+    } catch {
+        // Neither exists, continue to prompt
     }
 
     // No .mmd file - always ask (no alreadyAsked check)
@@ -174,10 +187,10 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
         } else {
             const openTrajectory = await vscode.window.showInformationMessage(
                 '✅ Viz Vibe has been set up for this project!',
-                'Open vizvibe.mmd'
+                'Open trajectory'
             );
             if (openTrajectory) {
-                const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
+                const trajectoryUri = vscode.Uri.joinPath(workspaceRoot, '.vizvibe', 'trajectory.mmd');
                 // Open with Custom Editor (Graph View) directly
                 await vscode.commands.executeCommand('vscode.openWith', trajectoryUri, 'vizVibe.vizflowEditor');
             }
@@ -188,24 +201,85 @@ async function initializeVizVibe(context: vscode.ExtensionContext, showSuccess: 
 }
 
 async function createTrajectoryFile(workspaceRoot: vscode.Uri) {
-    const filePath = vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd');
+    // v2.0 folder structure
+    const vizvibeDir = vscode.Uri.joinPath(workspaceRoot, '.vizvibe');
+    const nodesDir = vscode.Uri.joinPath(vizvibeDir, 'nodes');
+    const trajectoryPath = vscode.Uri.joinPath(vizvibeDir, 'trajectory.mmd');
+    const statePath = vscode.Uri.joinPath(vizvibeDir, 'state.json');
 
-    // Check if already exists
+    // Check if already exists (v2.0 or legacy)
     try {
-        await vscode.workspace.fs.stat(filePath);
-        return; // Already exists
+        await vscode.workspace.fs.stat(trajectoryPath);
+        return; // v2.0 already exists
     } catch {
-        // File doesn't exist, create it
+        // Check legacy
+        try {
+            await vscode.workspace.fs.stat(vscode.Uri.joinPath(workspaceRoot, 'vizvibe.mmd'));
+            return; // Legacy exists, don't overwrite
+        } catch {
+            // Neither exists, create v2.0 structure
+        }
     }
 
-    const content = `flowchart TD
-    %% @project_start [start]: Viz Vibe initialized
-    project_start(["Project Start"])
+    // Create directories
+    try {
+        await vscode.workspace.fs.createDirectory(vizvibeDir);
+    } catch {
+        // Directory might already exist
+    }
+    try {
+        await vscode.workspace.fs.createDirectory(nodesDir);
+    } catch {
+        // Directory might already exist
+    }
 
-    style project_start fill:#64748b,stroke:#475569,color:#fff,stroke-width:1px
+    // Create trajectory.mmd
+    const trajectoryContent = `flowchart TD
+    %% === PROJECT GOALS ===
+    %% Ultimate Goal: [Describe your project's ultimate goal]
+    %% Current Goal: [Describe your current focus]
+    %% @lastActive: project_start
+
+    %% @project_start [start, closed]
+    project_start("Project Start<br/><sub>Viz Vibe initialized<br/>Ready to track trajectory</sub>")
+
+    %% @ultimate_goal [end, opened]
+    ultimate_goal("Ultimate Goal<br/><sub>Your project's final<br/>objective goes here</sub>")
+
+    project_start -.-> ultimate_goal
+
+    subgraph recent [RECENT]
+        project_start
+    end
+
+    %% === STYLES ===
+    style project_start fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+    style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 `;
+    await vscode.workspace.fs.writeFile(trajectoryPath, Buffer.from(trajectoryContent, 'utf-8'));
 
-    await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf-8'));
+    // Create state.json
+    const stateContent = JSON.stringify({
+        version: '2.0',
+        createdAt: new Date().toISOString(),
+        lastActiveNode: 'project_start'
+    }, null, 2);
+    await vscode.workspace.fs.writeFile(statePath, Buffer.from(stateContent, 'utf-8'));
+
+    // Add .vizvibe/state.json to .gitignore
+    const gitignorePath = vscode.Uri.joinPath(workspaceRoot, '.gitignore');
+    try {
+        const existingContent = (await vscode.workspace.fs.readFile(gitignorePath)).toString();
+        if (!existingContent.includes('.vizvibe/state.json')) {
+            const newContent = existingContent.trim() + '\n\n# Viz Vibe runtime state\n.vizvibe/state.json\n';
+            await vscode.workspace.fs.writeFile(gitignorePath, Buffer.from(newContent, 'utf-8'));
+        }
+    } catch {
+        // .gitignore doesn't exist, create it
+        const content = '# Viz Vibe runtime state\n.vizvibe/state.json\n';
+        await vscode.workspace.fs.writeFile(gitignorePath, Buffer.from(content, 'utf-8'));
+    }
 }
 
 /**
