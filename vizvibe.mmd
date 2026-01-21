@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: canvas_text_blur_fix
+    %% @lastActive: canvas_focus_subgraph_render
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -268,8 +268,14 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        canvas_text_blur_fix
+        canvas_focus_subgraph_render
     end
+
+    %% @canvas_focus_subgraph_render [ai-task, closed, 2026-01-21, nam]
+    canvas_focus_subgraph_render["Canvas Focus & Subgraph Render<br/><sub>Added RECENT node auto-focus on load<br/>and direction change. Implemented<br/>subgraph box rendering with dashed<br/>purple border and label display.</sub>"]
+    canvas_text_blur_fix --> canvas_focus_subgraph_render
+    style canvas_focus_subgraph_render fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    canvas_focus_subgraph_render -.-> ultimate_goal
 
     %% @canvas_date_author_display [ai-task, closed, 2026-01-21, nam]
     canvas_date_author_display["Canvas Date/Author Display<br/><sub>Added date/author display to Canvas<br/>renderer nodes. Fixed duplicate meta<br/>declaration syntax error. Unified all<br/>node colors to purple/green only.</sub>"]

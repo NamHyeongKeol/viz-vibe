@@ -1176,6 +1176,7 @@ function getCanvasHtml() {
         let isPanning = false;
         let startPan = { x: 0, y: 0 };
         let flowDirection = 'TD';
+        let isFirstLoad = true;
         let searchResults = [];
         let currentSearchIndex = -1;
         
@@ -1237,10 +1238,23 @@ function getCanvasHtml() {
                 };
             }
 
-            // Subgraphs
-            const subgraphRegex = /subgraph\\s+(\\w+)\\s*\\[([^\\]]+)\\]/g;
-            while ((match = subgraphRegex.exec(code)) !== null) {
-                subgraphs.push({ id: match[1], label: match[2] });
+            // Subgraphs - parse subgraph blocks to get nodes inside
+            subgraphs = [];
+            const subgraphBlockRegex = /subgraph\\s+(\\w+)\\s*\\[([^\\]]+)\\]([\\s\\S]*?)end/g;
+            while ((match = subgraphBlockRegex.exec(code)) !== null) {
+                const sgId = match[1];
+                const sgLabel = match[2];
+                const sgContent = match[3];
+                // Extract node IDs inside this subgraph (simple: lines with just a word)
+                const sgNodeIds = [];
+                const nodeIdRegex = /^\\s+(\\w+)\\s*$/gm;
+                let nodeMatch;
+                while ((nodeMatch = nodeIdRegex.exec(sgContent)) !== null) {
+                    if (nodeMatch[1] !== 'end') {
+                        sgNodeIds.push(nodeMatch[1]);
+                    }
+                }
+                subgraphs.push({ id: sgId, label: sgLabel, nodeIds: sgNodeIds });
             }
 
             // Nodes - various formats
@@ -1385,6 +1399,43 @@ function getCanvasHtml() {
                 ctx.closePath();
                 ctx.fillStyle = '#475569';
                 ctx.fill();
+            });
+
+            // Draw subgraph boxes
+            subgraphs.forEach(sg => {
+                // Find nodes in this subgraph
+                const sgNodes = nodes.filter(n => sg.nodeIds.includes(n.id));
+                if (sgNodes.length === 0) return;
+                
+                // Calculate bounding box
+                const padding = 20;
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                sgNodes.forEach(n => {
+                    minX = Math.min(minX, n.x);
+                    minY = Math.min(minY, n.y);
+                    maxX = Math.max(maxX, n.x + n.width);
+                    maxY = Math.max(maxY, n.y + n.height);
+                });
+                
+                const boxX = minX - padding;
+                const boxY = minY - padding - 20; // extra space for label
+                const boxW = maxX - minX + padding * 2;
+                const boxH = maxY - minY + padding * 2 + 20;
+                
+                // Draw dashed border box
+                ctx.strokeStyle = '#c084fc';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                roundRect(ctx, boxX, boxY, boxW, boxH, 8);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw label
+                ctx.fillStyle = '#c084fc';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText(sg.label, boxX + 10, boxY + 5);
             });
 
             // Draw nodes
@@ -1565,13 +1616,48 @@ function getCanvasHtml() {
             render();
         }
 
+        // Focus on RECENT subgraph or lastActive node
+        function focusOnRecent() {
+            // Find the node that's in the RECENT subgraph or is lastActive
+            let targetNode = null;
+            
+            // Check if there's a 'recent' subgraph and find its nodes
+            const recentSubgraph = subgraphs.find(sg => sg.id === 'recent');
+            if (recentSubgraph && lastActiveNodeId) {
+                // Find the lastActive node
+                targetNode = nodes.find(n => n.id === lastActiveNodeId);
+            }
+            
+            // Fallback to lastActive even without subgraph
+            if (!targetNode && lastActiveNodeId) {
+                targetNode = nodes.find(n => n.id === lastActiveNodeId);
+            }
+            
+            // If we found a target, focus on it
+            if (targetNode && targetNode.width > 0) {
+                const viewWidth = graphView.clientWidth;
+                const viewHeight = graphView.clientHeight;
+                const targetCenterX = targetNode.x + targetNode.width / 2;
+                const targetCenterY = targetNode.y + targetNode.height / 2;
+                
+                // Set a reasonable zoom level
+                transform.scale = 0.8;
+                transform.x = viewWidth / 2 - targetCenterX * transform.scale;
+                transform.y = viewHeight / 2 - targetCenterY * transform.scale;
+                render();
+            } else {
+                // Fallback to fitToScreen if no target found
+                fitToScreen();
+            }
+        }
+
         function changeDirection() {
             const newDir = document.getElementById('flowDirection').value;
             if (newDir !== flowDirection) {
                 mermaidCode = mermaidCode.replace(/flowchart\\s+(TD|LR|BT|RL)/, 'flowchart ' + newDir);
                 parseMermaid(mermaidCode);
                 render();
-                setTimeout(fitToScreen, 100);
+                setTimeout(focusOnRecent, 100);
             }
         }
 
@@ -1676,7 +1762,8 @@ function getCanvasHtml() {
             resizeCanvas();
             parseMermaid(mermaidCode);
             render();
-            setTimeout(fitToScreen, 100);
+            isFirstLoad = false;
+            setTimeout(focusOnRecent, 100);
         });
         connectSSE();
     </script>
