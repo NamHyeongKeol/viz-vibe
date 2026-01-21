@@ -2,14 +2,16 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: canvas_date_author_display
+    %% @lastActive: canvas_text_blur_fix
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
     new_user_onboarding["New User Onboarding<br/><sub>Comprehensive initiative to improve<br/>the onboarding experience for new users,<br/>including documentation, tutorials,<br/>and first-time setup guidance</sub>"]
+    style new_user_onboarding fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     
     %% @readme_improvement [ai-task, closed, 2026-01-14, nam]
     readme_improvement["README Improvement<br/><sub>Changed workflow→trajectory wording,<br/>added Why We Built This section about<br/>AI context management challenges, added<br/>note clarifying vizvibe shows work<br/>trajectory not code structure</sub>"]
+    style readme_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% @readme_getting_started [ai-task, closed, 2026-01-17, nam]
     readme_getting_started["README Getting Started<br/><sub>Restructured installation docs for<br/>clarity: separated VS Code/Cursor/<br/>Antigravity sections, added details<br/>tags for optional info, simplified<br/>step descriptions for quick scanning</sub>"]
@@ -266,7 +268,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        canvas_date_author_display
+        canvas_text_blur_fix
     end
 
     %% @canvas_date_author_display [ai-task, closed, 2026-01-21, nam]
@@ -275,10 +277,10 @@ flowchart TD
     style canvas_date_author_display fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     canvas_date_author_display -.-> ultimate_goal
 
-    %% @canvas_text_blur_fix [ai-task, opened, 2026-01-21, nam]
-    canvas_text_blur_fix["Canvas Text Blur Fix<br/><sub>Canvas text appears blurry on Retina<br/>displays due to devicePixelRatio not<br/>being applied. Need to scale canvas<br/>buffer size for high-DPI screens.</sub>"]
+    %% @canvas_text_blur_fix [ai-task, closed, 2026-01-21, nam]
+    canvas_text_blur_fix["Canvas Text Blur Fix<br/><sub>Fixed blurry text on Retina displays<br/>by applying devicePixelRatio scaling.<br/>Canvas buffer sized to DPR, CSS keeps<br/>original size, ctx.scale(dpr) applied.</sub>"]
     canvas_date_author_display --> canvas_text_blur_fix
-    style canvas_text_blur_fix fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style canvas_text_blur_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_text_blur_fix -.-> ultimate_goal
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
@@ -395,6 +397,9 @@ flowchart TD
     project_start --> new_user_onboarding
     new_user_onboarding --> readme_improvement
     readme_improvement --> readme_getting_started
+    
+    %% @readme_why_expansion [ai-task, closed, 2026-01-14, nam]
+    readme_why_expansion["README Why Expansion<br/><sub>Enhanced 'Why We Built This' section<br/>with more detailed explanations of<br/>context management challenges in AI<br/>coding workflows.</sub>"]
     readme_improvement --> readme_why_expansion
     style readme_why_expansion fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     style readme_getting_started fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px

@@ -1182,16 +1182,25 @@ function getCanvasHtml() {
         // Performance optimization flags
         let renderPending = false;
         let eventSource = null; // Track SSE connection for cleanup
+        
+        // High-DPI support
+        const dpr = window.devicePixelRatio || 1;
 
         const canvas = document.getElementById('graph-canvas');
         const ctx = canvas.getContext('2d');
         const graphView = document.getElementById('graph-view');
 
-        // Resize canvas with debouncing
+        // Resize canvas with debouncing - applies devicePixelRatio for crisp text on Retina displays
         let resizeTimeout = null;
         function resizeCanvas() {
-            canvas.width = graphView.clientWidth;
-            canvas.height = graphView.clientHeight;
+            const width = graphView.clientWidth;
+            const height = graphView.clientHeight;
+            // Set canvas buffer size to DPR-scaled dimensions for sharp rendering
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            // Keep CSS size at original dimensions
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
             render();
         }
         window.addEventListener('resize', () => {
@@ -1339,6 +1348,8 @@ function getCanvasHtml() {
         function renderImmediate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
+            // Apply DPR scaling for crisp rendering on high-DPI displays
+            ctx.scale(dpr, dpr);
             ctx.translate(transform.x, transform.y);
             ctx.scale(transform.scale, transform.scale);
 
@@ -1543,11 +1554,14 @@ function getCanvasHtml() {
             });
             const w = maxX - minX + 100;
             const h = maxY - minY + 100;
-            const scaleX = canvas.width / w;
-            const scaleY = canvas.height / h;
+            // Use CSS dimensions (not canvas buffer size which is DPR-scaled)
+            const viewWidth = graphView.clientWidth;
+            const viewHeight = graphView.clientHeight;
+            const scaleX = viewWidth / w;
+            const scaleY = viewHeight / h;
             transform.scale = Math.min(scaleX, scaleY, 1);
-            transform.x = (canvas.width - w * transform.scale) / 2 - minX * transform.scale + 50;
-            transform.y = (canvas.height - h * transform.scale) / 2 - minY * transform.scale + 50;
+            transform.x = (viewWidth - w * transform.scale) / 2 - minX * transform.scale + 50;
+            transform.y = (viewHeight - h * transform.scale) / 2 - minY * transform.scale + 50;
             render();
         }
 
@@ -1596,8 +1610,9 @@ function getCanvasHtml() {
         function focusOnNode(node) {
             const targetX = node.x + node.width / 2;
             const targetY = node.y + node.height / 2;
-            transform.x = canvas.width / 2 - targetX * transform.scale;
-            transform.y = canvas.height / 2 - targetY * transform.scale;
+            // Use CSS dimensions (not canvas buffer size which is DPR-scaled)
+            transform.x = graphView.clientWidth / 2 - targetX * transform.scale;
+            transform.y = graphView.clientHeight / 2 - targetY * transform.scale;
         }
         document.getElementById('search-input').addEventListener('input', (e) => performSearch(e.target.value));
         document.getElementById('search-input').addEventListener('keydown', (e) => {
