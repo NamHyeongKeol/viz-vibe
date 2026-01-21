@@ -658,43 +658,6 @@ function getHtml() {
             }
         }
 
-        // Add descriptions to node definitions
-        function addDescriptionsToCode(code) {
-            const lines = code.split('\\n');
-            const result = [];
-            for (const line of lines) {
-                let newLine = line;
-                if (!line.trim().startsWith('%') && !line.trim().startsWith('style')) {
-                    for (const [nodeId, meta] of Object.entries(nodeMetadata)) {
-                        const labelRegex = new RegExp(\`(\${nodeId}(?:\\\\[|\\\\(|\\\"|\\\\{).*?(?:\\\\]|\\\\)|\\\"|\\\\}))(?!.*<sub>)\`, 'g');
-                        if (labelRegex.test(newLine)) {
-                            let metaLabel = '';
-                            if (meta.date || meta.author) {
-                                const parts = [];
-                                if (meta.date) parts.push('📅 ' + meta.date);
-                                if (meta.author) parts.push('👤 ' + meta.author);
-                                metaLabel = '<br/><sub style="font-size:9px;color:#64748b;">' + parts.join(' • ') + '</sub>';
-                            }
-                            if (metaLabel) {
-                                newLine = newLine.replace(labelRegex, (match) => {
-                                    const closeChar = match.slice(-1);
-                                    const content = match.slice(0, -1);
-                                    const hasSubAlready = match.includes('</sub>');
-                                    if (hasSubAlready) {
-                                        return match.replace('</sub>', '</sub>' + metaLabel);
-                                    }
-                                    return content + metaLabel + closeChar;
-                                });
-                            }
-                            break;
-                        }
-                    }
-                }
-                result.push(newLine);
-            }
-            return result.join('\\n');
-        }
-
         // Render mermaid
         async function render() {
             const output = document.getElementById('mermaid-output');
@@ -710,10 +673,9 @@ function getHtml() {
             // Show/hide init overlay
             updateInitPrompt(isTemplateState(nodes));
 
-            const processedCode = addDescriptionsToCode(mermaidCode);
-
             try {
-                const { svg } = await mermaid.render('mermaid-svg', processedCode);
+                // Use mermaidCode directly - no need to modify it
+                const { svg } = await mermaid.render('mermaid-svg', mermaidCode);
                 output.innerHTML = svg;
 
                 // Node click handlers
@@ -1305,18 +1267,20 @@ function getCanvasHtml() {
         function layoutNodes() {
             const nodeMap = {};
             nodes.forEach(n => nodeMap[n.id] = n);
-
             // Calculate text dimensions
             ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
             nodes.forEach(node => {
                 const lines = node.label.split('\\n');
+                const meta = nodeMetadata[node.id] || {};
+                const hasMetaLine = meta.date || meta.author;
+                const totalLines = hasMetaLine ? lines.length + 1 : lines.length;
                 let maxWidth = 0;
                 lines.forEach(line => {
                     const w = ctx.measureText(line).width;
                     if (w > maxWidth) maxWidth = w;
                 });
-                node.width = Math.min(Math.max(maxWidth + 40, 140), 280);
-                node.height = Math.max(lines.length * 16 + 30, 60);
+                node.width = Math.min(Math.max(maxWidth + 40, 140), 350);
+                node.height = Math.max(totalLines * 16 + 30, 60);
             });
 
             // Use dagre for layout
@@ -1437,12 +1401,27 @@ function getCanvasHtml() {
                 ctx.textBaseline = 'middle';
                 
                 const lines = node.label.split('\\n');
+                // meta is already declared above at line 1381
+                const hasMetaLine = meta.date || meta.author;
+                const totalLines = hasMetaLine ? lines.length + 1 : lines.length;
                 const lineHeight = 14;
-                const startY = node.y + node.height / 2 - (lines.length - 1) * lineHeight / 2;
+                const startY = node.y + node.height / 2 - (totalLines - 1) * lineHeight / 2;
+                
+                // Draw label lines
                 lines.forEach((line, i) => {
-                    const truncated = line.length > 35 ? line.slice(0, 32) + '...' : line;
+                    const truncated = line.length > 50 ? line.slice(0, 47) + '...' : line;
                     ctx.fillText(truncated, node.x + node.width / 2, startY + i * lineHeight);
                 });
+                
+                // Draw date/author line
+                if (hasMetaLine) {
+                    const metaParts = [];
+                    if (meta.date) metaParts.push('📅 ' + meta.date);
+                    if (meta.author) metaParts.push('👤 ' + meta.author);
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+                    ctx.fillText(metaParts.join(' • '), node.x + node.width / 2, startY + lines.length * lineHeight);
+                }
             });
 
             ctx.restore();

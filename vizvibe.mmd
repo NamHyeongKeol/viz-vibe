@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: canvas_memory_issue
+    %% @lastActive: canvas_date_author_display
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -11,13 +11,13 @@ flowchart TD
     %% @readme_improvement [ai-task, closed, 2026-01-14, nam]
     readme_improvement["README Improvement<br/><sub>Changed workflow→trajectory wording,<br/>added Why We Built This section about<br/>AI context management challenges, added<br/>note clarifying vizvibe shows work<br/>trajectory not code structure</sub>"]
 
-    %% @readme_getting_started [ai-task, closed, 2026-01-17, Antigravity]
+    %% @readme_getting_started [ai-task, closed, 2026-01-17, nam]
     readme_getting_started["README Getting Started<br/><sub>Restructured installation docs for<br/>clarity: separated VS Code/Cursor/<br/>Antigravity sections, added details<br/>tags for optional info, simplified<br/>step descriptions for quick scanning</sub>"]
 
-    %% @readme_color_update [ai-task, closed, 2026-01-17, Antigravity]
+    %% @readme_color_update [ai-task, closed, 2026-01-17, nam]
     readme_color_update["README Color Clarification<br/><sub>Used HTML span tags to apply<br/>Viz Vibe brand colors (#4ade80/<br/>#a78bfa) directly to [opened]/[closed]<br/>text in README Node States section</sub>"]
 
-    %% @readme_highlights [ai-task, closed, 2026-01-17, Antigravity]
+    %% @readme_highlights [ai-task, closed, 2026-01-17, nam]
     readme_highlights["README Highlights<br/><sub>Added colors to section headers<br/>and key actions (Install, Yes, Done)<br/>using HTML spans. Added explicit AI<br/>setup instruction to the intro quote.</sub>"]
 
     %% === START ===
@@ -125,10 +125,10 @@ flowchart TD
     %% GitHub-inspired colors: Open = green, Closed = purple/gray
 
     %% Start node (muted gray - same as end node)
-    style project_start fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+    style project_start fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% Ultimate Goal (muted)
-    style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+    style ultimate_goal fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 
     %% Closed tasks (soft purple - like GitHub merged)
     style mermaid_native fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
@@ -219,7 +219,7 @@ flowchart TD
     style graph_search_feature fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     graph_search_feature -.-> subgraph_search_improvement
     
-    %% @subgraph_search_improvement [ai-task, closed, 2026-01-17, Antigravity]
+    %% @subgraph_search_improvement [ai-task, closed, 2026-01-17, nam]
     subgraph_search_improvement["Search Subgraphs<br/><sub>Enabled searching for subgraphs<br/>(clusters) via Cmd+F, with<br/>automatic centering, highlighting,<br/>and inner node visibility.</sub>"]
     subgraph_search_improvement -.-> vscode_ext_ui_ux
     
@@ -266,8 +266,20 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        canvas_memory_issue
+        canvas_date_author_display
     end
+
+    %% @canvas_date_author_display [ai-task, closed, 2026-01-21, nam]
+    canvas_date_author_display["Canvas Date/Author Display<br/><sub>Added date/author display to Canvas<br/>renderer nodes. Fixed duplicate meta<br/>declaration syntax error. Unified all<br/>node colors to purple/green only.</sub>"]
+    canvas_memory_issue --> canvas_date_author_display
+    style canvas_date_author_display fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    canvas_date_author_display -.-> ultimate_goal
+
+    %% @canvas_text_blur_fix [ai-task, opened, 2026-01-21, nam]
+    canvas_text_blur_fix["Canvas Text Blur Fix<br/><sub>Canvas text appears blurry on Retina<br/>displays due to devicePixelRatio not<br/>being applied. Need to scale canvas<br/>buffer size for high-DPI screens.</sub>"]
+    canvas_date_author_display --> canvas_text_blur_fix
+    style canvas_text_blur_fix fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    canvas_text_blur_fix -.-> ultimate_goal
 
     %% @claude_plugin_public_release [ai-task, closed, 2026-01-14, nam]
     claude_plugin_public_release["Claude Plugin Public Release<br/><sub>Fixed plugin.json, hooks, scripts.<br/>Tested read/update hooks - all working.<br/>Ready: claude --plugin-dir ./vizvibe-plugin</sub>"]
@@ -317,49 +329,49 @@ flowchart TD
     style brew_global_install fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     brew_global_install -.-> ultimate_goal
 
-    %% @claude_code_browser_view [ai-task, closed, 2026-01-17, Antigravity]
+    %% @claude_code_browser_view [ai-task, closed, 2026-01-17, nam]
     claude_code_browser_view["Local Server Browser View<br/><sub>Implemented vizvibe view command for<br/>Claude Code CLI users. Node.js server<br/>renders vizvibe.mmd in browser with<br/>live reload via SSE. Port 5125.</sub>"]
     claude_code_integration --> claude_code_browser_view
     style claude_code_browser_view fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
-    %% @claude_code_browser_overlay [ai-task, closed, 2026-01-17, Antigravity]
+    %% @claude_code_browser_overlay [ai-task, closed, 2026-01-17, nam]
     claude_code_browser_overlay["Browser View Overlay<br/><sub>Implemented setup prompt overlay<br/>in browser view to match VS Code<br/>extension experience. Enables easy<br/>copying of AI setup prompts.</sub>"]
     claude_code_browser_view --> claude_code_browser_overlay
     style claude_code_browser_overlay fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     
-    %% @claude_code_uninstall_feature [ai-task, closed, 2026-01-17, Antigravity]
+    %% @claude_code_uninstall_feature [ai-task, closed, 2026-01-17, nam]
     claude_code_uninstall_feature["Claude Code Uninstall Feature<br/><sub>Implemented a dedicated uninstall<br/>command or script for Claude Code<br/>users to cleanly remove hooks, skills,<br/>and settings from the environment.</sub>"]
     claude_code_integration --> claude_code_uninstall_feature
     style claude_code_uninstall_feature fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
-    %% @template_simplification [ai-task, closed, 2026-01-17, Antigravity]
+    %% @template_simplification [ai-task, closed, 2026-01-17, nam]
     template_simplification["Template Simplification<br/><sub>Simplified VIZVIBE.md example to 5<br/>nodes for easier understanding. Created<br/>full example in templates/vizvibe.mmd<br/>with warning comment for users.</sub>"]
     vizvibe_guide --> template_simplification
     style template_simplification fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     template_simplification -.-> new_user_onboarding
 
-    %% @browser_search_focus_fix [ai-task, closed, 2026-01-17, Antigravity]
+    %% @browser_search_focus_fix [ai-task, closed, 2026-01-17, nam]
     browser_search_focus_fix["Browser Search Focus Fix<br/><sub>Fixed browser view search focusing<br/>to wrong location. Changed absolute<br/>transform assignment to delta-based<br/>calculation like VS Code extension.</sub>"]
     claude_code_browser_view --> browser_search_focus_fix
     style browser_search_focus_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     browser_search_focus_fix -.-> ultimate_goal
 
-    %% @browser_perf_optimization [ai-task, opened, 2026-01-17, Antigravity]
+    %% @browser_perf_optimization [ai-task, opened, 2026-01-17, nam]
     browser_perf_optimization["Browser Performance Optimization<br/><sub>Chrome lags with large .mmd files due<br/>to heavy SVG DOM rendering. Implementing<br/>Canvas renderer with dagre layout as<br/>alternative to SVG Mermaid.</sub>"]
     claude_code_browser_view --> browser_perf_optimization
     style browser_perf_optimization fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     browser_perf_optimization -.-> ultimate_goal
 
-    %% @canvas_renderer_impl [ai-task, closed, 2026-01-21, Antigravity]
+    %% @canvas_renderer_impl [ai-task, closed, 2026-01-21, nam]
     canvas_renderer_impl["Canvas Renderer Implementation<br/><sub>Implemented Canvas 2D renderer with<br/>dagre layout engine. URL param switch:<br/>?renderer=canvas (default) or svg.<br/>DOM only for overlays (info-card, toolbar).</sub>"]
     browser_perf_optimization --> canvas_renderer_impl
     style canvas_renderer_impl fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_renderer_impl -.-> ultimate_goal
 
-    %% @canvas_memory_issue [blocker, closed, 2026-01-21, Antigravity]
+    %% @canvas_memory_issue [blocker, closed, 2026-01-21, nam]
     canvas_memory_issue["Canvas Renderer Memory Issue<br/><sub>Fixed Chrome tab freeze: added<br/>requestAnimationFrame rendering,<br/>SSE cleanup on reconnect/unload,<br/>and resize debouncing.</sub>"]
     canvas_renderer_impl --> canvas_memory_issue
-    style canvas_memory_issue fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    style canvas_memory_issue fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_memory_issue -.-> ultimate_goal
 
     claude_code_uninstall_feature -.-> ultimate_goal
@@ -413,14 +425,14 @@ flowchart TD
     focus_race_condition_fix["Focus Race Condition Fix<br/><sub>Issues: 1) changeDirection calling render<br/>directly caused double-render with doc sync<br/>2) cached targetEl became stale 3) transform.x+=<br/>accumulated old values. Fix: use pendingFocus<br/>flag, find elements fresh in single 150ms<br/>timeout, reset transform to 0,0 first</sub>"]
     focus_recent_on_change --> focus_race_condition_fix
     focus_race_condition_fix -.-> vscode_ext_ui_ux
-    style focus_race_condition_fix fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
+    style focus_race_condition_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% @vscode_ext_ui_ux [milestone, opened, 2026-01-11, nam]
     vscode_ext_ui_ux["VS Code Extension UI/UX<br/><sub>Comprehensive improvements to the<br/>Viz Vibe VS Code extension's user<br/>interface and experience, making<br/>trajectory visualization more intuitive</sub>"]
     style vscode_ext_ui_ux fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     vscode_ext_ui_ux -.-> ultimate_goal
 
-    %% @zoom_sensitivity_fix [ai-task, closed, 2026-01-17, Antigravity]
+    %% @zoom_sensitivity_fix [ai-task, closed, 2026-01-17, nam]
     zoom_sensitivity_fix["Zoom Sensitivity Fix<br/><sub>Fixed high zoom sensitivity on<br/>Mac trackpads with continuous<br/>scaling (intensity: 0.0075).<br/>Verified on MacBook. (v0.1.34)</sub>"]
     vscode_extension --> zoom_sensitivity_fix
     style zoom_sensitivity_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
