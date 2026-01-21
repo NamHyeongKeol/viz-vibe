@@ -1216,18 +1216,26 @@ function getCanvasHtml() {
         let flowDirection = 'TD';
         let searchResults = [];
         let currentSearchIndex = -1;
+        
+        // Performance optimization flags
+        let renderPending = false;
+        let eventSource = null; // Track SSE connection for cleanup
 
         const canvas = document.getElementById('graph-canvas');
         const ctx = canvas.getContext('2d');
         const graphView = document.getElementById('graph-view');
 
-        // Resize canvas
+        // Resize canvas with debouncing
+        let resizeTimeout = null;
         function resizeCanvas() {
             canvas.width = graphView.clientWidth;
             canvas.height = graphView.clientHeight;
             render();
         }
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', () => {
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 100);
+        });
 
         // Parse mermaid code
         function parseMermaid(code) {
@@ -1347,8 +1355,24 @@ function getCanvasHtml() {
             });
         }
 
-        // Render
+        // Render - wrapped with requestAnimationFrame for performance
+        function scheduleRender() {
+            if (!renderPending) {
+                renderPending = true;
+                requestAnimationFrame(() => {
+                    renderPending = false;
+                    renderImmediate();
+                });
+            }
+        }
+        
+        // Alias for backward compatibility - most calls should use scheduleRender
         function render() {
+            scheduleRender();
+        }
+        
+        // Actual render implementation
+        function renderImmediate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
             ctx.translate(transform.x, transform.y);
@@ -1612,9 +1636,15 @@ function getCanvasHtml() {
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
-        // SSE
+        // SSE - with proper cleanup to prevent memory leaks
         function connectSSE() {
-            const eventSource = new EventSource('/events');
+            // Clean up existing connection if any
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+            
+            eventSource = new EventSource('/events');
             eventSource.onmessage = (e) => {
                 if (e.data.startsWith('UPDATE:')) {
                     mermaidCode = e.data.slice(7);
@@ -1629,9 +1659,22 @@ function getCanvasHtml() {
             eventSource.onerror = () => {
                 document.getElementById('connectionDot').classList.add('disconnected');
                 document.getElementById('connectionText').textContent = 'Disconnected';
+                // Clean up and reconnect
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
                 setTimeout(connectSSE, 3000);
             };
         }
+
+        // Cleanup on page unload to prevent memory leaks
+        window.addEventListener('beforeunload', () => {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+        });
 
         // Init
         fetch('/content').then(r => r.text()).then(code => {
