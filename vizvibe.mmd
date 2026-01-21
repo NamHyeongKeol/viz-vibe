@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: canvas_focus_subgraph_render
+    %% @lastActive: ui_agent_launcher
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -158,6 +158,7 @@ flowchart TD
     style cursor_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style antigravity_agent_integration fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style antigravity_hook_support fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style ui_agent_launcher fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 
     style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     style mcp_server fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
@@ -268,7 +269,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        canvas_focus_subgraph_render
+        ui_agent_launcher
     end
 
     %% @canvas_focus_subgraph_render [ai-task, closed, 2026-01-21, nam]
@@ -448,6 +449,11 @@ flowchart TD
     vscode_extension --> zoom_sensitivity_fix
     style zoom_sensitivity_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     zoom_sensitivity_fix -.-> vscode_ext_ui_ux
+
+    %% @ui_agent_launcher [ai-task, opened, 2026-01-21, nam]
+    ui_agent_launcher["In-UI Agent Launcher<br/><sub>Run agents directly from the UI<br/>with quick actions for Codex, Claude Code,<br/>OpenCode, Cursor Agent, Copilot, Kiro</sub>"]
+    vscode_extension --> ui_agent_launcher
+    ui_agent_launcher -.-> vscode_ext_ui_ux
 
     %% Previous active node
     style subgraph_search_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
