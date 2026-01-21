@@ -28,6 +28,16 @@
     "*"
   ],
   "main": "./out/extension.js",
+  "files": [
+    "out",
+    "media",
+    "assets",
+    "VIZVIBE.md",
+    "README.md",
+    "LICENSE",
+    "language-configuration.json",
+    "package.json"
+  ],
   "contributes": {
     "commands": [
       {
