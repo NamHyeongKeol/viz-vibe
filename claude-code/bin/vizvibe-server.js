@@ -1073,15 +1073,596 @@ function getHtml() {
 </html>`;
 }
 
+// Canvas-based HTML template (for better performance with large graphs)
+function getCanvasHtml() {
+  return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Viz Vibe - ${path.basename(MMD_FILE)}</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #475569;
+            --accent-blue: #3b82f6;
+            --accent-green: #4ade80;
+            --accent-purple: #a78bfa;
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh; 
+            overflow: hidden;
+            display: flex; 
+            flex-direction: column;
+        }
+        .toolbar {
+            display: flex; gap: 12px; padding: 12px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            align-items: center; z-index: 100;
+        }
+        .toolbar h1 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .toolbar h1 span { font-size: 20px; }
+        .file-path { font-size: 12px; color: var(--text-muted); font-family: monospace; padding: 4px 10px; background: var(--bg-tertiary); border-radius: 4px; }
+        .spacer { flex: 1; }
+        .toolbar button, .toolbar select {
+            padding: 6px 14px; background: var(--bg-tertiary); color: var(--text-primary);
+            border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 12px;
+        }
+        .toolbar button:hover { background: var(--accent-blue); border-color: var(--accent-blue); }
+        .connection-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); }
+        .status-dot.disconnected { background: #ef4444; }
+        #graph-view { flex: 1; position: relative; overflow: hidden; }
+        #graph-canvas { display: block; cursor: grab; }
+        #graph-canvas.grabbing { cursor: grabbing; }
+        .info-card {
+            position: absolute; bottom: 20px; left: 20px;
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 16px 20px; max-width: 420px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 50; display: none;
+        }
+        .info-card h4 { margin-bottom: 8px; color: var(--accent-blue); font-size: 14px; }
+        .info-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; white-space: pre-wrap; }
+        .info-card .meta-info { display: flex; gap: 16px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); }
+        .info-card .close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; }
+        .info-card .copy-btn { margin-top: 12px; padding: 6px 12px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .zoom-controls { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 6px; z-index: 50; }
+        .zoom-controls button { width: 36px; height: 36px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .zoom-controls button:hover { background: var(--accent-blue); }
+        .zoom-level { text-align: center; font-size: 11px; color: var(--text-muted); padding: 6px; }
+        .status-bar { padding: 8px 20px; background: var(--bg-secondary); color: var(--text-muted); font-size: 11px; display: flex; gap: 24px; align-items: center; border-top: 1px solid var(--border-color); }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--accent-blue); color: white; padding: 10px 20px; border-radius: 6px; font-size: 12px; z-index: 1001; opacity: 0; transition: opacity 0.3s; }
+        .toast.show { opacity: 1; }
+        .search-container { position: relative; }
+        .search-box { display: none; position: absolute; top: 100%; right: 0; margin-top: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 200; min-width: 300px; }
+        .search-box.active { display: flex; gap: 10px; align-items: center; }
+        .search-box input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 10px; outline: none; color: var(--text-primary); font-size: 12px; min-width: 180px; }
+        .search-info { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+        .search-nav button { padding: 4px 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 11px; color: var(--text-primary); }
+        .renderer-badge { font-size: 10px; padding: 2px 6px; background: var(--accent-purple); color: white; border-radius: 4px; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <h1><span>📊</span> Viz Vibe <span class="renderer-badge">Canvas</span></h1>
+        <span class="file-path">${path.basename(MMD_FILE)}</span>
+        <span class="spacer"></span>
+        <select id="flowDirection" onchange="changeDirection()">
+            <option value="TD">↓ Top-Down</option>
+            <option value="LR">→ Left-Right</option>
+        </select>
+        <div class="search-container">
+            <button onclick="toggleSearch()">🔍 Search</button>
+            <div id="search-box" class="search-box">
+                <input type="text" id="search-input" placeholder="Search nodes..." autocomplete="off" />
+                <span id="search-info" class="search-info"></span>
+                <div class="search-nav">
+                    <button onclick="navigateSearch(-1)">▲</button>
+                    <button onclick="navigateSearch(1)">▼</button>
+                </div>
+                <button style="background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;" onclick="closeSearch()">×</button>
+            </div>
+        </div>
+        <a href="?renderer=svg" style="font-size:11px;color:var(--text-muted);text-decoration:none;">Switch to SVG</a>
+        <div class="connection-status">
+            <span class="status-dot" id="connectionDot"></span>
+            <span id="connectionText">Live</span>
+        </div>
+    </div>
+    <div id="graph-view">
+        <canvas id="graph-canvas"></canvas>
+        <div id="info-card" class="info-card">
+            <button class="close-btn" onclick="closeInfoCard()">×</button>
+            <h4 id="info-label"></h4>
+            <p id="info-description"></p>
+            <div id="info-meta" class="meta-info"></div>
+            <button class="copy-btn" onclick="copyNodeInfo()">📋 Copy</button>
+        </div>
+        <div class="zoom-controls">
+            <button onclick="zoomIn()">+</button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
+            <button onclick="zoomOut()">−</button>
+            <button onclick="fitToScreen()" style="font-size:12px;">⊞</button>
+        </div>
+    </div>
+    <div class="status-bar">
+        <span id="nodeCount">Nodes: 0</span>
+        <span class="spacer"></span>
+        <span>🖱️ Scroll: Pan • Ctrl+Scroll: Zoom • Click: Info • Ctrl+F: Search</span>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let mermaidCode = '';
+        let nodes = [];
+        let edges = [];
+        let subgraphs = [];
+        let nodeMetadata = {};
+        let lastActiveNodeId = null;
+        let selectedNode = null;
+        let transform = { x: 50, y: 50, scale: 1 };
+        let isPanning = false;
+        let startPan = { x: 0, y: 0 };
+        let flowDirection = 'TD';
+        let searchResults = [];
+        let currentSearchIndex = -1;
+
+        const canvas = document.getElementById('graph-canvas');
+        const ctx = canvas.getContext('2d');
+        const graphView = document.getElementById('graph-view');
+
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = graphView.clientWidth;
+            canvas.height = graphView.clientHeight;
+            render();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Parse mermaid code
+        function parseMermaid(code) {
+            nodes = [];
+            edges = [];
+            subgraphs = [];
+            nodeMetadata = {};
+            lastActiveNodeId = null;
+
+            // Direction
+            const dirMatch = code.match(/flowchart\\s+(TD|LR|BT|RL)/);
+            flowDirection = dirMatch ? dirMatch[1] : 'TD';
+            document.getElementById('flowDirection').value = flowDirection;
+
+            // Last active
+            const lastActiveMatch = code.match(/%% @lastActive:\\s*(\\w+)/);
+            if (lastActiveMatch) lastActiveNodeId = lastActiveMatch[1];
+
+            // Metadata
+            const metaRegex = /%% @(\\w+) \\[([\\w-]+)(?:,\\s*(\\w+))?(?:,\\s*([\\d-]+))?(?:,\\s*([\\w@.-]+))?\\]/g;
+            let match;
+            while ((match = metaRegex.exec(code)) !== null) {
+                nodeMetadata[match[1]] = {
+                    type: match[2],
+                    state: match[3] || 'opened',
+                    date: match[4] || null,
+                    author: match[5] || null
+                };
+            }
+
+            // Subgraphs
+            const subgraphRegex = /subgraph\\s+(\\w+)\\s*\\[([^\\]]+)\\]/g;
+            while ((match = subgraphRegex.exec(code)) !== null) {
+                subgraphs.push({ id: match[1], label: match[2] });
+            }
+
+            // Nodes - various formats
+            const nodePatterns = [
+                /(\\w+)\\["([^"]+)"\\]/g,
+                /(\\w+)\\("([^"]+)"\\)/g,
+                /(\\w+)\\[([^\\]]+)\\]/g
+            ];
+            const seenNodes = new Set();
+            nodePatterns.forEach(regex => {
+                regex.lastIndex = 0;
+                while ((match = regex.exec(code)) !== null) {
+                    const id = match[1];
+                    if (!seenNodes.has(id) && id !== 'style' && id !== 'flowchart' && id !== 'subgraph' && id !== 'end') {
+                        seenNodes.add(id);
+                        let label = match[2].replace(/<br\\/>/g, '\\n').replace(/<sub>/g, '\\n').replace(/<\\/sub>/g, '');
+                        nodes.push({ id, label, x: 0, y: 0, width: 0, height: 0 });
+                    }
+                }
+            });
+
+            // Edges
+            const edgeRegex = /(\\w+)\\s*(-[.-]?>)\\s*(\\w+)/g;
+            while ((match = edgeRegex.exec(code)) !== null) {
+                const isDashed = match[2].includes('.');
+                edges.push({ from: match[1], to: match[3], dashed: isDashed });
+            }
+
+            layoutNodes();
+        }
+
+        // Simple layout algorithm using dagre
+        function layoutNodes() {
+            const nodeMap = {};
+            nodes.forEach(n => nodeMap[n.id] = n);
+
+            // Calculate text dimensions
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+            nodes.forEach(node => {
+                const lines = node.label.split('\\n');
+                let maxWidth = 0;
+                lines.forEach(line => {
+                    const w = ctx.measureText(line).width;
+                    if (w > maxWidth) maxWidth = w;
+                });
+                node.width = Math.min(Math.max(maxWidth + 40, 140), 280);
+                node.height = Math.max(lines.length * 16 + 30, 60);
+            });
+
+            // Use dagre for layout
+            const g = new dagre.graphlib.Graph();
+            g.setGraph({ 
+                rankdir: flowDirection === 'LR' ? 'LR' : 'TB',
+                nodesep: 50,
+                ranksep: 80,
+                marginx: 50,
+                marginy: 50
+            });
+            g.setDefaultEdgeLabel(() => ({}));
+
+            // Add nodes to dagre
+            nodes.forEach(node => {
+                g.setNode(node.id, { width: node.width, height: node.height });
+            });
+
+            // Add edges to dagre
+            edges.forEach(edge => {
+                if (nodeMap[edge.from] && nodeMap[edge.to]) {
+                    g.setEdge(edge.from, edge.to);
+                }
+            });
+
+            // Run dagre layout
+            dagre.layout(g);
+
+            // Apply positions from dagre
+            nodes.forEach(node => {
+                const n = g.node(node.id);
+                if (n) {
+                    node.x = n.x - node.width / 2;
+                    node.y = n.y - node.height / 2;
+                }
+            });
+        }
+
+        // Render
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(transform.x, transform.y);
+            ctx.scale(transform.scale, transform.scale);
+
+            // Draw edges
+            const nodeMap = {};
+            nodes.forEach(n => nodeMap[n.id] = n);
+            edges.forEach(edge => {
+                const from = nodeMap[edge.from];
+                const to = nodeMap[edge.to];
+                if (!from || !to) return;
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1.5;
+                if (edge.dashed) ctx.setLineDash([5, 5]);
+                else ctx.setLineDash([]);
+                
+                const fromX = from.x + from.width / 2;
+                const fromY = from.y + from.height;
+                const toX = to.x + to.width / 2;
+                const toY = to.y;
+                
+                ctx.moveTo(fromX, fromY);
+                ctx.bezierCurveTo(fromX, fromY + 30, toX, toY - 30, toX, toY);
+                ctx.stroke();
+                
+                // Arrow
+                ctx.setLineDash([]);
+                ctx.beginPath();
+                ctx.moveTo(toX, toY);
+                ctx.lineTo(toX - 5, toY - 8);
+                ctx.lineTo(toX + 5, toY - 8);
+                ctx.closePath();
+                ctx.fillStyle = '#475569';
+                ctx.fill();
+            });
+
+            // Draw nodes
+            nodes.forEach(node => {
+                const meta = nodeMetadata[node.id] || {};
+                const isOpen = meta.state !== 'closed';
+                const isLastActive = node.id === lastActiveNodeId;
+                const isSearchMatch = searchResults.some(r => r.id === node.id);
+                const isCurrentSearch = searchResults[currentSearchIndex]?.id === node.id;
+
+                // Node background
+                ctx.fillStyle = isLastActive ? '#2d1f4e' : '#1a1a2e';
+                ctx.strokeStyle = isCurrentSearch ? '#facc15' : isSearchMatch ? '#4ade80' : 
+                                  isLastActive ? '#c084fc' : isOpen ? '#4ade80' : '#a78bfa';
+                ctx.lineWidth = isCurrentSearch ? 3 : isLastActive ? 2 : 1;
+                
+                roundRect(ctx, node.x, node.y, node.width, node.height, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                // Node text
+                ctx.fillStyle = isOpen ? '#86efac' : '#c4b5fd';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const lines = node.label.split('\\n');
+                const lineHeight = 14;
+                const startY = node.y + node.height / 2 - (lines.length - 1) * lineHeight / 2;
+                lines.forEach((line, i) => {
+                    const truncated = line.length > 35 ? line.slice(0, 32) + '...' : line;
+                    ctx.fillText(truncated, node.x + node.width / 2, startY + i * lineHeight);
+                });
+            });
+
+            ctx.restore();
+            document.getElementById('nodeCount').textContent = 'Nodes: ' + nodes.length;
+            document.getElementById('zoomLevel').textContent = Math.round(transform.scale * 100) + '%';
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // Hit test
+        function getNodeAt(screenX, screenY) {
+            const x = (screenX - transform.x) / transform.scale;
+            const y = (screenY - transform.y) / transform.scale;
+            for (let i = nodes.length - 1; i >= 0; i--) {
+                const n = nodes[i];
+                if (x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
+                    return n;
+                }
+            }
+            return null;
+        }
+
+        // Events
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const node = getNodeAt(e.clientX - rect.left, e.clientY - rect.top);
+            if (node) {
+                showNodeInfo(node);
+            } else {
+                isPanning = true;
+                canvas.classList.add('grabbing');
+                startPan = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                transform.x = e.clientX - startPan.x;
+                transform.y = e.clientY - startPan.y;
+                render();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isPanning = false;
+            canvas.classList.remove('grabbing');
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            if (e.ctrlKey || e.metaKey) {
+                const intensity = 0.0075;
+                const delta = -e.deltaY * intensity;
+                const newScale = Math.min(3, Math.max(0.1, transform.scale * (1 + delta)));
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                transform.x = mx - (mx - transform.x) * (newScale / transform.scale);
+                transform.y = my - (my - transform.y) * (newScale / transform.scale);
+                transform.scale = newScale;
+            } else {
+                transform.x -= e.deltaX;
+                transform.y -= e.deltaY;
+            }
+            render();
+        }, { passive: false });
+
+        // Node info card
+        function showNodeInfo(node) {
+            selectedNode = node;
+            const meta = nodeMetadata[node.id] || {};
+            document.getElementById('info-label').textContent = node.label.split('\\n')[0];
+            document.getElementById('info-description').textContent = node.label.split('\\n').slice(1).join('\\n') || '(No description)';
+            
+            let metaHtml = '<span>🏷️ ' + (meta.type || 'unknown') + '</span>';
+            metaHtml += '<span>' + (meta.state === 'closed' ? '✅ Closed' : '🟢 Open') + '</span>';
+            if (node.id === lastActiveNodeId) metaHtml += '<span>⭐ Last Active</span>';
+            if (meta.date) metaHtml += '<span>📅 ' + meta.date + '</span>';
+            document.getElementById('info-meta').innerHTML = metaHtml;
+            document.getElementById('info-card').style.display = 'block';
+        }
+
+        function closeInfoCard() {
+            document.getElementById('info-card').style.display = 'none';
+            selectedNode = null;
+        }
+
+        function copyNodeInfo() {
+            if (!selectedNode) return;
+            const meta = nodeMetadata[selectedNode.id] || {};
+            const text = 'Node: ' + selectedNode.label.split('\\n')[0] + '\\nID: ' + selectedNode.id + '\\nState: ' + (meta.state || 'opened');
+            navigator.clipboard.writeText(text);
+            showToast('Copied!');
+        }
+
+        // Zoom controls
+        function zoomIn() { transform.scale = Math.min(3, transform.scale * 1.2); render(); }
+        function zoomOut() { transform.scale = Math.max(0.1, transform.scale / 1.2); render(); }
+        function fitToScreen() {
+            if (nodes.length === 0) return;
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            nodes.forEach(n => {
+                minX = Math.min(minX, n.x);
+                minY = Math.min(minY, n.y);
+                maxX = Math.max(maxX, n.x + n.width);
+                maxY = Math.max(maxY, n.y + n.height);
+            });
+            const w = maxX - minX + 100;
+            const h = maxY - minY + 100;
+            const scaleX = canvas.width / w;
+            const scaleY = canvas.height / h;
+            transform.scale = Math.min(scaleX, scaleY, 1);
+            transform.x = (canvas.width - w * transform.scale) / 2 - minX * transform.scale + 50;
+            transform.y = (canvas.height - h * transform.scale) / 2 - minY * transform.scale + 50;
+            render();
+        }
+
+        function changeDirection() {
+            const newDir = document.getElementById('flowDirection').value;
+            if (newDir !== flowDirection) {
+                mermaidCode = mermaidCode.replace(/flowchart\\s+(TD|LR|BT|RL)/, 'flowchart ' + newDir);
+                parseMermaid(mermaidCode);
+                render();
+                setTimeout(fitToScreen, 100);
+            }
+        }
+
+        // Search
+        function toggleSearch() {
+            const box = document.getElementById('search-box');
+            if (box.classList.contains('active')) closeSearch();
+            else { box.classList.add('active'); document.getElementById('search-input').focus(); }
+        }
+        function closeSearch() {
+            document.getElementById('search-box').classList.remove('active');
+            document.getElementById('search-input').value = '';
+            searchResults = [];
+            currentSearchIndex = -1;
+            render();
+        }
+        function performSearch(query) {
+            searchResults = [];
+            if (!query.trim()) { render(); return; }
+            const q = query.toLowerCase();
+            nodes.forEach(n => {
+                if (n.label.toLowerCase().includes(q)) searchResults.push(n);
+            });
+            currentSearchIndex = searchResults.length > 0 ? 0 : -1;
+            if (currentSearchIndex >= 0) focusOnNode(searchResults[0]);
+            document.getElementById('search-info').textContent = searchResults.length > 0 ? (currentSearchIndex + 1) + '/' + searchResults.length : 'No results';
+            render();
+        }
+        function navigateSearch(dir) {
+            if (searchResults.length === 0) return;
+            currentSearchIndex = (currentSearchIndex + dir + searchResults.length) % searchResults.length;
+            focusOnNode(searchResults[currentSearchIndex]);
+            document.getElementById('search-info').textContent = (currentSearchIndex + 1) + '/' + searchResults.length;
+            render();
+        }
+        function focusOnNode(node) {
+            const targetX = node.x + node.width / 2;
+            const targetY = node.y + node.height / 2;
+            transform.x = canvas.width / 2 - targetX * transform.scale;
+            transform.y = canvas.height / 2 - targetY * transform.scale;
+        }
+        document.getElementById('search-input').addEventListener('input', (e) => performSearch(e.target.value));
+        document.getElementById('search-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') navigateSearch(e.shiftKey ? -1 : 1);
+            else if (e.key === 'Escape') closeSearch();
+        });
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); toggleSearch(); }
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // SSE
+        function connectSSE() {
+            const eventSource = new EventSource('/events');
+            eventSource.onmessage = (e) => {
+                if (e.data.startsWith('UPDATE:')) {
+                    mermaidCode = e.data.slice(7);
+                    parseMermaid(mermaidCode);
+                    render();
+                }
+            };
+            eventSource.onopen = () => {
+                document.getElementById('connectionDot').classList.remove('disconnected');
+                document.getElementById('connectionText').textContent = 'Live';
+            };
+            eventSource.onerror = () => {
+                document.getElementById('connectionDot').classList.add('disconnected');
+                document.getElementById('connectionText').textContent = 'Disconnected';
+                setTimeout(connectSSE, 3000);
+            };
+        }
+
+        // Init
+        fetch('/content').then(r => r.text()).then(code => {
+            mermaidCode = code;
+            resizeCanvas();
+            parseMermaid(mermaidCode);
+            render();
+            setTimeout(fitToScreen, 100);
+        });
+        connectSSE();
+    </script>
+</body>
+</html>`;
+}
+
 // Create HTTP server
 const server = http.createServer((req, res) => {
-  if (req.url === "/") {
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  const renderer = url.searchParams.get('renderer') || 'canvas'; // Default to canvas
+  
+  if (url.pathname === "/") {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(getHtml());
-  } else if (req.url === "/content") {
+    if (renderer === 'svg') {
+      res.end(getHtml()); // Original SVG renderer
+    } else {
+      res.end(getCanvasHtml()); // New Canvas renderer
+    }
+  } else if (url.pathname === "/content") {
     res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
     res.end(getMermaidContent());
-  } else if (req.url === "/events") {
+  } else if (url.pathname === "/events") {
     // Server-Sent Events for live updates
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
