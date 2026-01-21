@@ -1,20 +1,26 @@
 import * as vscode from 'vscode';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { createInterface } from 'node:readline';
 
-export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
+export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, vscode.Disposable {
   public static readonly viewType = 'vizVibe.vizflowEditor';
   
   // Track active webview panel for search command
   private static activeWebviewPanel: vscode.WebviewPanel | null = null;
+  private codexRunner: CodexRunner | null = null;
+  private readonly codexOutput: vscode.OutputChannel;
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.window.registerCustomEditorProvider(
+    const provider = new VizFlowEditorProvider(context);
+    const registration = vscode.window.registerCustomEditorProvider(
       VizFlowEditorProvider.viewType,
-      new VizFlowEditorProvider(context),
+      provider,
       {
         webviewOptions: { retainContextWhenHidden: true },
         supportsMultipleEditorsPerDocument: false
       }
     );
+    return vscode.Disposable.from(registration, provider);
   }
 
   // Trigger search in the active webview (called from extension.ts via Cmd+F)
@@ -24,7 +30,15 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
     }
   }
 
-  constructor(private readonly context: vscode.ExtensionContext) { }
+  constructor(private readonly context: vscode.ExtensionContext) {
+    this.codexOutput = vscode.window.createOutputChannel('Viz Vibe Codex');
+  }
+
+  public dispose(): void {
+    this.codexRunner?.dispose();
+    this.codexRunner = null;
+    this.codexOutput.dispose();
+  }
 
   public async resolveCustomTextEditor(
     document: vscode.TextDocument,
@@ -53,6 +67,10 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
       } else if (message.type === 'openInDefaultEditor') {
         // Open file in VS Code's default text editor for native search
         await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
+      } else if (message.type === 'launchAgent') {
+        await this.launchAgent(message.agentId);
+      } else if (message.type === 'runCodexForNode') {
+        await this.runCodexForNode(message.prompt || '');
       }
     });
 
@@ -120,6 +138,66 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             border-radius: 4px;
             font-size: 11px;
         }
+        .agent-menu {
+            position: relative;
+        }
+        .agent-menu.floating {
+            position: absolute;
+            bottom: 64px;
+            right: 16px;
+            z-index: 60;
+        }
+        .agent-menu .agent-trigger {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .agent-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--vscode-menu-background);
+            border: 1px solid var(--vscode-menu-border);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            z-index: 300;
+            min-width: 220px;
+            display: none;
+        }
+        .agent-panel.active { display: block; }
+        .agent-panel-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--vscode-menu-foreground);
+        }
+        .agent-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .agent-panel button {
+            padding: 6px 8px;
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: 1px solid var(--vscode-editorWidget-border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            text-align: left;
+        }
+        .agent-panel button:hover { background: var(--vscode-button-hoverBackground); }
+        .agent-panel-hint {
+            margin-top: 8px;
+            font-size: 10px;
+            color: var(--vscode-descriptionForeground);
+        }
 
         /* Main container */
         .main-container {
@@ -163,6 +241,18 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
         }
         .node:hover rect, .node:hover polygon, .node:hover circle {
             filter: brightness(1.15);
+        }
+        .node-play {
+            cursor: pointer;
+        }
+        .node-play circle {
+            fill: #111827;
+            stroke: #22c55e;
+            stroke-width: 1.5px;
+            filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.35));
+        }
+        .node-play polygon {
+            fill: #22c55e;
         }
 
         .status-bar {
@@ -589,6 +679,23 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                 <button onclick="fitToScreen()" title="Fit to screen" style="font-size:12px;">⊞</button>
             </div>
 
+            <!-- Floating agent launcher -->
+            <div class="agent-menu floating">
+                <button class="secondary agent-trigger" onclick="toggleAgentPanel()" title="Run agents">🤖</button>
+                <div id="agent-panel" class="agent-panel">
+                    <div class="agent-panel-title">Run Agent</div>
+                    <div class="agent-grid">
+                        <button onclick="launchAgent('codex')">Codex</button>
+                        <button onclick="launchAgent('claude-code')">Claude Code</button>
+                        <button onclick="launchAgent('opencode')">OpenCode</button>
+                        <button onclick="launchAgent('cursor-agent')">Cursor Agent</button>
+                        <button onclick="launchAgent('copilot')">Copilot</button>
+                        <button onclick="launchAgent('kiro')">Kiro</button>
+                    </div>
+                    <div class="agent-panel-hint">Runs commands in terminal or opens chat (Copilot).</div>
+                </div>
+            </div>
+
             <!-- Initialization prompt overlay -->
             <div id="init-prompt-overlay" class="init-prompt-overlay">
                 <div class="init-prompt-card">
@@ -954,6 +1061,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     // Node drag handlers
                     nodeEl.addEventListener('mousedown', (e) => {
                         if (e.button !== 0) return; // Left button only
+                        if (e.target.closest('.node-play')) return;
                         e.stopPropagation();
                         isDraggingNode = true;
                         draggingNodeId = nodeId;
@@ -996,6 +1104,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
                         extractNodeLabel(nodeEl, nodeId);
                         showContextMenu(e.clientX, e.clientY);
                     });
+
+                    attachPlayButton(nodeEl, nodeId);
                 });
 
                 document.getElementById('nodeCount').innerText = 'Nodes: ' + nodes.length;
@@ -1020,6 +1130,48 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             } else {
                 selectedNodeLabel = nodeId;
             }
+        }
+
+        function getNodeContent(nodeId) {
+            const meta = nodeMetadata[nodeId] || {};
+            const label = getNodeLabelText(nodeId) || nodeId;
+            const description = meta.prompt ? ('\\n' + meta.prompt) : '';
+            return label + description;
+        }
+
+        function attachPlayButton(nodeEl, nodeId) {
+            if (!nodeEl || nodeEl.querySelector('.node-play')) return;
+            const bbox = nodeEl.getBBox();
+            const size = 16;
+            const cx = bbox.x + bbox.width - 8;
+            const cy = bbox.y + 8;
+
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('class', 'node-play');
+            g.setAttribute('transform', 'translate(' + (cx - size / 2) + ',' + (cy - size / 2) + ')');
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', String(size / 2));
+            circle.setAttribute('cy', String(size / 2));
+            circle.setAttribute('r', String(size / 2));
+
+            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            triangle.setAttribute('points', '6,4 12,8 6,12');
+
+            g.appendChild(circle);
+            g.appendChild(triangle);
+
+            g.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+            g.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const prompt = 'vizvibe.mmd 읽고 현재 상황 파악해줘.\\n\\n' +
+                    '[' + getNodeContent(nodeId) + ']';
+                vscode.postMessage({ type: 'runCodexForNode', prompt });
+            });
+
+            nodeEl.appendChild(g);
         }
 
         function showNodeInfo(nodeId) {
@@ -1719,6 +1871,28 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
             currentSearchIndex = -1;
         }
 
+        // === Agent launcher ===
+        function toggleAgentPanel() {
+            const panel = document.getElementById('agent-panel');
+            panel.classList.toggle('active');
+        }
+
+        function closeAgentPanel() {
+            const panel = document.getElementById('agent-panel');
+            panel.classList.remove('active');
+        }
+
+        function launchAgent(agentId) {
+            closeAgentPanel();
+            vscode.postMessage({ type: 'launchAgent', agentId });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.agent-menu')) {
+                closeAgentPanel();
+            }
+        });
+
         function performSearch(query) {
             clearSearchHighlights();
             searchResults = [];
@@ -1971,4 +2145,280 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider {
 </body>
 </html>`;
   }
+
+  private async launchAgent(agentId: string): Promise<void> {
+    const config = vscode.workspace.getConfiguration('vizVibe');
+    const agentMap: Record<string, { label: string; settingKey: string; defaultCommand: string; preferCommand?: string[] }> = {
+      'codex': { label: 'Codex', settingKey: 'agentCommands.codex', defaultCommand: 'codex' },
+      'claude-code': { label: 'Claude Code', settingKey: 'agentCommands.claudeCode', defaultCommand: 'claude' },
+      'opencode': { label: 'OpenCode', settingKey: 'agentCommands.openCode', defaultCommand: 'opencode' },
+      'cursor-agent': { label: 'Cursor Agent', settingKey: 'agentCommands.cursorAgent', defaultCommand: 'cursor-agent' },
+      'copilot': {
+        label: 'Copilot',
+        settingKey: 'agentCommands.copilot',
+        defaultCommand: '',
+        preferCommand: ['github.copilot.chat.open', 'github.copilot.chat.focus']
+      },
+      'kiro': { label: 'Kiro', settingKey: 'agentCommands.kiro', defaultCommand: 'kiro' }
+    };
+
+    const agent = agentMap[agentId];
+    if (!agent) {
+      vscode.window.showWarningMessage(`Unknown agent: ${agentId}`);
+      return;
+    }
+
+    if (agent.preferCommand) {
+      for (const command of agent.preferCommand) {
+        try {
+          await vscode.commands.executeCommand(command);
+          return;
+        } catch {
+          // Fall back to terminal command if VS Code command is unavailable.
+        }
+      }
+    }
+
+    const command = await this.resolveAgentCommand(agent);
+    if (!command) return;
+
+    this.runTerminalCommand(agent.label, command);
+  }
+
+  private async runCodexForNode(prompt: string): Promise<void> {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      vscode.window.showErrorMessage('Viz Vibe: Please open a workspace to run Codex.');
+      return;
+    }
+    if (!this.codexRunner) {
+      this.codexRunner = new CodexRunner(this.codexOutput, workspaceRoot);
+    }
+    try {
+      await this.codexRunner.sendPrompt(prompt);
+      this.codexOutput.show(true);
+    } catch (error) {
+      this.codexOutput.appendLine(`[error] ${String(error)}`);
+      vscode.window.showErrorMessage('Viz Vibe: Failed to run Codex. See output for details.');
+    }
+  }
+
+  private async resolveAgentCommand(agent: { label: string; settingKey: string; defaultCommand: string }): Promise<string | undefined> {
+    const config = vscode.workspace.getConfiguration('vizVibe');
+    let command = config.get<string>(agent.settingKey);
+    if (!command) {
+      command = await vscode.window.showInputBox({
+        prompt: `Enter command to launch ${agent.label} (use {prompt} to inject text)`,
+        value: agent.defaultCommand || ''
+      });
+      if (!command) {
+        vscode.window.showInformationMessage(`${agent.label} launch canceled.`);
+        return undefined;
+      }
+      await config.update(agent.settingKey, command, vscode.ConfigurationTarget.Global);
+    }
+    return command;
+  }
+
+  private runTerminalCommand(label: string, command: string): void {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    const terminal = vscode.window.createTerminal({
+      name: `Viz Vibe: ${label}`,
+      cwd: workspaceRoot
+    });
+    terminal.show(true);
+    terminal.sendText(command, true);
+  }
+}
+
+class CodexRunner {
+  private child: ChildProcessWithoutNullStreams | null = null;
+  private rpc: JsonRpcClient | null = null;
+  private threadId: string | null = null;
+  private turnId: string | null = null;
+  private readyPromise: Promise<void> | null = null;
+  private readonly cwd: string;
+
+  constructor(private readonly output: vscode.OutputChannel, cwd: string) {
+    this.cwd = cwd;
+  }
+
+  dispose(): void {
+    this.child?.kill('SIGINT');
+    this.child = null;
+    this.rpc = null;
+    this.threadId = null;
+    this.turnId = null;
+    this.readyPromise = null;
+  }
+
+  async sendPrompt(prompt: string): Promise<void> {
+    await this.ensureReady();
+    if (!this.rpc || !this.threadId) {
+      throw new Error('Codex app-server not ready.');
+    }
+    this.output.appendLine('[codex] sending prompt');
+    const result = await this.rpc.request('turn/start', {
+      threadId: this.threadId,
+      thread_id: this.threadId,
+      input: [{ type: 'text', text: prompt }],
+      cwd: this.cwd,
+      approval_policy: 'on-request',
+      sandbox_policy: 'workspace-write'
+    });
+    const turnId = result?.turn_id ?? result?.turnId ?? null;
+    if (turnId) {
+      this.turnId = turnId;
+      this.output.appendLine(`[codex] turn started id=${turnId}`);
+    }
+  }
+
+  private async ensureReady(): Promise<void> {
+    if (this.readyPromise) return this.readyPromise;
+    this.readyPromise = this.start();
+    return this.readyPromise;
+  }
+
+  private async start(): Promise<void> {
+    this.output.appendLine('[codex] starting app-server');
+    const child = spawn('npx', ['-y', '@openai/codex@0.77.0', 'app-server'], {
+      cwd: this.cwd,
+      env: {
+        NODE_NO_WARNINGS: '1',
+        NO_COLOR: '1',
+        RUST_LOG: 'error',
+        ...process.env
+      },
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    this.child = child;
+
+    child.on('exit', (code, signal) => {
+      this.output.appendLine(`[codex] exited code=${code ?? 'null'} signal=${signal ?? 'null'}`);
+      this.child = null;
+      this.rpc = null;
+      this.threadId = null;
+      this.turnId = null;
+      this.readyPromise = null;
+    });
+
+    const stdoutRl = createInterface({ input: child.stdout });
+    const stderrRl = createInterface({ input: child.stderr });
+    stdoutRl.on('line', (line) => {
+      this.output.appendLine(`[codex] ${sanitizeCodexLine(line)}`);
+      this.rpc?.handleLine(line);
+    });
+    stderrRl.on('line', (line) => this.output.appendLine(`[codex:err] ${line}`));
+
+    const rpc = new JsonRpcClient(
+      (line) => child.stdin.write(`${line}\n`),
+      () => {}
+    );
+    this.rpc = rpc;
+
+    await rpc.request('initialize', {
+      clientInfo: { name: 'viz-vibe', version: '0.1.43' }
+    });
+    rpc.notify('initialized', {});
+
+    const auth = await rpc.request('getAuthStatus', {
+      includeToken: true,
+      refreshToken: false
+    });
+    const requiresAuth = auth?.requires_openai_auth ?? auth?.requiresOpenaiAuth ?? true;
+    const authMethod = auth?.auth_method ?? auth?.authMethod;
+    if (requiresAuth && !authMethod) {
+      throw new Error('Codex authentication required');
+    }
+
+    const thread = await rpc.request('thread/start', {
+      cwd: this.cwd,
+      approval_policy: 'on-request',
+      sandbox_policy: 'workspace-write'
+    });
+    const threadId =
+      thread?.thread_id ??
+      thread?.threadId ??
+      thread?.thread?.id ??
+      thread?.thread?.thread_id ??
+      thread?.thread?.threadId;
+    if (!threadId) {
+      throw new Error('Codex missing thread id');
+    }
+    this.threadId = threadId;
+    this.output.appendLine(`[codex] ready thread=${threadId}`);
+  }
+}
+
+class JsonRpcClient {
+  private nextId = 1;
+  private pending = new Map<string, { resolve: (v: any) => void; reject: (e: Error) => void }>();
+
+  constructor(
+    private write: (line: string) => void,
+    private onMessage: (msg: any) => void
+  ) {}
+
+  request(method: string, params?: unknown) {
+    const id = String(this.nextId++);
+    const payload = { jsonrpc: '2.0', id, method, params };
+    this.write(JSON.stringify(payload));
+    return new Promise<any>((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+    });
+  }
+
+  notify(method: string, params?: unknown) {
+    const payload = { jsonrpc: '2.0', method, params };
+    this.write(JSON.stringify(payload));
+  }
+
+  handleLine(line: string) {
+    const msg = safeJsonParse(line);
+    if (!msg) return;
+
+    if (msg.id !== undefined && msg.method) {
+      this.onMessage(msg);
+      return;
+    }
+
+    if (msg.id !== undefined) {
+      const key = String(msg.id);
+      const pending = this.pending.get(key);
+      if (!pending) return;
+      this.pending.delete(key);
+
+      if (msg.error) {
+        pending.reject(new Error(msg.error.message ?? 'JSON-RPC error'));
+      } else {
+        pending.resolve(msg.result);
+      }
+      return;
+    }
+
+    if (msg.method) {
+      this.onMessage(msg);
+    }
+  }
+}
+
+function safeJsonParse(line: string): any | null {
+  try {
+    return JSON.parse(line);
+  } catch {
+    return null;
+  }
+}
+
+function sanitizeCodexLine(line: string): string {
+  const msg = safeJsonParse(line);
+  if (!msg || typeof msg !== 'object') return line;
+  const cloned = JSON.parse(JSON.stringify(msg));
+  if (cloned?.result?.authToken) {
+    cloned.result.authToken = '[redacted]';
+  }
+  if (cloned?.result?.auth_token) {
+    cloned.result.auth_token = '[redacted]';
+  }
+  return JSON.stringify(cloned);
 }

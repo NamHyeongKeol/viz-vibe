@@ -65,6 +65,41 @@
         "when": "activeCustomEditorId == vizVibe.vizflowEditor"
       }
     ],
+    "configuration": {
+      "title": "Viz Vibe",
+      "properties": {
+        "vizVibe.agentCommands.codex": {
+          "type": "string",
+          "default": "codex",
+          "description": "Command to launch Codex from the Viz Vibe agent launcher."
+        },
+        "vizVibe.agentCommands.claudeCode": {
+          "type": "string",
+          "default": "claude",
+          "description": "Command to launch Claude Code from the Viz Vibe agent launcher."
+        },
+        "vizVibe.agentCommands.openCode": {
+          "type": "string",
+          "default": "opencode",
+          "description": "Command to launch OpenCode from the Viz Vibe agent launcher."
+        },
+        "vizVibe.agentCommands.cursorAgent": {
+          "type": "string",
+          "default": "cursor-agent",
+          "description": "Command to launch Cursor Agent from the Viz Vibe agent launcher."
+        },
+        "vizVibe.agentCommands.copilot": {
+          "type": "string",
+          "default": "",
+          "description": "Fallback shell command for Copilot if VS Code Copilot Chat command is unavailable."
+        },
+        "vizVibe.agentCommands.kiro": {
+          "type": "string",
+          "default": "kiro",
+          "description": "Command to launch Kiro from the Viz Vibe agent launcher."
+        }
+      }
+    },
     "languages": [
       {
         "id": "mermaid",
