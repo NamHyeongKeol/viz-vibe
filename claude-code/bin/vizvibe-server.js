@@ -1004,7 +1004,8 @@ function getHtml() {
             
             eventSource.onmessage = (e) => {
                 if (e.data.startsWith('UPDATE:')) {
-                    mermaidCode = e.data.slice(7);
+                    // Decode escaped newlines from SSE
+                    mermaidCode = e.data.slice(7).replace(/\\\\n/g, '\\n');
                     render();
                 }
             };
@@ -1276,8 +1277,8 @@ function getCanvasHtml() {
                 }
             });
 
-            // Edges
-            const edgeRegex = /(\\w+)\\s*(-[.-]?>)\\s*(\\w+)/g;
+            // Edges (supports --> and -.-> arrows)
+            const edgeRegex = /(\\w+)\\s*(-[.-]*>)\\s*(\\w+)/g;
             while ((match = edgeRegex.exec(code)) !== null) {
                 const isDashed = match[2].includes('.');
                 edges.push({ from: match[1], to: match[3], dashed: isDashed });
@@ -1727,7 +1728,8 @@ function getCanvasHtml() {
             eventSource = new EventSource('/events');
             eventSource.onmessage = (e) => {
                 if (e.data.startsWith('UPDATE:')) {
-                    mermaidCode = e.data.slice(7);
+                    // Decode escaped newlines from SSE
+                    mermaidCode = e.data.slice(7).replace(/\\\\n/g, '\\n');
                     parseMermaid(mermaidCode);
                     render();
                 }
@@ -1809,15 +1811,22 @@ const server = http.createServer((req, res) => {
 
 // Watch file for changes
 let debounceTimeout;
+let lastContent = '';
 fs.watch(MMD_FILE, (eventType) => {
   if (eventType === "change") {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
       const content = getMermaidContent();
-      clients.forEach((client) => {
-        client.write(`data: UPDATE:${content}\n\n`);
-      });
-    }, 100);
+      // Only send if content is valid and different from last
+      if (content && content.length > 50 && content !== lastContent) {
+        lastContent = content;
+        // Encode newlines for SSE (SSE uses \n\n as message delimiter)
+        const encoded = content.replace(/\n/g, '\\n');
+        clients.forEach((client) => {
+          client.write(`data: UPDATE:${encoded}\n\n`);
+        });
+      }
+    }, 200);
   }
 });
 

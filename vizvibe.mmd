@@ -268,19 +268,25 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        codebase_i18n_cleanup
+        canvas_disappears_after_render
     end
+
+    %% @canvas_edge_regex_fix [ai-task, closed, 2026-01-23, nam]
+    canvas_edge_regex_fix["Canvas Edge Regex Fix<br/><sub>Fixed dotted arrow (.-.) connections<br/>not rendering in Canvas mode. Changed<br/>edge regex from -[.-]? to -[.-]* in<br/>both project and global vizvibe-server.js</sub>"]
+    canvas_focus_subgraph_render --> canvas_edge_regex_fix
+    style canvas_edge_regex_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    canvas_edge_regex_fix -.-> ultimate_goal
 
     %% @codebase_i18n_cleanup [ai-task, closed, 2026-01-23, nam]
     codebase_i18n_cleanup["Codebase I18N Cleanup<br/><sub>Translated all Korean comments and<br/>prompts to English. Updated VIZVIBE.md<br/>example to current design: date/author<br/>metadata, green=open, purple=closed.</sub>"]
     vizvibe_i18n --> codebase_i18n_cleanup
-    style codebase_i18n_cleanup fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style codebase_i18n_cleanup fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     codebase_i18n_cleanup -.-> new_user_onboarding
 
     %% @canvas_focus_subgraph_render [ai-task, closed, 2026-01-21, nam]
     canvas_focus_subgraph_render["Canvas Focus & Subgraph Render<br/><sub>Added RECENT node auto-focus on load<br/>and direction change. Implemented<br/>subgraph box rendering with dashed<br/>purple border and label display.</sub>"]
     canvas_text_blur_fix --> canvas_focus_subgraph_render
-    style canvas_focus_subgraph_render fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style canvas_focus_subgraph_render fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_focus_subgraph_render -.-> ultimate_goal
 
     %% @canvas_date_author_display [ai-task, closed, 2026-01-21, nam]
@@ -312,6 +318,12 @@ flowchart TD
     claude_code_integration --> stop_hook_reliability
     style stop_hook_reliability fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     stop_hook_reliability -.-> ultimate_goal
+
+    %% @local_claude_folder_conflict [ai-task, opened, 2026-01-23, nam]
+    local_claude_folder_conflict["Local .claude Folder Conflict<br/><sub>When .claude/settings.json exists in<br/>project, it overrides global hooks but<br/>may reference missing local hook files.<br/>Need graceful fallback to global hooks<br/>or clear error messaging for users.</sub>"]
+    claude_code_integration --> local_claude_folder_conflict
+    style local_claude_folder_conflict fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    local_claude_folder_conflict -.-> ultimate_goal
 
     %% @claude_code_global_install [ai-task, closed, 2026-01-16, nam]
     claude_code_global_install["Claude Code Install v2<br/><sub>Changed Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
@@ -385,6 +397,18 @@ flowchart TD
     %% @canvas_memory_issue [blocker, closed, 2026-01-21, nam]
     canvas_memory_issue["Canvas Renderer Memory Issue<br/><sub>Fixed Chrome tab freeze: added<br/>requestAnimationFrame rendering,<br/>SSE cleanup on reconnect/unload,<br/>and resize debouncing.</sub>"]
     canvas_renderer_impl --> canvas_memory_issue
+
+    %% @canvas_initial_zoom_bug [ai-task, opened, 2026-01-23, nam]
+    canvas_initial_zoom_bug["Canvas Initial Zoom Bug<br/><sub>Sometimes after server restart, zoom<br/>focuses on top-left instead of mouse<br/>position. Pan also doesn't work.<br/>Refresh fixes it. Intermittent issue.</sub>"]
+    canvas_renderer_impl --> canvas_initial_zoom_bug
+    style canvas_initial_zoom_bug fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    canvas_initial_zoom_bug -.-> ultimate_goal
+
+    %% @canvas_disappears_after_render [blocker, closed, 2026-01-23, nam]
+    canvas_disappears_after_render["Canvas SSE Newline Fix<br/><sub>Fixed canvas disappearing after SSE<br/>update. Newlines in mmd broke SSE<br/>protocol. Added encoding on server<br/>and decoding on client.</sub>"]
+    canvas_edge_regex_fix --> canvas_disappears_after_render
+    style canvas_disappears_after_render fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    canvas_disappears_after_render -.-> ultimate_goal
     style canvas_memory_issue fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_memory_issue -.-> ultimate_goal
 
