@@ -626,7 +626,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
     </style>
 </head>
 <body>
-    <!-- 툴바 -->
+    <!-- Toolbar -->
     <div class="toolbar">
         <button class="secondary" onclick="openInDefaultEditor()" title="Open in VS Code editor">📝 Edit Source</button>
 
@@ -1005,11 +1005,11 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
             parseMetadata(mermaidCode);
             const nodes = extractNodes(mermaidCode);
 
-            // 방향 드롭다운 동기화
+            // Sync direction dropdown
             const direction = extractDirection(mermaidCode);
             document.getElementById('flowDirection').value = direction;
 
-            // 연결 드롭다운 업데이트
+            // Update connection dropdown
             updateConnectDropdown(nodes);
 
             // Check for template state and show/hide init prompt
@@ -1022,7 +1022,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
             const codeWithDescriptions = addDescriptionsToCode(mermaidCode);
 
             try {
-                // 기존 SVG 제거
+                // Remove existing SVG
                 const existingSvg = document.getElementById('mermaid-svg');
                 if (existingSvg) existingSvg.remove();
 
@@ -1166,7 +1166,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
             });
             g.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const prompt = 'vizvibe.mmd 읽고 현재 상황 파악해줘.\\n\\n' +
+                const prompt = 'Read vizvibe.mmd and get the current context.\\n\\n' +
                     '[' + getNodeContent(nodeId) + ']';
                 vscode.postMessage({ type: 'runCodexForNode', prompt });
             });

@@ -398,21 +398,21 @@ flowchart TD
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
 
     %% === START ===
-    %% @project_start [start, closed]
+    %% @project_start [start, closed, 2026-01-09, nam]
     project_start("Viz Vibe Project Start<br/><sub>Graph-based context management tool<br/>that visualizes coding trajectory<br/>as a Mermaid flowchart, enabling<br/>persistent memory across AI sessions</sub>")
 
-    %% @ultimate_goal [end, opened]
+    %% @ultimate_goal [end, opened, 2026-01-09, nam]
     ultimate_goal("Solve the Context Problem<br/><sub>Enable developers to visualize their<br/>coding journey, persist memory across<br/>sessions, and seamlessly share context<br/>with any AI assistant regardless of platform</sub>")
 
     %% === COMPLETED WORK ===
-    %% @claude_code_integration [ai-task, closed]
+    %% @claude_code_integration [ai-task, closed, 2026-01-09, nam]
     claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages</sub>")
 
-    %% @install_scripts [ai-task, closed]
+    %% @install_scripts [ai-task, closed, 2026-01-09, nam]
     install_scripts("CLI Install Scripts<br/><sub>Developed curl-based one-liner<br/>installation scripts that set up<br/>Claude Code hooks and copy templates,<br/>with uninstall scripts for clean removal</sub>")
 
     %% === FUTURE WORK ===
-    %% @lib_packaging [ai-task, opened]
+    %% @lib_packaging [ai-task, opened, 2026-01-09, nam]
     lib_packaging("Multi-Language SDK<br/><sub>Package vizvibe functionality as<br/>installable SDKs for Python (PyPI),<br/>JavaScript (npm), and Java (Maven)<br/>to enable programmatic management</sub>")
 
     %% === CONNECTIONS ===
@@ -427,11 +427,11 @@ flowchart TD
     end
 
     %% === STYLES ===
-    %% Start node (teal)
-    style project_start fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
+    %% Start node (closed - soft purple)
+    style project_start fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
-    %% Ultimate Goal (muted gray)
-    style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
+    %% Ultimate Goal (opened - soft green)
+    style ultimate_goal fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 
     %% Closed tasks (soft purple)
     style claude_code_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
@@ -448,10 +448,10 @@ flowchart TD
 
 ### Key Patterns in This Example
 
-1. **Start & Goal nodes**: Project start (teal) and ultimate goal (gray) frame the trajectory
+1. **Date/Author metadata**: `[type, state, date, author]` format — tracks when and who created the node
 2. **Title + Description format**: `("Title<br/><sub>Line 1<br/>Line 2<br/>Line 3<br/>Line 4</sub>")` — 1 title + 3-4 description lines
 3. **Narrow and tall nodes**: Each line is ~30-35 characters, creating compact vertical nodes rather than wide horizontal ones
-4. **Metadata without description**: The `%% @node_id [type, state]` comment does NOT include a description — all descriptions go in the node content using `<sub>` tags
+4. **Metadata without description**: The `%% @node_id [type, state, date, author]` comment does NOT include a description — all descriptions go in the node content using `<sub>` tags
 5. **Clear separation**: Completed work (closed) vs Future work (opened)
 6. **RECENT subgraph**: Wrap the most recently worked-on node in `subgraph recent [RECENT]` to create a dashed purple border box labeled "RECENT", making it easy to spot the most recent work at a glance. Style the node inside with bright purple for extra emphasis.
 7. **Parallel branches from same parent**:
@@ -473,7 +473,7 @@ flowchart TD
     %% Current Goal: [describe immediate focus]
 
     %% === NODES ===
-    %% @node_id [type, state]
+    %% @node_id [type, state, date, author]
     node_id("Short Title<br/><sub>Multi-line description with<br/>line breaks for readability</sub>")
 
     %% === RECENT ===
@@ -505,7 +505,7 @@ node_id("Node Label")
 **IMPORTANT**: Each node should contain a **short title** (1 line) and a **detailed description** (3-4 lines) using the following format:
 
 ```mermaid
-%% @node_id [ai-task, closed]
+%% @node_id [ai-task, closed, 2026-01-09, nam]
 node_id("Short Title<br/><sub>First line of description that explains<br/>what this node is about and why,<br/>including technical details and<br/>any outcomes or dependencies</sub>")
 ```
 
@@ -513,7 +513,7 @@ node_id("Short Title<br/><sub>First line of description that explains<br/>what t
 
 - **Title line**: Keep short and descriptive (e.g., "Claude Code Hook Integration")
 - **Description in `<sub>` tag**: Write 3-4 lines with `<br/>` between each line
-- **Metadata comment**: Only contains `@node_id [type, state]` — NO description text
+- **Metadata comment**: Only contains `@node_id [type, state, date, author]` — NO description text
 - **Line width**: Keep each line around 30-35 characters to prevent wide nodes
 
 **Guidelines for descriptions:**
@@ -528,14 +528,14 @@ node_id("Short Title<br/><sub>First line of description that explains<br/>what t
 ❌ **Too short (lacks detail)**:
 
 ```mermaid
-%% @claude_code_integration [ai-task, closed]
+%% @claude_code_integration [ai-task, closed, 2026-01-09, nam]
 claude_code_integration("Claude Code Integration<br/><sub>Hook-based automation</sub>")
 ```
 
 ✅ **Good format — rich content with frequent line breaks**:
 
 ```mermaid
-%% @claude_code_integration [ai-task, closed]
+%% @claude_code_integration [ai-task, closed, 2026-01-09, nam]
 claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages</sub>")
 ```
 
@@ -557,9 +557,6 @@ claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-
 All nodes use dark background with colored borders:
 
 ```mermaid
-%% Start node (teal)
-style node fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
-
 %% Closed tasks (soft purple - like GitHub merged)
 style node fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
@@ -571,18 +568,13 @@ style node fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
 %% Blocker (soft red)
 style node fill:#1a1a2e,stroke:#f87171,color:#fca5a5,stroke-width:1px
-
-%% End/Goal (muted gray)
-style node fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
 ```
 
 **Color meanings:**
 
-- **Green border**: Open/TODO tasks
-- **Purple border**: Closed/Done tasks
+- **Green border**: Open/TODO tasks (including end/goal nodes)
+- **Purple border**: Closed/Done tasks (including start nodes)
 - **Bright purple (highlighted)**: Recent node (inside RECENT subgraph)
-- **Teal border**: Start node
-- **Gray border**: End/Goal node
 - **Red border**: Blocker
 
 ---

@@ -2,7 +2,6 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: ui_agent_launcher
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -269,8 +268,14 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        ui_agent_launcher
+        codebase_i18n_cleanup
     end
+
+    %% @codebase_i18n_cleanup [ai-task, closed, 2026-01-23, nam]
+    codebase_i18n_cleanup["Codebase I18N Cleanup<br/><sub>Translated all Korean comments and<br/>prompts to English. Updated VIZVIBE.md<br/>example to current design: date/author<br/>metadata, green=open, purple=closed.</sub>"]
+    vizvibe_i18n --> codebase_i18n_cleanup
+    style codebase_i18n_cleanup fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    codebase_i18n_cleanup -.-> new_user_onboarding
 
     %% @canvas_focus_subgraph_render [ai-task, closed, 2026-01-21, nam]
     canvas_focus_subgraph_render["Canvas Focus & Subgraph Render<br/><sub>Added RECENT node auto-focus on load<br/>and direction change. Implemented<br/>subgraph box rendering with dashed<br/>purple border and label display.</sub>"]
