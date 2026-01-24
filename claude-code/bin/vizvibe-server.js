@@ -1619,37 +1619,54 @@ function getCanvasHtml() {
 
         // Focus on RECENT subgraph or lastActive node
         function focusOnRecent() {
-            // Find the node that's in the RECENT subgraph or is lastActive
-            let targetNode = null;
-            
-            // Check if there's a 'recent' subgraph and find its nodes
+            const viewWidth = graphView.clientWidth;
+            const viewHeight = graphView.clientHeight;
+
+            // Priority 1: Check for 'recent' subgraph and focus on its bounding box
             const recentSubgraph = subgraphs.find(sg => sg.id === 'recent');
-            if (recentSubgraph && lastActiveNodeId) {
-                // Find the lastActive node
-                targetNode = nodes.find(n => n.id === lastActiveNodeId);
+            if (recentSubgraph && recentSubgraph.nodeIds.length > 0) {
+                // Calculate bounding box of all nodes in the RECENT subgraph
+                const sgNodes = recentSubgraph.nodeIds
+                    .map(id => nodes.find(n => n.id === id))
+                    .filter(n => n && n.width > 0);
+
+                if (sgNodes.length > 0) {
+                    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                    sgNodes.forEach(n => {
+                        minX = Math.min(minX, n.x);
+                        minY = Math.min(minY, n.y);
+                        maxX = Math.max(maxX, n.x + n.width);
+                        maxY = Math.max(maxY, n.y + n.height);
+                    });
+
+                    const targetCenterX = (minX + maxX) / 2;
+                    const targetCenterY = (minY + maxY) / 2;
+
+                    transform.scale = 0.8;
+                    transform.x = viewWidth / 2 - targetCenterX * transform.scale;
+                    transform.y = viewHeight / 2 - targetCenterY * transform.scale;
+                    render();
+                    return;
+                }
             }
-            
-            // Fallback to lastActive even without subgraph
-            if (!targetNode && lastActiveNodeId) {
-                targetNode = nodes.find(n => n.id === lastActiveNodeId);
+
+            // Priority 2: Focus on lastActive node
+            if (lastActiveNodeId) {
+                const targetNode = nodes.find(n => n.id === lastActiveNodeId);
+                if (targetNode && targetNode.width > 0) {
+                    const targetCenterX = targetNode.x + targetNode.width / 2;
+                    const targetCenterY = targetNode.y + targetNode.height / 2;
+
+                    transform.scale = 0.8;
+                    transform.x = viewWidth / 2 - targetCenterX * transform.scale;
+                    transform.y = viewHeight / 2 - targetCenterY * transform.scale;
+                    render();
+                    return;
+                }
             }
-            
-            // If we found a target, focus on it
-            if (targetNode && targetNode.width > 0) {
-                const viewWidth = graphView.clientWidth;
-                const viewHeight = graphView.clientHeight;
-                const targetCenterX = targetNode.x + targetNode.width / 2;
-                const targetCenterY = targetNode.y + targetNode.height / 2;
-                
-                // Set a reasonable zoom level
-                transform.scale = 0.8;
-                transform.x = viewWidth / 2 - targetCenterX * transform.scale;
-                transform.y = viewHeight / 2 - targetCenterY * transform.scale;
-                render();
-            } else {
-                // Fallback to fitToScreen if no target found
-                fitToScreen();
-            }
+
+            // Fallback to fitToScreen if nothing found
+            fitToScreen();
         }
 
         function changeDirection() {
@@ -1758,15 +1775,31 @@ function getCanvasHtml() {
             }
         });
 
-        // Init
-        fetch('/content').then(r => r.text()).then(code => {
-            mermaidCode = code;
-            resizeCanvas();
-            parseMermaid(mermaidCode);
-            render();
-            isFirstLoad = false;
-            setTimeout(focusOnRecent, 100);
-        });
+        // Init with retry logic for view dimensions
+        function initGraph() {
+            const width = graphView.clientWidth;
+            const height = graphView.clientHeight;
+
+            // If view dimensions not ready, retry
+            if (width === 0 || height === 0) {
+                setTimeout(initGraph, 50);
+                return;
+            }
+
+            fetch('/content').then(r => r.text()).then(code => {
+                mermaidCode = code;
+                resizeCanvas();
+                parseMermaid(mermaidCode);
+                // Use renderImmediate to ensure layout is complete before focus
+                renderImmediate();
+                isFirstLoad = false;
+                // Use requestAnimationFrame to ensure render is complete
+                requestAnimationFrame(() => {
+                    focusOnRecent();
+                });
+            });
+        }
+        initGraph();
         connectSSE();
     </script>
 </body>

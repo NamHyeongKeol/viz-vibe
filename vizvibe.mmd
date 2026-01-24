@@ -2,6 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
+    %% @lastActive: version_bump_0147
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -268,7 +269,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        canvas_disappears_after_render
+        version_bump_0147
     end
 
     %% @canvas_edge_regex_fix [ai-task, closed, 2026-01-23, nam]
@@ -398,16 +399,23 @@ flowchart TD
     canvas_memory_issue["Canvas Renderer Memory Issue<br/><sub>Fixed Chrome tab freeze: added<br/>requestAnimationFrame rendering,<br/>SSE cleanup on reconnect/unload,<br/>and resize debouncing.</sub>"]
     canvas_renderer_impl --> canvas_memory_issue
 
-    %% @canvas_initial_zoom_bug [ai-task, opened, 2026-01-23, nam]
-    canvas_initial_zoom_bug["Canvas Initial Zoom Bug<br/><sub>Sometimes after server restart, zoom<br/>focuses on top-left instead of mouse<br/>position. Pan also doesn't work.<br/>Refresh fixes it. Intermittent issue.</sub>"]
+    %% @canvas_initial_zoom_bug [ai-task, closed, 2026-01-23, nam]
+    canvas_initial_zoom_bug["Canvas Zoom & Focus Fix<br/><sub>Fixed two issues: 1) focusOnRecent now<br/>works with recentSubgraph alone (like SVG)<br/>2) Init waits for view dimensions and<br/>uses renderImmediate + rAF for timing.</sub>"]
     canvas_renderer_impl --> canvas_initial_zoom_bug
-    style canvas_initial_zoom_bug fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style canvas_initial_zoom_bug fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_initial_zoom_bug -.-> ultimate_goal
+
+    %% @version_bump_0147 [ai-task, closed, 2026-01-24, nam]
+    version_bump_0147["Version 0.1.47<br/><sub>Released version 0.1.47 with Canvas<br/>renderer fixes: zoom/focus on RECENT<br/>subgraph, init race condition fix,<br/>and SSE newline encoding.</sub>"]
+    canvas_initial_zoom_bug --> version_bump_0147
+    canvas_disappears_after_render --> version_bump_0147
+    style version_bump_0147 fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    version_bump_0147 -.-> ultimate_goal
 
     %% @canvas_disappears_after_render [blocker, closed, 2026-01-23, nam]
     canvas_disappears_after_render["Canvas SSE Newline Fix<br/><sub>Fixed canvas disappearing after SSE<br/>update. Newlines in mmd broke SSE<br/>protocol. Added encoding on server<br/>and decoding on client.</sub>"]
     canvas_edge_regex_fix --> canvas_disappears_after_render
-    style canvas_disappears_after_render fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style canvas_disappears_after_render fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_disappears_after_render -.-> ultimate_goal
     style canvas_memory_issue fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     canvas_memory_issue -.-> ultimate_goal
