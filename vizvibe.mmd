@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: version_bump_0147
+    %% @lastActive: local_claude_init_fix
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -269,7 +269,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        version_bump_0147
+        local_claude_init_fix
     end
 
     %% @canvas_edge_regex_fix [ai-task, closed, 2026-01-23, nam]
@@ -320,11 +320,17 @@ flowchart TD
     style stop_hook_reliability fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     stop_hook_reliability -.-> ultimate_goal
 
-    %% @local_claude_folder_conflict [ai-task, opened, 2026-01-23, nam]
+    %% @local_claude_folder_conflict [ai-task, closed, 2026-01-27, nam]
     local_claude_folder_conflict["Local .claude Folder Conflict<br/><sub>When .claude/settings.json exists in<br/>project, it overrides global hooks but<br/>may reference missing local hook files.<br/>Need graceful fallback to global hooks<br/>or clear error messaging for users.</sub>"]
     claude_code_integration --> local_claude_folder_conflict
-    style local_claude_folder_conflict fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style local_claude_folder_conflict fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     local_claude_folder_conflict -.-> ultimate_goal
+
+    %% @local_claude_init_fix [ai-task, closed, 2026-01-27, nam]
+    local_claude_init_fix["Local .claude Init Fix<br/><sub>vizvibe init now always creates local<br/>.claude/hooks/ with hook scripts and<br/>settings.json, preventing conflicts when<br/>Claude Code creates .claude/ later.<br/>Also merges with existing settings.</sub>"]
+    local_claude_folder_conflict --> local_claude_init_fix
+    style local_claude_init_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    local_claude_init_fix -.-> ultimate_goal
 
     %% @claude_code_global_install [ai-task, closed, 2026-01-16, nam]
     claude_code_global_install["Claude Code Install v2<br/><sub>Changed Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
@@ -409,7 +415,7 @@ flowchart TD
     version_bump_0147["Version 0.1.47<br/><sub>Released version 0.1.47 with Canvas<br/>renderer fixes: zoom/focus on RECENT<br/>subgraph, init race condition fix,<br/>and SSE newline encoding.</sub>"]
     canvas_initial_zoom_bug --> version_bump_0147
     canvas_disappears_after_render --> version_bump_0147
-    style version_bump_0147 fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style version_bump_0147 fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     version_bump_0147 -.-> ultimate_goal
 
     %% @canvas_disappears_after_render [blocker, closed, 2026-01-23, nam]

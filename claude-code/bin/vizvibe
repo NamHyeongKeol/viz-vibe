@@ -28,7 +28,143 @@ print_help() {
 }
 
 print_version() {
-    echo "Viz Vibe CLI v1.2.0"
+    echo "Viz Vibe CLI v1.3.0"
+}
+
+# Setup vizvibe hooks in local .claude folder
+# Always creates local hooks to prevent conflicts when Claude Code creates .claude/ later
+setup_local_claude_hooks() {
+    local LOCAL_CLAUDE="./.claude"
+    local LOCAL_HOOKS="$LOCAL_CLAUDE/hooks"
+    local LOCAL_SETTINGS="$LOCAL_CLAUDE/settings.json"
+
+    echo ""
+    echo "🔧 Setting up local Claude Code hooks..."
+
+    # Create .claude directory if it doesn't exist
+    mkdir -p "$LOCAL_CLAUDE"
+
+    # Create hooks directory if needed
+    mkdir -p "$LOCAL_HOOKS"
+
+    # Copy hook scripts from global installation
+    if [ -f "$VIZVIBE_HOME/scripts/read-vizvibe.js" ]; then
+        cp "$VIZVIBE_HOME/scripts/read-vizvibe.js" "$LOCAL_HOOKS/"
+        cp "$VIZVIBE_HOME/scripts/update-vizvibe.js" "$LOCAL_HOOKS/"
+        echo "   ✅ Copied hook scripts to $LOCAL_HOOKS/"
+    else
+        echo "   ⚠️  Global hook scripts not found. Skipping local hook setup."
+        return 0
+    fi
+
+    # Merge vizvibe hooks into local settings.json
+    if [ -f "$LOCAL_SETTINGS" ]; then
+        # Parse and merge using Node.js
+        MERGED_SETTINGS=$(node -e "
+const fs = require('fs');
+const settingsPath = '$LOCAL_SETTINGS';
+
+try {
+    // Vizvibe hooks with local paths
+    const vizvibeHooksToAdd = {
+        SessionStart: {
+            startup: { type: 'command', command: 'node \"\$CLAUDE_PROJECT_DIR/.claude/hooks/read-vizvibe.js\"' },
+            resume: { type: 'command', command: 'node \"\$CLAUDE_PROJECT_DIR/.claude/hooks/read-vizvibe.js\"' }
+        },
+        Stop: {
+            _default: { type: 'command', command: 'node \"\$CLAUDE_PROJECT_DIR/.claude/hooks/update-vizvibe.js\"' }
+        }
+    };
+
+    let settings = {};
+    if (fs.existsSync(settingsPath)) {
+        settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+    }
+
+    // Merge hooks
+    if (!settings.hooks) {
+        settings.hooks = {};
+    }
+
+    // Check if already installed
+    const existingStr = JSON.stringify(settings.hooks);
+    if (existingStr.includes('vizvibe') || existingStr.includes('read-vizvibe')) {
+        console.log('ALREADY_INSTALLED');
+        process.exit(0);
+    }
+
+    // SessionStart hooks - merge by matcher
+    if (!settings.hooks.SessionStart) {
+        settings.hooks.SessionStart = [];
+    }
+
+    for (const [matcher, hookToAdd] of Object.entries(vizvibeHooksToAdd.SessionStart)) {
+        let existingEntry = settings.hooks.SessionStart.find(e => e.matcher === matcher);
+        if (existingEntry) {
+            if (!existingEntry.hooks) existingEntry.hooks = [];
+            existingEntry.hooks.push(hookToAdd);
+        } else {
+            settings.hooks.SessionStart.push({ matcher, hooks: [hookToAdd] });
+        }
+    }
+
+    // Stop hooks - merge into hooks array
+    if (!settings.hooks.Stop) {
+        settings.hooks.Stop = [];
+    }
+
+    let existingStopEntry = settings.hooks.Stop.find(e => !e.matcher) || settings.hooks.Stop[0];
+    if (existingStopEntry) {
+        if (!existingStopEntry.hooks) existingStopEntry.hooks = [];
+        existingStopEntry.hooks.push(vizvibeHooksToAdd.Stop._default);
+    } else {
+        settings.hooks.Stop.push({ hooks: [vizvibeHooksToAdd.Stop._default] });
+    }
+
+    console.log(JSON.stringify(settings, null, 2));
+
+} catch (e) {
+    console.log('ERROR_PARSE:' + e.message);
+}
+" 2>/dev/null)
+
+        if [[ "$MERGED_SETTINGS" == ERROR_PARSE:* ]]; then
+            echo "   ⚠️  Could not parse local settings.json: ${MERGED_SETTINGS#ERROR_PARSE:}"
+            echo "   Please manually add vizvibe hooks to $LOCAL_SETTINGS"
+        elif [ "$MERGED_SETTINGS" = "ALREADY_INSTALLED" ]; then
+            echo "   ✅ Vizvibe hooks already configured in local settings.json"
+        else
+            # Backup and update
+            cp "$LOCAL_SETTINGS" "$LOCAL_SETTINGS.backup"
+            echo "$MERGED_SETTINGS" > "$LOCAL_SETTINGS"
+            echo "   ✅ Merged vizvibe hooks into $LOCAL_SETTINGS"
+            echo "   📦 Backup saved to $LOCAL_SETTINGS.backup"
+        fi
+    else
+        # Create new settings.json with vizvibe hooks
+        cat > "$LOCAL_SETTINGS" << 'SETTINGS_EOF'
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/read-vizvibe.js\"" }]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/read-vizvibe.js\"" }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/update-vizvibe.js\"" }]
+      }
+    ]
+  }
+}
+SETTINGS_EOF
+        echo "   ✅ Created $LOCAL_SETTINGS with vizvibe hooks"
+    fi
 }
 
 do_init() {
@@ -49,21 +185,26 @@ do_init() {
 
     cp "$TEMPLATE_PATH" ./vizvibe.mmd
     echo "✅ Created vizvibe.mmd"
-    
-    # Add .vizvibe-state.json to .gitignore if not already present
+
+    # Add vizvibe files to .gitignore if not already present
     if [ -f ".gitignore" ]; then
         if ! grep -q "\.vizvibe-state\.json" .gitignore 2>/dev/null; then
             echo "" >> .gitignore
-            echo "# Viz Vibe runtime state (Claude Code hooks)" >> .gitignore
+            echo "# Viz Vibe runtime state and backups" >> .gitignore
             echo ".vizvibe-state.json" >> .gitignore
-            echo "✅ Added .vizvibe-state.json to .gitignore"
+            echo ".claude/settings.json.backup" >> .gitignore
+            echo "✅ Added vizvibe files to .gitignore"
         fi
     else
-        echo "# Viz Vibe runtime state (Claude Code hooks)" > .gitignore
+        echo "# Viz Vibe runtime state and backups" > .gitignore
         echo ".vizvibe-state.json" >> .gitignore
-        echo "✅ Created .gitignore with .vizvibe-state.json"
+        echo ".claude/settings.json.backup" >> .gitignore
+        echo "✅ Created .gitignore with vizvibe files"
     fi
-    
+
+    # Always set up local .claude hooks (prevents conflicts when Claude Code creates .claude/ later)
+    setup_local_claude_hooks
+
     echo ""
     echo "💡 Next steps:"
     echo "   1. View the graph: vizvibe view"

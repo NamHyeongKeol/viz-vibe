@@ -30,10 +30,7 @@ A graph-based navigator plugin to track your coding trajectory, issues, and TODO
 ![Viz Vibe Preview](./assets/preview.png)
 
 ## 🚀 About
-
-**Viz Vibe** is an open-source **plugin** that provides a **graph-structured trajectory** as an interface for collaboration between humans and AI.
-
-> ⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management. Just give your AI the link `https://github.com/NamHyeongKeol/viz-vibe` and say **"plz setup vizvibe"**.
+⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management. Just give your AI the link `https://github.com/NamHyeongKeol/viz-vibe` and say **"plz setup vizvibe"**.
 
 Whatever vibe coding tool you use, your AI will generate a `vizvibe.mmd` file in your project root. **You just review the result.**
 
@@ -90,6 +87,8 @@ Additionally, summarizing your project's state as a graph perfectly solves the *
 > <summary>What gets created?</summary>
 >
 > - `vizvibe.mmd` — Your trajectory graph file
+> - `.claude/hooks/` — Local hook scripts for Claude Code
+> - `.claude/settings.json` — Hook configuration (merges with existing settings if present)
 > - `.vizvibe-state.json` added to `.gitignore` — Runtime state (auto-generated)
 >
 > </details>
