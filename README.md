@@ -30,7 +30,14 @@ A graph-based navigator plugin to track your coding trajectory, issues, and TODO
 ![Viz Vibe Preview](./assets/preview.png)
 
 ## 🚀 About
-⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management. Just give your AI the link `https://github.com/NamHyeongKeol/viz-vibe` and say **"plz setup vizvibe"**.
+⚡ **You don't need to read any documentation.** Your AI handles everything — from setup to daily management. 
+
+Just pass the message below to your AI agent.
+
+> ```bash
+> Read the README at this link https://github.com/NamHyeongKeol/viz-vibe and set up the vizvibe plugin in this project.
+> ```
+
 
 Whatever vibe coding tool you use, your AI will generate a `vizvibe.mmd` file in your project root. **You just review the result.**
 
@@ -44,17 +51,15 @@ The `vizvibe.mmd` file contains your project's graph — your trajectory, decisi
 
 <br>
 
-## 💡 Why We Built This
-
-As AI advances, it's becoming harder for humans to keep up with the context of their AI's work during vibe coding. The challenge is that someone — both humans and AIs — still needs to understand and manage what the AI is doing. That's why we started this project.
-
-Additionally, summarizing your project's state as a graph perfectly solves the **context overload problem** that occurs when AI conversations grow too long. What's the best way to maintain context when starting a new conversation without copy-pasting all previous history? Just use **Viz Vibe**.
-
----
-
-<br>
-
 ## 🚀 Getting Started
+
+### <span style="color: #a78bfa">For All Vibe Coders</span>
+
+Just pass the message below to your AI agent.
+
+> ```bash
+> Read the README at this link https://github.com/NamHyeongKeol/viz-vibe and set up the vizvibe plugin in this project.
+> ```
 
 ### <span style="color: #a78bfa">For Claude Code Users</span>
 
@@ -276,6 +281,16 @@ We welcome contributions! Whether it's:
 - 🔧 Code contributions
 
 Please open an issue or submit a pull request.
+
+---
+
+<br>
+
+## 💡 Why We Built This
+
+As AI advances, it's becoming harder for humans to keep up with the context of their AI's work during vibe coding. The challenge is that someone — both humans and AIs — still needs to understand and manage what the AI is doing. That's why we started this project.
+
+Additionally, summarizing your project's state as a graph perfectly solves the **context overload problem** that occurs when AI conversations grow too long. What's the best way to maintain context when starting a new conversation without copy-pasting all previous history? Just use **Viz Vibe**.
 
 ---
 
