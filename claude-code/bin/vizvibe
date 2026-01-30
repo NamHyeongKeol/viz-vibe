@@ -36,7 +36,7 @@ print_version() {
 setup_local_claude_hooks() {
     local LOCAL_CLAUDE="./.claude"
     local LOCAL_HOOKS="$LOCAL_CLAUDE/hooks"
-    local LOCAL_SETTINGS="$LOCAL_CLAUDE/settings.json"
+    local LOCAL_SETTINGS="$LOCAL_CLAUDE/settings.local.json"
 
     echo ""
     echo "🔧 Setting up local Claude Code hooks..."
@@ -57,7 +57,7 @@ setup_local_claude_hooks() {
         return 0
     fi
 
-    # Merge vizvibe hooks into local settings.json
+    # Merge vizvibe hooks into local settings.local.json
     if [ -f "$LOCAL_SETTINGS" ]; then
         # Parse and merge using Node.js
         MERGED_SETTINGS=$(node -e "
@@ -129,10 +129,10 @@ try {
 " 2>/dev/null)
 
         if [[ "$MERGED_SETTINGS" == ERROR_PARSE:* ]]; then
-            echo "   ⚠️  Could not parse local settings.json: ${MERGED_SETTINGS#ERROR_PARSE:}"
+            echo "   ⚠️  Could not parse local settings.local.json: ${MERGED_SETTINGS#ERROR_PARSE:}"
             echo "   Please manually add vizvibe hooks to $LOCAL_SETTINGS"
         elif [ "$MERGED_SETTINGS" = "ALREADY_INSTALLED" ]; then
-            echo "   ✅ Vizvibe hooks already configured in local settings.json"
+            echo "   ✅ Vizvibe hooks already configured in local settings.local.json"
         else
             # Backup and update
             cp "$LOCAL_SETTINGS" "$LOCAL_SETTINGS.backup"
@@ -192,13 +192,15 @@ do_init() {
             echo "" >> .gitignore
             echo "# Viz Vibe runtime state and backups" >> .gitignore
             echo ".vizvibe-state.json" >> .gitignore
-            echo ".claude/settings.json.backup" >> .gitignore
+            echo ".claude/settings.local.json" >> .gitignore
+            echo ".claude/settings.local.json.backup" >> .gitignore
             echo "✅ Added vizvibe files to .gitignore"
         fi
     else
         echo "# Viz Vibe runtime state and backups" > .gitignore
         echo ".vizvibe-state.json" >> .gitignore
-        echo ".claude/settings.json.backup" >> .gitignore
+        echo ".claude/settings.local.json" >> .gitignore
+        echo ".claude/settings.local.json.backup" >> .gitignore
         echo "✅ Created .gitignore with vizvibe files"
     fi
 

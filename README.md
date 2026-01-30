@@ -35,7 +35,7 @@ A graph-based navigator plugin to track your coding trajectory, issues, and TODO
 Just pass the message below to your AI agent.
 
 > ```
-> Set up vizvibe from https://github.com/NamHyeongKeol/viz-vibe - analyze MY project, not the example.
+> Read this link and set up vizvibe to analyze my project, not the example: https://github.com/NamHyeongKeol/viz-vibe
 > ```
 
 
@@ -58,7 +58,7 @@ The `vizvibe.mmd` file contains your project's graph — your trajectory, decisi
 Just pass the message below to your AI agent.
 
 > ```
-> Set up vizvibe from https://github.com/NamHyeongKeol/viz-vibe - analyze MY project, not the example.
+> Read this link and set up vizvibe in my language to analyze my project, not the example: https://github.com/NamHyeongKeol/viz-vibe
 > ```
 
 ### <span style="color: #a78bfa">For Claude Code Users</span>
