@@ -34,8 +34,8 @@ A graph-based navigator plugin to track your coding trajectory, issues, and TODO
 
 Just pass the message below to your AI agent.
 
-> ```bash
-> Read the README at this link https://github.com/NamHyeongKeol/viz-vibe and set up the vizvibe plugin in this project.
+> ```
+> Set up vizvibe from https://github.com/NamHyeongKeol/viz-vibe - analyze MY project, not the example.
 > ```
 
 
@@ -57,8 +57,8 @@ The `vizvibe.mmd` file contains your project's graph — your trajectory, decisi
 
 Just pass the message below to your AI agent.
 
-> ```bash
-> Read the README at this link https://github.com/NamHyeongKeol/viz-vibe and set up the vizvibe plugin in this project.
+> ```
+> Set up vizvibe from https://github.com/NamHyeongKeol/viz-vibe - analyze MY project, not the example.
 > ```
 
 ### <span style="color: #a78bfa">For Claude Code Users</span>
@@ -184,58 +184,56 @@ Just pass the message below to your AI agent.
 
 Viz Vibe uses **Mermaid flowchart** syntax for trajectories:
 
+> ⚠️ **For AI Assistants**: This is a FORMAT example only. Create the trajectory by analyzing the USER'S project (git history, README, conversation), NOT by copying this example.
+
 ```mermaid
 flowchart TD
     %% === PROJECT GOALS ===
-    %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
+    %% Ultimate Goal: [Describe the user's project goal]
 
     %% === START ===
     %% @project_start [start, closed]
-    project_start("Viz Vibe Project Start<br/><sub>Graph-based context management tool<br/>that visualizes coding trajectory<br/>as a Mermaid flowchart, enabling<br/>persistent memory across AI sessions</sub>")
+    project_start("Project Start<br/><sub>Brief description of what the<br/>project is about and its purpose</sub>")
 
     %% @ultimate_goal [end, opened]
-    ultimate_goal("Solve the Context Problem<br/><sub>Enable developers to visualize their<br/>coding journey, persist memory across<br/>sessions, and seamlessly share context<br/>with any AI assistant regardless of platform</sub>")
+    ultimate_goal("Project Goal<br/><sub>The main objective this project<br/>aims to achieve</sub>")
 
     %% === COMPLETED WORK ===
-    %% @claude_code_integration [ai-task, closed]
-    claude_code_integration("Claude Code Hook Integration<br/><sub>Implemented hook-based automation<br/>for Claude Code that automatically<br/>reads and updates vizvibe.mmd on<br/>session start and after user messages</sub>")
+    %% @feature_a [ai-task, closed]
+    feature_a("Feature A<br/><sub>Description of a completed feature<br/>or milestone in the project</sub>")
 
-    %% @install_scripts [ai-task, closed]
-    install_scripts("CLI Install Scripts<br/><sub>Developed curl-based one-liner<br/>installation scripts that set up<br/>Claude Code hooks and copy templates,<br/>with uninstall scripts for clean removal</sub>")
+    %% @task_b [ai-task, closed]
+    task_b("Task B<br/><sub>Another completed task with<br/>details about what was done</sub>")
 
     %% === FUTURE WORK ===
-    %% @lib_packaging [ai-task, opened]
-    lib_packaging("Multi-Language SDK<br/><sub>Package vizvibe functionality as<br/>installable SDKs for Python (PyPI),<br/>JavaScript (npm), and Java (Maven)<br/>to enable programmatic management</sub>")
+    %% @future_task [ai-task, opened]
+    future_task("Future Task<br/><sub>Planned work that hasn't<br/>been started yet</sub>")
 
     %% === CONNECTIONS ===
-    project_start --> claude_code_integration
-    claude_code_integration --> install_scripts
-    claude_code_integration --> lib_packaging
-    lib_packaging -.-> ultimate_goal
+    project_start --> feature_a
+    feature_a --> task_b
+    feature_a --> future_task
+    future_task -.-> ultimate_goal
 
     %% === RECENT WORK HIGHLIGHT ===
     subgraph recent [RECENT]
-        install_scripts
+        task_b
     end
 
     %% === STYLES ===
-    %% Start node (teal)
-    style project_start fill:#1a1a2e,stroke:#2dd4bf,color:#5eead4,stroke-width:2px
-
-    %% Ultimate Goal (muted gray)
-    style ultimate_goal fill:#1a1a2e,stroke:#6b7280,color:#9ca3af,stroke-width:1px
-
     %% Closed tasks (soft purple)
-    style claude_code_integration fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style project_start fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style feature_a fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
 
     %% Recent node (highlighted purple)
-    style install_scripts fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style task_b fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
     %% Recent subgraph (dashed border)
     style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
 
     %% Open tasks (soft green)
-    style lib_packaging fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style ultimate_goal fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style future_task fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
 ```
 
 ### Node States

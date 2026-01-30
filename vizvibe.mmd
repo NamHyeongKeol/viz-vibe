@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: local_claude_init_fix
+    %% @lastActive: example_content_confusion
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -269,7 +269,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        local_claude_init_fix
+        example_content_confusion
     end
 
     %% @canvas_edge_regex_fix [ai-task, closed, 2026-01-23, nam]
@@ -329,8 +329,14 @@ flowchart TD
     %% @local_claude_init_fix [ai-task, closed, 2026-01-27, nam]
     local_claude_init_fix["Local .claude Init Fix<br/><sub>vizvibe init now always creates local<br/>.claude/hooks/ with hook scripts and<br/>settings.json, preventing conflicts when<br/>Claude Code creates .claude/ later.<br/>Also merges with existing settings.</sub>"]
     local_claude_folder_conflict --> local_claude_init_fix
-    style local_claude_init_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style local_claude_init_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     local_claude_init_fix -.-> ultimate_goal
+
+    %% @example_content_confusion [ai-task, closed, 2026-01-28, nam]
+    example_content_confusion["Example Content Confusion Fix<br/><sub>Fixed: README/VIZVIBE.md examples now<br/>use generic placeholders (feature_a,<br/>task_b). Added warnings. Changed prompt<br/>to 'analyze MY project, not the example'</sub>"]
+    new_user_onboarding --> example_content_confusion
+    style example_content_confusion fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    example_content_confusion -.-> new_user_onboarding
 
     %% @claude_code_global_install [ai-task, closed, 2026-01-16, nam]
     claude_code_global_install["Claude Code Install v2<br/><sub>Changed Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
