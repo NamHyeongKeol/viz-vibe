@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: settings_local_json_fix
+    %% @lastActive: stop_hook_message_clarity
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -269,7 +269,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        settings_local_json_fix
+        stop_hook_message_clarity
     end
 
     %% @canvas_edge_regex_fix [ai-task, closed, 2026-01-23, nam]
@@ -341,8 +341,14 @@ flowchart TD
     %% @settings_local_json_fix [ai-task, closed, 2026-01-30, nam]
     settings_local_json_fix["Settings Local JSON Fix<br/><sub>Changed vizvibe init to write hooks<br/>to settings.local.json instead of<br/>settings.json. Keeps team settings<br/>clean, follows Claude Code convention.</sub>"]
     local_claude_init_fix --> settings_local_json_fix
-    style settings_local_json_fix fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style settings_local_json_fix fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     settings_local_json_fix -.-> ultimate_goal
+
+    %% @stop_hook_message_clarity [ai-task, closed, 2026-01-30, nam]
+    stop_hook_message_clarity["Stop Hook Message Clarity<br/><sub>Changed Stop hook reason to start with<br/>'[VizVibe] This is not an error' to<br/>clarify that 'Stop hook error' prefix<br/>from Claude Code is misleading.</sub>"]
+    settings_local_json_fix --> stop_hook_message_clarity
+    style stop_hook_message_clarity fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    stop_hook_message_clarity -.-> ultimate_goal
 
     %% @claude_code_global_install [ai-task, closed, 2026-01-16, nam]
     claude_code_global_install["Claude Code Install v2<br/><sub>Changed Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]

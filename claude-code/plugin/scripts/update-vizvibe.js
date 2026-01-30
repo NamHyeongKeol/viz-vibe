@@ -111,7 +111,7 @@ process.stdin.on('end', () => {
     // Output instruction for Claude to continue and update trajectory
     const response = {
       decision: "block",
-      reason: `Update vizvibe.mmd based on the work done in this session. Follow the format in the vizvibe skill.`
+      reason: `[VizVibe] This is not an error. Please update vizvibe.mmd with your work.`
     };
 
     process.stdout.write(JSON.stringify(response));
