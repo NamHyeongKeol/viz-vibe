@@ -1,10 +1,12 @@
-import * as vscode from 'vscode';
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { createInterface } from 'node:readline';
+import * as vscode from "vscode";
+import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { createInterface } from "node:readline";
 
-export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, vscode.Disposable {
-  public static readonly viewType = 'vizVibe.vizflowEditor';
-  
+export class VizFlowEditorProvider
+  implements vscode.CustomTextEditorProvider, vscode.Disposable
+{
+  public static readonly viewType = "vizVibe.vizflowEditor";
+
   // Track active webview panel for search command
   private static activeWebviewPanel: vscode.WebviewPanel | null = null;
   private codexRunner: CodexRunner | null = null;
@@ -17,8 +19,8 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
       provider,
       {
         webviewOptions: { retainContextWhenHidden: true },
-        supportsMultipleEditorsPerDocument: false
-      }
+        supportsMultipleEditorsPerDocument: false,
+      },
     );
     return vscode.Disposable.from(registration, provider);
   }
@@ -26,12 +28,14 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
   // Trigger search in the active webview (called from extension.ts via Cmd+F)
   public static triggerSearch(): void {
     if (VizFlowEditorProvider.activeWebviewPanel) {
-      VizFlowEditorProvider.activeWebviewPanel.webview.postMessage({ type: 'openSearch' });
+      VizFlowEditorProvider.activeWebviewPanel.webview.postMessage({
+        type: "openSearch",
+      });
     }
   }
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    this.codexOutput = vscode.window.createOutputChannel('Viz Vibe Codex');
+    this.codexOutput = vscode.window.createOutputChannel("Viz Vibe Codex");
   }
 
   public dispose(): void {
@@ -43,49 +47,62 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
   public async resolveCustomTextEditor(
     document: vscode.TextDocument,
     webviewPanel: vscode.WebviewPanel,
-    _token: vscode.CancellationToken
+    _token: vscode.CancellationToken,
   ): Promise<void> {
     webviewPanel.webview.options = { enableScripts: true };
     webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
     // Track this as the active webview panel
     VizFlowEditorProvider.activeWebviewPanel = webviewPanel;
-    
+
     // Update active panel when view state changes
-    webviewPanel.onDidChangeViewState(e => {
+    webviewPanel.onDidChangeViewState((e) => {
       if (e.webviewPanel.active) {
         VizFlowEditorProvider.activeWebviewPanel = e.webviewPanel;
-      }
-    });
-
-    // Handle messages from webview
-    webviewPanel.webview.onDidReceiveMessage(async (message) => {
-      if (message.type === 'update') {
-        const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), message.mermaidCode);
-        await vscode.workspace.applyEdit(edit);
-      } else if (message.type === 'openInDefaultEditor') {
-        // Open file in VS Code's default text editor for native search
-        await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
-      } else if (message.type === 'launchAgent') {
-        await this.launchAgent(message.agentId);
-      } else if (message.type === 'runCodexForNode') {
-        await this.runCodexForNode(message.prompt || '');
       }
     });
 
     // Send current content to webview
     const updateWebview = () => {
       const mermaidCode = document.getText();
-      webviewPanel.webview.postMessage({ type: 'load', mermaidCode });
+      webviewPanel.webview.postMessage({ type: "load", mermaidCode });
     };
 
-    // Watch for document changes
-    const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-      if (e.document.uri.toString() === document.uri.toString()) {
+    // Handle messages from webview
+    webviewPanel.webview.onDidReceiveMessage(async (message) => {
+      if (message.type === "ready") {
+        // Webview is ready, send initial content
         updateWebview();
+      } else if (message.type === "update") {
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(
+          document.uri,
+          new vscode.Range(0, 0, document.lineCount, 0),
+          message.mermaidCode,
+        );
+        await vscode.workspace.applyEdit(edit);
+      } else if (message.type === "openInDefaultEditor") {
+        // Open file in VS Code's default text editor for native search
+        await vscode.commands.executeCommand(
+          "vscode.openWith",
+          document.uri,
+          "default",
+        );
+      } else if (message.type === "launchAgent") {
+        await this.launchAgent(message.agentId);
+      } else if (message.type === "runCodexForNode") {
+        await this.runCodexForNode(message.prompt || "");
       }
     });
+
+    // Watch for document changes
+    const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(
+      (e) => {
+        if (e.document.uri.toString() === document.uri.toString()) {
+          updateWebview();
+        }
+      },
+    );
 
     webviewPanel.onDidDispose(() => {
       changeDocumentSubscription.dispose();
@@ -93,7 +110,6 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
         VizFlowEditorProvider.activeWebviewPanel = null;
       }
     });
-    updateWebview();
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
@@ -2141,25 +2157,59 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
         });
 
         updateTransform();
+
+        // Signal that webview is ready to receive data
+        vscode.postMessage({ type: 'ready' });
     </script>
 </body>
 </html>`;
   }
 
   private async launchAgent(agentId: string): Promise<void> {
-    const config = vscode.workspace.getConfiguration('vizVibe');
-    const agentMap: Record<string, { label: string; settingKey: string; defaultCommand: string; preferCommand?: string[] }> = {
-      'codex': { label: 'Codex', settingKey: 'agentCommands.codex', defaultCommand: 'codex' },
-      'claude-code': { label: 'Claude Code', settingKey: 'agentCommands.claudeCode', defaultCommand: 'claude' },
-      'opencode': { label: 'OpenCode', settingKey: 'agentCommands.openCode', defaultCommand: 'opencode' },
-      'cursor-agent': { label: 'Cursor Agent', settingKey: 'agentCommands.cursorAgent', defaultCommand: 'cursor-agent' },
-      'copilot': {
-        label: 'Copilot',
-        settingKey: 'agentCommands.copilot',
-        defaultCommand: '',
-        preferCommand: ['github.copilot.chat.open', 'github.copilot.chat.focus']
+    const config = vscode.workspace.getConfiguration("vizVibe");
+    const agentMap: Record<
+      string,
+      {
+        label: string;
+        settingKey: string;
+        defaultCommand: string;
+        preferCommand?: string[];
+      }
+    > = {
+      codex: {
+        label: "Codex",
+        settingKey: "agentCommands.codex",
+        defaultCommand: "codex",
       },
-      'kiro': { label: 'Kiro', settingKey: 'agentCommands.kiro', defaultCommand: 'kiro' }
+      "claude-code": {
+        label: "Claude Code",
+        settingKey: "agentCommands.claudeCode",
+        defaultCommand: "claude",
+      },
+      opencode: {
+        label: "OpenCode",
+        settingKey: "agentCommands.openCode",
+        defaultCommand: "opencode",
+      },
+      "cursor-agent": {
+        label: "Cursor Agent",
+        settingKey: "agentCommands.cursorAgent",
+        defaultCommand: "cursor-agent",
+      },
+      copilot: {
+        label: "Copilot",
+        settingKey: "agentCommands.copilot",
+        defaultCommand: "",
+        preferCommand: [
+          "github.copilot.chat.open",
+          "github.copilot.chat.focus",
+        ],
+      },
+      kiro: {
+        label: "Kiro",
+        settingKey: "agentCommands.kiro",
+        defaultCommand: "kiro",
+      },
     };
 
     const agent = agentMap[agentId];
@@ -2188,7 +2238,9 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
   private async runCodexForNode(prompt: string): Promise<void> {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) {
-      vscode.window.showErrorMessage('Viz Vibe: Please open a workspace to run Codex.');
+      vscode.window.showErrorMessage(
+        "Viz Vibe: Please open a workspace to run Codex.",
+      );
       return;
     }
     if (!this.codexRunner) {
@@ -2199,23 +2251,33 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
       this.codexOutput.show(true);
     } catch (error) {
       this.codexOutput.appendLine(`[error] ${String(error)}`);
-      vscode.window.showErrorMessage('Viz Vibe: Failed to run Codex. See output for details.');
+      vscode.window.showErrorMessage(
+        "Viz Vibe: Failed to run Codex. See output for details.",
+      );
     }
   }
 
-  private async resolveAgentCommand(agent: { label: string; settingKey: string; defaultCommand: string }): Promise<string | undefined> {
-    const config = vscode.workspace.getConfiguration('vizVibe');
+  private async resolveAgentCommand(agent: {
+    label: string;
+    settingKey: string;
+    defaultCommand: string;
+  }): Promise<string | undefined> {
+    const config = vscode.workspace.getConfiguration("vizVibe");
     let command = config.get<string>(agent.settingKey);
     if (!command) {
       command = await vscode.window.showInputBox({
         prompt: `Enter command to launch ${agent.label} (use {prompt} to inject text)`,
-        value: agent.defaultCommand || ''
+        value: agent.defaultCommand || "",
       });
       if (!command) {
         vscode.window.showInformationMessage(`${agent.label} launch canceled.`);
         return undefined;
       }
-      await config.update(agent.settingKey, command, vscode.ConfigurationTarget.Global);
+      await config.update(
+        agent.settingKey,
+        command,
+        vscode.ConfigurationTarget.Global,
+      );
     }
     return command;
   }
@@ -2224,7 +2286,7 @@ export class VizFlowEditorProvider implements vscode.CustomTextEditorProvider, v
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     const terminal = vscode.window.createTerminal({
       name: `Viz Vibe: ${label}`,
-      cwd: workspaceRoot
+      cwd: workspaceRoot,
     });
     terminal.show(true);
     terminal.sendText(command, true);
@@ -2239,12 +2301,15 @@ class CodexRunner {
   private readyPromise: Promise<void> | null = null;
   private readonly cwd: string;
 
-  constructor(private readonly output: vscode.OutputChannel, cwd: string) {
+  constructor(
+    private readonly output: vscode.OutputChannel,
+    cwd: string,
+  ) {
     this.cwd = cwd;
   }
 
   dispose(): void {
-    this.child?.kill('SIGINT');
+    this.child?.kill("SIGINT");
     this.child = null;
     this.rpc = null;
     this.threadId = null;
@@ -2255,16 +2320,16 @@ class CodexRunner {
   async sendPrompt(prompt: string): Promise<void> {
     await this.ensureReady();
     if (!this.rpc || !this.threadId) {
-      throw new Error('Codex app-server not ready.');
+      throw new Error("Codex app-server not ready.");
     }
-    this.output.appendLine('[codex] sending prompt');
-    const result = await this.rpc.request('turn/start', {
+    this.output.appendLine("[codex] sending prompt");
+    const result = await this.rpc.request("turn/start", {
       threadId: this.threadId,
       thread_id: this.threadId,
-      input: [{ type: 'text', text: prompt }],
+      input: [{ type: "text", text: prompt }],
       cwd: this.cwd,
-      approval_policy: 'on-request',
-      sandbox_policy: 'workspace-write'
+      approval_policy: "on-request",
+      sandbox_policy: "workspace-write",
     });
     const turnId = result?.turn_id ?? result?.turnId ?? null;
     if (turnId) {
@@ -2280,21 +2345,23 @@ class CodexRunner {
   }
 
   private async start(): Promise<void> {
-    this.output.appendLine('[codex] starting app-server');
-    const child = spawn('npx', ['-y', '@openai/codex@0.77.0', 'app-server'], {
+    this.output.appendLine("[codex] starting app-server");
+    const child = spawn("npx", ["-y", "@openai/codex@0.77.0", "app-server"], {
       cwd: this.cwd,
       env: {
-        NODE_NO_WARNINGS: '1',
-        NO_COLOR: '1',
-        RUST_LOG: 'error',
-        ...process.env
+        NODE_NO_WARNINGS: "1",
+        NO_COLOR: "1",
+        RUST_LOG: "error",
+        ...process.env,
       },
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ["pipe", "pipe", "pipe"],
     });
     this.child = child;
 
-    child.on('exit', (code, signal) => {
-      this.output.appendLine(`[codex] exited code=${code ?? 'null'} signal=${signal ?? 'null'}`);
+    child.on("exit", (code, signal) => {
+      this.output.appendLine(
+        `[codex] exited code=${code ?? "null"} signal=${signal ?? "null"}`,
+      );
       this.child = null;
       this.rpc = null;
       this.threadId = null;
@@ -2304,37 +2371,40 @@ class CodexRunner {
 
     const stdoutRl = createInterface({ input: child.stdout });
     const stderrRl = createInterface({ input: child.stderr });
-    stdoutRl.on('line', (line) => {
+    stdoutRl.on("line", (line) => {
       this.output.appendLine(`[codex] ${sanitizeCodexLine(line)}`);
       this.rpc?.handleLine(line);
     });
-    stderrRl.on('line', (line) => this.output.appendLine(`[codex:err] ${line}`));
+    stderrRl.on("line", (line) =>
+      this.output.appendLine(`[codex:err] ${line}`),
+    );
 
     const rpc = new JsonRpcClient(
       (line) => child.stdin.write(`${line}\n`),
-      () => {}
+      () => {},
     );
     this.rpc = rpc;
 
-    await rpc.request('initialize', {
-      clientInfo: { name: 'viz-vibe', version: '0.1.43' }
+    await rpc.request("initialize", {
+      clientInfo: { name: "viz-vibe", version: "0.1.43" },
     });
-    rpc.notify('initialized', {});
+    rpc.notify("initialized", {});
 
-    const auth = await rpc.request('getAuthStatus', {
+    const auth = await rpc.request("getAuthStatus", {
       includeToken: true,
-      refreshToken: false
+      refreshToken: false,
     });
-    const requiresAuth = auth?.requires_openai_auth ?? auth?.requiresOpenaiAuth ?? true;
+    const requiresAuth =
+      auth?.requires_openai_auth ?? auth?.requiresOpenaiAuth ?? true;
     const authMethod = auth?.auth_method ?? auth?.authMethod;
     if (requiresAuth && !authMethod) {
-      throw new Error('Codex authentication required');
+      throw new Error("Codex authentication required");
     }
 
-    const thread = await rpc.request('thread/start', {
+    const thread = await rpc.request("thread/start", {
       cwd: this.cwd,
-      approval_policy: 'on-request',
-      sandbox_policy: 'workspace-write'
+      approval_policy: "on-request",
+      sandbox_policy: "workspace-write",
     });
     const threadId =
       thread?.thread_id ??
@@ -2343,7 +2413,7 @@ class CodexRunner {
       thread?.thread?.thread_id ??
       thread?.thread?.threadId;
     if (!threadId) {
-      throw new Error('Codex missing thread id');
+      throw new Error("Codex missing thread id");
     }
     this.threadId = threadId;
     this.output.appendLine(`[codex] ready thread=${threadId}`);
@@ -2352,16 +2422,19 @@ class CodexRunner {
 
 class JsonRpcClient {
   private nextId = 1;
-  private pending = new Map<string, { resolve: (v: any) => void; reject: (e: Error) => void }>();
+  private pending = new Map<
+    string,
+    { resolve: (v: any) => void; reject: (e: Error) => void }
+  >();
 
   constructor(
     private write: (line: string) => void,
-    private onMessage: (msg: any) => void
+    private onMessage: (msg: any) => void,
   ) {}
 
   request(method: string, params?: unknown) {
     const id = String(this.nextId++);
-    const payload = { jsonrpc: '2.0', id, method, params };
+    const payload = { jsonrpc: "2.0", id, method, params };
     this.write(JSON.stringify(payload));
     return new Promise<any>((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
@@ -2369,7 +2442,7 @@ class JsonRpcClient {
   }
 
   notify(method: string, params?: unknown) {
-    const payload = { jsonrpc: '2.0', method, params };
+    const payload = { jsonrpc: "2.0", method, params };
     this.write(JSON.stringify(payload));
   }
 
@@ -2389,7 +2462,7 @@ class JsonRpcClient {
       this.pending.delete(key);
 
       if (msg.error) {
-        pending.reject(new Error(msg.error.message ?? 'JSON-RPC error'));
+        pending.reject(new Error(msg.error.message ?? "JSON-RPC error"));
       } else {
         pending.resolve(msg.result);
       }
@@ -2412,13 +2485,13 @@ function safeJsonParse(line: string): any | null {
 
 function sanitizeCodexLine(line: string): string {
   const msg = safeJsonParse(line);
-  if (!msg || typeof msg !== 'object') return line;
+  if (!msg || typeof msg !== "object") return line;
   const cloned = JSON.parse(JSON.stringify(msg));
   if (cloned?.result?.authToken) {
-    cloned.result.authToken = '[redacted]';
+    cloned.result.authToken = "[redacted]";
   }
   if (cloned?.result?.auth_token) {
-    cloned.result.auth_token = '[redacted]';
+    cloned.result.auth_token = "[redacted]";
   }
   return JSON.stringify(cloned);
 }
