@@ -2,7 +2,7 @@ flowchart TD
     %% === PROJECT GOALS ===
     %% Ultimate Goal: Make human-AI collaboration seamless with visual context maps
     %% Current Goal: Expand AI agent integrations to other platforms
-    %% @lastActive: stop_hook_message_clarity
+    %% @lastActive: graph_collapse_feature
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened, 2026-01-13, nam]
@@ -215,6 +215,13 @@ flowchart TD
     cursor_vsix_init_not_triggered --> cursor_hook_malfunction
     style cursor_hook_malfunction fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
     cursor_hook_malfunction -.-> ultimate_goal
+
+    %% @editor_reopen_with_issue [ai-task, opened, 2026-02-12, nam]
+    editor_reopen_with_issue["Graph Editor Auto-Open Issue<br/><sub>In VS Code, Cursor, and Antigravity,<br/>users must manually run 'Reopen Editor<br/>With... -> Viz Vibe Graph Editor' for<br/>vizvibe.mmd. Find a reliable fix to<br/>open with Viz Vibe by default.</sub>"]
+    vscode_extension --> editor_reopen_with_issue
+    cursor_vsix_init_not_triggered --> editor_reopen_with_issue
+    style editor_reopen_with_issue fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    editor_reopen_with_issue -.-> vscode_ext_ui_ux
     
     %% @graph_search_feature [ai-task, closed, 2026-01-10, nam]
     graph_search_feature["Graph Search (Cmd+F)<br/><sub>Implement search functionality<br/>in the graph viewer that allows<br/>users to find nodes by title or<br/>description using Cmd+F keyboard<br/>shortcut - TOP PRIORITY feature</sub>"]
@@ -269,7 +276,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        stop_hook_message_clarity
+        graph_collapse_feature
     end
 
     %% @canvas_edge_regex_fix [ai-task, closed, 2026-01-23, nam]
@@ -593,3 +600,38 @@ flowchart TD
     file_system_architecture --> vizvibe_folder_structure
     style vizvibe_folder_structure fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
     vizvibe_folder_structure -.-> ultimate_goal
+
+    %% === GRAPH COLLAPSE FEATURE ===
+    %% @graph_collapse_feature [milestone, opened, 2026-01-30, nam]
+    graph_collapse_feature["Subgraph Collapse Feature<br/><sub>Enable collapsing subgraphs into<br/>compact summary nodes to handle<br/>large vizvibe.mmd files. Click to<br/>expand/collapse grouped nodes.</sub>"]
+    vscode_extension --> graph_collapse_feature
+    style graph_collapse_feature fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    graph_collapse_feature -.-> vscode_ext_ui_ux
+
+    %% @collapse_state_model [ai-task, opened, 2026-01-30, nam]
+    collapse_state_model["Collapse State Model<br/><sub>Add collapsed:boolean state per<br/>subgraph. Store in VS Code workspace<br/>state for persistence across sessions.<br/>Track which subgraphs are collapsed.</sub>"]
+    graph_collapse_feature --> collapse_state_model
+    style collapse_state_model fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    collapse_state_model -.-> graph_collapse_feature
+
+    %% @collapse_canvas_render [ai-task, opened, 2026-01-30, nam]
+    collapse_canvas_render["Canvas Collapsed Rendering<br/><sub>Render collapsed subgraphs as single<br/>compact nodes showing group name and<br/>node count. Hide internal nodes/edges.<br/>Maintain proper edge connections.</sub>"]
+    graph_collapse_feature --> collapse_canvas_render
+    collapse_state_model --> collapse_canvas_render
+    style collapse_canvas_render fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    collapse_canvas_render -.-> graph_collapse_feature
+
+    %% @collapse_svg_render [ai-task, opened, 2026-01-30, nam]
+    collapse_svg_render["SVG Collapsed Rendering<br/><sub>Implement same collapse behavior<br/>in SVG/Mermaid renderer. Inject<br/>modified mermaid code with hidden<br/>nodes replaced by summary node.</sub>"]
+    graph_collapse_feature --> collapse_svg_render
+    collapse_state_model --> collapse_svg_render
+    style collapse_svg_render fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    collapse_svg_render -.-> graph_collapse_feature
+
+    %% @collapse_toggle_ui [ai-task, opened, 2026-01-30, nam]
+    collapse_toggle_ui["Collapse Toggle Interaction<br/><sub>Add clickable collapse/expand button<br/>on subgraph headers. Double-click or<br/>icon click to toggle. Visual indicator<br/>for collapsed state (▶/▼ arrow).</sub>"]
+    graph_collapse_feature --> collapse_toggle_ui
+    collapse_canvas_render --> collapse_toggle_ui
+    collapse_svg_render --> collapse_toggle_ui
+    style collapse_toggle_ui fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    collapse_toggle_ui -.-> graph_collapse_feature
