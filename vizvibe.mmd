@@ -357,6 +357,13 @@ flowchart TD
     style stop_hook_message_clarity fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
     stop_hook_message_clarity -.-> ultimate_goal
 
+    %% @claude_post_push_update_issue [ai-task, opened, 2026-02-12, nam]
+    claude_post_push_update_issue["Claude Post-Push Update Friction<br/><sub>In Claude Code, creating/updating<br/>trajectory after running git push is<br/>annoying. Improve flow so vizvibe.mmd<br/>is updated before push, or provide a<br/>more automatic pre-push guide/check.</sub>"]
+    stop_hook_message_clarity --> claude_post_push_update_issue
+    vizvibe_doc_commit_reminder --> claude_post_push_update_issue
+    style claude_post_push_update_issue fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    claude_post_push_update_issue -.-> ultimate_goal
+
     %% @claude_code_global_install [ai-task, closed, 2026-01-16, nam]
     claude_code_global_install["Claude Code Install v2<br/><sub>Changed Claude Code installation to<br/>global setup (like VS Code extension),<br/>so users install once and just run<br/>initialize per repo/directory instead<br/>of installing separately per project</sub>"]
     claude_code_integration --> claude_code_global_install
