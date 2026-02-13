@@ -541,6 +541,7 @@ function getHtml() {
         mermaid.initialize({
             startOnLoad: false,
             theme: 'dark',
+            maxTextSize: 200000,
             flowchart: {
                 useMaxWidth: false,
                 htmlLabels: true,

@@ -827,6 +827,7 @@ export class VizFlowEditorProvider
         mermaid.initialize({
             startOnLoad: false,
             theme: 'dark',
+            maxTextSize: 200000,
             flowchart: {
                 useMaxWidth: false,
                 htmlLabels: true,
