@@ -2,7 +2,7 @@
 flowchart TD
     %% === PROJECT GOALS ===
     %% Goal: Expand AI agent integrations
-    %% @lastActive: graph_collapse_feature
+    %% @lastActive: codex_response_editor_view
 
     %% === NEW USER ONBOARDING ===
     %% @new_user_onboarding [ai-task, opened]
@@ -276,7 +276,7 @@ flowchart TD
     figma_scroll_pan["Figma-Style Pan Navigation<br/><sub>Enable panning the graph view using<br/>scroll gestures (up/down/left/right)<br/>like Figma, with Ctrl/Cmd+scroll or<br/>pinch for zooming operations</sub>"]
 
     subgraph recent [RECENT]
-        graph_collapse_feature
+        codex_response_editor_view
     end
 
     %% @canvas_edge_regex_fix [ai-task, closed]
@@ -529,6 +529,12 @@ flowchart TD
     ui_agent_launcher["In-UI Agent Launcher<br/><sub>Run agents directly from the UI<br/>with quick actions for Codex, Claude Code,<br/>OpenCode, Cursor Agent, Copilot, Kiro</sub>"]
     vscode_extension --> ui_agent_launcher
     ui_agent_launcher -.-> vscode_ext_ui_ux
+
+    %% @codex_response_editor_view [ai-task, closed]
+    codex_response_editor_view["Codex Response Editor View<br/><sub>Updated node-play Codex flow to<br/>show final assistant response in<br/>a markdown editor tab with progress<br/>notification, not only Output logs</sub>"]
+    ui_agent_launcher --> codex_response_editor_view
+    codex_response_editor_view -.-> vscode_ext_ui_ux
+    style codex_response_editor_view fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
 
     %% Previous active node
     style subgraph_search_improvement fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px

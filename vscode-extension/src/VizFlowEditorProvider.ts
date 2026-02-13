@@ -2276,14 +2276,66 @@ export class VizFlowEditorProvider
       this.codexRunner = new CodexRunner(this.codexOutput, workspaceRoot);
     }
     try {
-      await this.codexRunner.sendPrompt(prompt);
-      this.codexOutput.show(true);
+      const response = await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Viz Vibe: Running Codex...",
+          cancellable: false,
+        },
+        async () => this.codexRunner!.sendPrompt(prompt),
+      );
+      if (response && response.trim().length > 0) {
+        await this.showCodexResponse(prompt, response);
+      } else {
+        const action = await vscode.window.showInformationMessage(
+          "Viz Vibe: Codex completed without a final message.",
+          "Open Logs",
+        );
+        if (action === "Open Logs") {
+          this.codexOutput.show(true);
+        }
+      }
     } catch (error) {
       this.codexOutput.appendLine(`[error] ${String(error)}`);
-      vscode.window.showErrorMessage(
+      const action = await vscode.window.showErrorMessage(
         "Viz Vibe: Failed to run Codex. See output for details.",
+        "Open Logs",
       );
+      if (action === "Open Logs") {
+        this.codexOutput.show(true);
+      }
     }
+  }
+
+  private async showCodexResponse(
+    prompt: string,
+    response: string,
+  ): Promise<void> {
+    const promptQuote = prompt
+      .split("\n")
+      .map((line) => `> ${line}`)
+      .join("\n");
+    const content = [
+      "# Viz Vibe Codex Response",
+      "",
+      "## Prompt",
+      promptQuote || "> (empty prompt)",
+      "",
+      "## Response",
+      response,
+      "",
+      "---",
+      `_Generated: ${new Date().toLocaleString()}_`,
+    ].join("\n");
+
+    const doc = await vscode.workspace.openTextDocument({
+      language: "markdown",
+      content,
+    });
+    await vscode.window.showTextDocument(doc, {
+      viewColumn: vscode.ViewColumn.Beside,
+      preview: true,
+    });
   }
 
   private async resolveAgentCommand(agent: {
@@ -2322,6 +2374,12 @@ export class VizFlowEditorProvider
   }
 }
 
+type PendingTurn = {
+  resolve: (message: string | null) => void;
+  reject: (error: Error) => void;
+  timeout: ReturnType<typeof setTimeout>;
+};
+
 class CodexRunner {
   private child: ChildProcessWithoutNullStreams | null = null;
   private rpc: JsonRpcClient | null = null;
@@ -2329,6 +2387,7 @@ class CodexRunner {
   private turnId: string | null = null;
   private readyPromise: Promise<void> | null = null;
   private readonly cwd: string;
+  private pendingTurns = new Map<string, PendingTurn>();
 
   constructor(
     private readonly output: vscode.OutputChannel,
@@ -2344,9 +2403,10 @@ class CodexRunner {
     this.threadId = null;
     this.turnId = null;
     this.readyPromise = null;
+    this.rejectAllPending(new Error("Codex runner disposed."));
   }
 
-  async sendPrompt(prompt: string): Promise<void> {
+  async sendPrompt(prompt: string): Promise<string | null> {
     await this.ensureReady();
     if (!this.rpc || !this.threadId) {
       throw new Error("Codex app-server not ready.");
@@ -2361,10 +2421,22 @@ class CodexRunner {
       sandbox_policy: "workspace-write",
     });
     const turnId = result?.turn_id ?? result?.turnId ?? null;
-    if (turnId) {
-      this.turnId = turnId;
-      this.output.appendLine(`[codex] turn started id=${turnId}`);
+    if (!turnId || typeof turnId !== "string") {
+      return null;
     }
+    this.turnId = turnId;
+    this.output.appendLine(`[codex] turn started id=${turnId}`);
+
+    return new Promise<string | null>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        const pending = this.pendingTurns.get(turnId);
+        if (!pending) return;
+        this.pendingTurns.delete(turnId);
+        pending.resolve(null);
+      }, 5 * 60 * 1000);
+
+      this.pendingTurns.set(turnId, { resolve, reject, timeout });
+    });
   }
 
   private async ensureReady(): Promise<void> {
@@ -2396,6 +2468,11 @@ class CodexRunner {
       this.threadId = null;
       this.turnId = null;
       this.readyPromise = null;
+      this.rejectAllPending(
+        new Error(
+          `Codex app-server exited (code=${code ?? "null"}, signal=${signal ?? "null"}).`,
+        ),
+      );
     });
 
     const stdoutRl = createInterface({ input: child.stdout });
@@ -2410,12 +2487,12 @@ class CodexRunner {
 
     const rpc = new JsonRpcClient(
       (line) => child.stdin.write(`${line}\n`),
-      () => {},
+      (msg) => this.handleRpcMessage(msg),
     );
     this.rpc = rpc;
 
     await rpc.request("initialize", {
-      clientInfo: { name: "viz-vibe", version: "0.1.43" },
+      clientInfo: { name: "viz-vibe", version: "0.1.50" },
     });
     rpc.notify("initialized", {});
 
@@ -2446,6 +2523,64 @@ class CodexRunner {
     }
     this.threadId = threadId;
     this.output.appendLine(`[codex] ready thread=${threadId}`);
+  }
+
+  private handleRpcMessage(msg: any): void {
+    const method = msg?.method;
+    if (method === "codex/event/task_complete") {
+      const turnId = msg?.params?.id ?? msg?.params?.msg?.turn_id;
+      const response = msg?.params?.msg?.last_agent_message;
+      this.resolvePendingTurn(
+        turnId,
+        typeof response === "string" ? response : null,
+      );
+      return;
+    }
+
+    if (method === "codex/event/error") {
+      const turnId = msg?.params?.id ?? msg?.params?.msg?.turn_id;
+      const message = msg?.params?.msg?.message;
+      if (typeof message === "string") {
+        this.rejectPendingTurn(turnId, new Error(message));
+      }
+      return;
+    }
+
+    if (method === "turn/completed") {
+      const turn = msg?.params?.turn;
+      if (turn?.status === "failed") {
+        this.rejectPendingTurn(
+          turn?.id,
+          new Error(turn?.error?.message ?? "Codex turn failed."),
+        );
+      }
+    }
+  }
+
+  private resolvePendingTurn(turnId: unknown, message: string | null): void {
+    if (typeof turnId !== "string") return;
+    const pending = this.pendingTurns.get(turnId);
+    if (!pending) return;
+    clearTimeout(pending.timeout);
+    this.pendingTurns.delete(turnId);
+    pending.resolve(message);
+  }
+
+  private rejectPendingTurn(turnId: unknown, error: Error): void {
+    if (typeof turnId !== "string") return;
+    const pending = this.pendingTurns.get(turnId);
+    if (!pending) return;
+    clearTimeout(pending.timeout);
+    this.pendingTurns.delete(turnId);
+    pending.reject(error);
+  }
+
+  private rejectAllPending(error: Error): void {
+    for (const pending of this.pendingTurns.values()) {
+      clearTimeout(pending.timeout);
+      pending.reject(error);
+    }
+    this.pendingTurns.clear();
   }
 }
 
