@@ -604,6 +604,20 @@ function getHtml() {
             document.getElementById('zoomLevel').textContent = Math.round(transform.scale * 100) + '%';
         }
 
+        // Remove non-directive comments before render to keep Mermaid input size smaller.
+        function compactCodeForRender(code) {
+            const lines = code.split('\\n');
+            const compact = [];
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('%%') && !trimmed.startsWith('%%{')) {
+                    continue;
+                }
+                compact.push(line);
+            }
+            return compact.join('\\n');
+        }
+
         // Extract nodes from mermaid code
         function extractNodes(code) {
             const nodes = [];
@@ -675,8 +689,8 @@ function getHtml() {
             updateInitPrompt(isTemplateState(nodes));
 
             try {
-                // Use mermaidCode directly - no need to modify it
-                const { svg } = await mermaid.render('mermaid-svg', mermaidCode);
+                const renderCode = compactCodeForRender(mermaidCode);
+                const { svg } = await mermaid.render('mermaid-svg', renderCode);
                 output.innerHTML = svg;
 
                 // Node click handlers

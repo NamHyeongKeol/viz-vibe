@@ -822,6 +822,7 @@ export class VizFlowEditorProvider
         let isFirstLoad = true;
         // Flag for focusing on RECENT after direction change
         let pendingFocusOnRecent = false;
+        let hasShownLargeDiagramWarning = false;
 
         // Mermaid initialization
         mermaid.initialize({
@@ -911,6 +912,21 @@ export class VizFlowEditorProvider
             const wrapper = document.getElementById('canvas-wrapper');
             wrapper.style.transform = 'translate(' + transform.x + 'px, ' + transform.y + 'px) scale(' + transform.scale + ')';
             document.getElementById('zoomLevel').innerText = Math.round(transform.scale * 100) + '%';
+        }
+
+        // Reduce render payload size by removing non-directive comments.
+        // Metadata parsing already happened before rendering.
+        function compactCodeForRender(code) {
+            const lines = code.split('\\n');
+            const compact = [];
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('%%') && !trimmed.startsWith('%%{')) {
+                    continue;
+                }
+                compact.push(line);
+            }
+            return compact.join('\\n');
         }
 
         // Add descriptions and date/author to node definitions before rendering
@@ -1035,15 +1051,27 @@ export class VizFlowEditorProvider
 
             const container = document.getElementById('mermaid-output');
 
+            const compactCode = compactCodeForRender(mermaidCode);
+
             // Add descriptions to code for proper node sizing
-            const codeWithDescriptions = addDescriptionsToCode(mermaidCode);
+            const codeWithDescriptions = addDescriptionsToCode(compactCode);
+            let renderCode = codeWithDescriptions;
+            if (codeWithDescriptions.length > 49000) {
+                renderCode = compactCode;
+                if (!hasShownLargeDiagramWarning) {
+                    hasShownLargeDiagramWarning = true;
+                    showToast('Large diagram detected. Rendering without metadata overlay for stability.');
+                }
+            } else {
+                hasShownLargeDiagramWarning = false;
+            }
 
             try {
                 // Remove existing SVG
                 const existingSvg = document.getElementById('mermaid-svg');
                 if (existingSvg) existingSvg.remove();
 
-                const { svg } = await mermaid.render('mermaid-svg', codeWithDescriptions);
+                const { svg } = await mermaid.render('mermaid-svg', renderCode);
                 container.innerHTML = svg;
 
                 // Node click/right-click/double-click events
