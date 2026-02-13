@@ -2375,7 +2375,7 @@ class CodexRunner {
 
   private async start(): Promise<void> {
     this.output.appendLine("[codex] starting app-server");
-    const child = spawn("npx", ["-y", "@openai/codex@0.77.0", "app-server"], {
+    const child = spawn("npx", ["-y", "@openai/codex@latest", "app-server"], {
       cwd: this.cwd,
       env: {
         NODE_NO_WARNINGS: "1",
